@@ -1,247 +1,844 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>识字卡片幻灯片</title>
-  <style>
-    body {
-      font-family: "Microsoft YaHei", sans-serif;
-      background: #f0f8ff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .container {
-      width: 100%;
-      max-width: 900px;
-      text-align: center;
-    }
-    .slide {
-      display: none;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-      padding: 40px;
-      margin: 20px auto;
-      animation: fadeIn 0.8s ease-in-out;
-    }
-    .slide.active {
-      display: block;
-    }
-    .hanzi {
-      font-size: 180px;
-      font-weight: bold;
-      color: #333;
-      line-height: 1;
-      margin-bottom: 10px;
-      text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
-    }
-    .pinyin {
-      font-size: 48px;
-      color: #e63946;
-      margin: 10px 0;
-    }
-    .number {
-      font-size: 28px;
-      color: #666;
-      margin-bottom: 20px;
-    }
-    .image {
-      width: 300px;
-      height: 200px;
-      margin: 20px auto;
-      background: #eee;
-      border: 2px dashed #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #999;
-      font-size: 18px;
-      display:none;
-    }
-    .controls {
-      margin-top: 30px;
-    }
-    button {
-      background: #0077b6;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 18px;
-      border-radius: 8px;
-      margin: 0 10px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: #023e8a;
-    }
-    .dots {
-      margin: 20px 0 0;
-    }
-    .dot {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      background: #ccc;
-      border-radius: 50%;
-      margin: 0 5px;
-      cursor: pointer;
-    }
-    .dot.active {
-      background: #0077b6;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>动态识字卡片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "STKaiti", "FZKai-Z03S", "华文楷体", "方正楷体", "KaiTi", "楷体", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #2d3748;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 输入界面 */
+        .input-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 50px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+            .input-section h2 {
+                color: #333;
+                margin-bottom: 30px;
+                font-size: 28px;
+            }
+
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        #wordInput {
+            width: 100%;
+            padding: 20px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+            #wordInput:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+        .input-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* 学习界面 - 全屏居中 */
+        .learning-section {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: #2d3748;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+            .learning-section.active {
+                display: flex;
+            }
+
+        .slide {
+            text-align: center;
+            color: white;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .hanzi {
+            font-size: 25vw;
+            font-weight: normal;
+            line-height: 1;
+            margin-bottom: 20px;
+            color: #f7fafc;
+            text-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            animation: pulse 2s ease-in-out infinite alternate;
+            font-family: "STKaiti", "FZKai-Z03S", "华文楷体", "方正楷体", "KaiTi", "楷体", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+
+
+        .word-info {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            font-size: 1.5vw;
+            color: #e2e8f0;
+            background: rgba(45, 55, 72, 0.8);
+            padding: 15px 25px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.2);
+        }
+
+        .progress {
+            position: absolute;
+            bottom: 200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 8px;
+            background: rgba(74, 85, 104, 0.6);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1, #63b3ed);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 20px rgba(66, 153, 225, 0.4);
+        }
+
+        /* 控制面板 */
+        .control-panel {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(45, 55, 72, 0.9);
+            border-radius: 80px;
+            padding: 25px 40px;
+            display: flex;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(226, 232, 240, 0.3);
+            opacity: 1;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn {
+            width: 80px;
+            height: 80px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(74, 85, 104, 0.6);
+            color: #e2e8f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 24px;
+            font-weight: bold;
+            border: 2px solid rgba(226, 232, 240, 0.3);
+        }
+
+            .control-btn:hover {
+                background: rgba(113, 128, 150, 0.8);
+                transform: scale(1.1);
+                border-color: rgba(226, 232, 240, 0.6);
+                color: #f7fafc;
+            }
+
+            .control-btn.active {
+                background: #4299e1;
+                color: #ffffff;
+                border-color: #4299e1;
+                box-shadow: 0 0 20px rgba(66, 153, 225, 0.4);
+            }
+
+        /* 速度控制 */
+        .speed-panel {
+            position: fixed;
+            top: 50px;
+            right: 50px;
+            background: rgba(45, 55, 72, 0.8);
+            border-radius: 25px;
+            padding: 15px 25px;
+            color: #e2e8f0;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.2);
+            opacity: 1;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #speedRange {
+            width: 120px;
+        }
+
+        /* 通用按钮样式 */
+        button {
+            background: rgba(74, 85, 104, 0.8);
+            color: #e2e8f0;
+            border: 2px solid rgba(226, 232, 240, 0.3);
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+            button:hover {
+                background: rgba(113, 128, 150, 0.9);
+                border-color: rgba(226, 232, 240, 0.5);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                color: #f7fafc;
+            }
+
+            button:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        /* 完成界面 */
+        .completion-screen {
+            text-align: center;
+            color: white;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .completion-icon {
+            font-size: 8vw;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+
+        .completion-text {
+            font-size: 3vw;
+            margin-bottom: 50px;
+        }
+
+        /* 动画效果 */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px) scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-30px);
+            }
+
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        /* 示例选择模态窗口 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+            .modal-overlay.active {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                animation: fadeIn 0.3s ease-out;
+            }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2d3748;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .example-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .example-item {
+            padding: 15px 20px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+            .example-item:hover {
+                background: #edf2f7;
+                border-color: #4299e1;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(66, 153, 225, 0.15);
+            }
+
+        .example-title {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .example-content {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            color: #718096;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+            .modal-close:hover {
+                background: #edf2f7;
+                color: #2d3748;
+            }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hanzi {
+                font-size: 35vw;
+            }
+
+            .word-info {
+                font-size: 3vw;
+                top: 20px;
+                left: 20px;
+            }
+
+            .control-panel {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .control-btn {
+                width: 70px;
+                height: 70px;
+                font-size: 22px;
+            }
+
+            .speed-panel {
+                top: 20px;
+                right: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <!-- 输入界面 -->
+        <div class="input-section" id="inputSection">
+            <h2>🎯 识字卡片学习</h2>
+            <div class="input-area">
+                <input type="text" id="wordInput" placeholder="请输入汉字或词组，支持多种分隔符，例如：苹果 香蕉,西瓜，草莓；橙子｜葡萄">
+                <div class="input-buttons">
+                    <button id="startBtn">🚀 开始学习</button>
+                    <button id="clearBtn">🗑️ 清空</button>
+                    <button id="exampleBtn">💡 选择示例</button>
+                </div>
+                <div style="margin-top: 20px; color: #666; font-size: 14px;">
+                    💡 提示：支持键盘操作 - 左右键翻页，空格键播放/暂停<br>
+                    🔤 支持多种分隔符：空格、逗号、分号、竖线等
+                </div>
+            </div>
+        </div>
 
-  <div class="container">
-    <h1 style="color: #0077b6; display:none;">识字卡片学习</h1>
+        <!-- 示例选择模态窗口 -->
+        <div class="modal-overlay" id="exampleModal">
+            <div class="modal-content">
+                <button class="modal-close" id="modalClose">×</button>
+                <div class="modal-header">选择学习示例</div>
+                <div class="example-list" id="exampleList"></div>
+            </div>
+        </div>
 
-    <!-- 幻灯片容器 -->
-    <div id="slides">
-      <!-- 卡片 1 -->
-      <div class="slide active">
-        <div class="hanzi">八</div>
-        <div class="pinyin">bā</div>
-        <div class="number">编号：0021</div>
-        <div class="image">[图片：八]</div>
-      </div>
-      <!-- 卡片 2 -->
-      <div class="slide">
-        <div class="hanzi">九</div>
-        <div class="pinyin">jiǔ</div>
-        <div class="number">编号：0022</div>
-        <div class="image">[图片：九]</div>
-      </div>
-      <!-- 卡片 3 -->
-      <div class="slide">
-        <div class="hanzi">十</div>
-        <div class="pinyin">shí</div>
-        <div class="number">编号：0023</div>
-        <div class="image">[图片：十]</div>
-      </div>
-      <!-- 卡片 4 -->
-      <div class="slide">
-        <div class="hanzi">马</div>
-        <div class="pinyin">mǎ</div>
-        <div class="number">编号：0024</div>
-        <div class="image">[图片：马]</div>
-      </div>
-      <!-- 卡片 5 -->
-      <div class="slide">
-        <div class="hanzi">牛</div>
-        <div class="pinyin">niú</div>
-        <div class="number">编号：0025</div>
-        <div class="image">[图片：牛]</div>
-      </div>
-      <!-- 卡片 6 -->
-      <div class="slide">
-        <div class="hanzi">羊</div>
-        <div class="pinyin">yáng</div>
-        <div class="number">编号：0026</div>
-        <div class="image">[图片：羊]</div>
-      </div>
-      <!-- 卡片 7 -->
-      <div class="slide">
-        <div class="hanzi">鱼</div>
-        <div class="pinyin">yú</div>
-        <div class="number">编号：0027</div>
-        <div class="image">[图片：鱼]</div>
-      </div>
-      <!-- 卡片 8 -->
-      <div class="slide">
-        <div class="hanzi">虫</div>
-        <div class="pinyin">chóng</div>
-        <div class="number">编号：0028</div>
-        <div class="image">[图片：虫]</div>
-      </div>
-      <!-- 卡片 9 -->
-      <div class="slide">
-        <div class="hanzi">鸟</div>
-        <div class="pinyin">niǎo</div>
-        <div class="number">编号：0029</div>
-        <div class="image">[图片：鸟]</div>
-      </div>
-      <!-- 卡片 10 -->
-      <div class="slide">
-        <div class="hanzi">天</div>
-        <div class="pinyin">tiān</div>
-        <div class="number">编号：0030</div>
-        <div class="image">[图片：天]</div>
-      </div>
+        <!-- 学习界面 -->
+        <div class="learning-section" id="learningSection">
+            <div class="word-info" id="wordInfo">
+                第 1 / 10 张 (第1遍)
+            </div>
+
+            <div class="slide" id="currentSlide">
+                <div class="hanzi" id="hanziDisplay">学</div>
+            </div>
+
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <button class="control-btn" id="prevBtn" title="上一张">◀</button>
+                <button class="control-btn" id="autoPlayBtn" title="自动播放">▶</button>
+                <button class="control-btn" id="nextBtn" title="下一张">▶</button>
+                <button class="control-btn" id="exitBtn" title="退出学习">✖</button>
+            </div>
+
+            <!-- 速度控制 -->
+            <div class="speed-panel">
+                <label>速度：</label>
+                <input type="range" id="speedRange" min="500" max="4000" value="2500" step="100">
+                <span id="speedValue">2.5s</span>
+            </div>
+        </div>
     </div>
 
-    <!-- 控制按钮 -->
-    <div class="controls">
-      <button id="prev">上一张</button>
-      <button id="next">下一张</button>
-    </div>
+    <script>
+        class DynamicFlashCards {
+            constructor() {
+                this.words = [];
+                this.currentIndex = 0;
+                this.totalRounds = 3;
+                this.isAutoPlay = false;
+                this.autoPlayInterval = null;
+                this.speed = 2500;
 
-    <!-- 指示点 -->
-    <div class="dots" id="dots"></div>
-  </div>
+                this.initElements();
+                this.bindEvents();
+            }
 
-  <script>
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-    const prevBtn = document.getElementById('prev');
-    const nextBtn = document.getElementById('next');
-    const dotsContainer = document.getElementById('dots');
+            initElements() {
+                this.inputSection = document.getElementById('inputSection');
+                this.learningSection = document.getElementById('learningSection');
+                this.wordInput = document.getElementById('wordInput');
+                this.startBtn = document.getElementById('startBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.exampleBtn = document.getElementById('exampleBtn');
+                this.wordInfo = document.getElementById('wordInfo');
+                this.hanziDisplay = document.getElementById('hanziDisplay');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.autoPlayBtn = document.getElementById('autoPlayBtn');
+                this.exitBtn = document.getElementById('exitBtn');
+                this.speedRange = document.getElementById('speedRange');
+                this.speedValue = document.getElementById('speedValue');
+                this.progressBar = document.getElementById('progressBar');
+                this.exampleModal = document.getElementById('exampleModal');
+                this.exampleList = document.getElementById('exampleList');
+                this.modalClose = document.getElementById('modalClose');
+            }
 
-    // 创建指示点
-    slides.forEach((_, index) => {
-      const dot = document.createElement('span');
-      dot.classList.add('dot');
-      if (index === 0) dot.classList.add('active');
-      dot.addEventListener('click', () => goToSlide(index));
-      dotsContainer.appendChild(dot);
-    });
-    const dots = document.querySelectorAll('.dot');
+            bindEvents() {
+                this.startBtn.addEventListener('click', () => this.startLearning());
+                this.clearBtn.addEventListener('click', () => this.clearInput());
+                this.exampleBtn.addEventListener('click', () => this.showExampleModal());
+                this.modalClose.addEventListener('click', () => this.hideExampleModal());
+                this.prevBtn.addEventListener('click', () => this.prevCard());
+                this.nextBtn.addEventListener('click', () => this.nextCard());
+                this.autoPlayBtn.addEventListener('click', () => this.toggleAutoPlay());
+                this.exitBtn.addEventListener('click', () => this.exitLearning());
+                this.speedRange.addEventListener('input', () => this.updateSpeed());
 
-    // 显示指定幻灯片
-    function showSlide(index) {
-      slides[currentSlide].classList.remove('active');
-      dots[currentSlide].classList.remove('active');
+                // 点击模态窗口背景关闭
+                this.exampleModal.addEventListener('click', (e) => {
+                    if (e.target === this.exampleModal) {
+                        this.hideExampleModal();
+                    }
+                });
 
-      currentSlide = index;
-      if (currentSlide < 0) currentSlide = slides.length - 1;
-      if (currentSlide >= slides.length) currentSlide = 0;
+                // ESC键关闭模态窗口
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && this.exampleModal.classList.contains('active')) {
+                        this.hideExampleModal();
+                        return;
+                    }
 
-      slides[currentSlide].classList.add('active');
-      dots[currentSlide].classList.add('active');
-    }
+                    if (this.learningSection.classList.contains('active')) {
+                        if (e.key === 'ArrowLeft') this.prevCard();
+                        if (e.key === 'ArrowRight') this.nextCard();
+                        if (e.key === ' ') {
+                            e.preventDefault();
+                            this.toggleAutoPlay();
+                        }
+                        if (e.key === 'Escape') this.exitLearning();
+                    }
+                });
 
-    function goToSlide(index) {
-      showSlide(index);
-    }
+                // Enter键开始学习
+                this.wordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.startLearning();
+                    }
+                });
+            }
 
-    function nextSlide() {
-      showSlide(currentSlide + 1);
-    }
+            startLearning() {
+                const input = this.wordInput.value.trim();
+                if (!input) {
+                    alert('请输入要学习的字词！');
+                    return;
+                }
 
-    function prevSlide() {
-      showSlide(currentSlide - 1);
-    }
+                // 先停止当前的自动播放（如果有）
+                this.stopAutoPlay();
 
-    // 绑定按钮事件
-    nextBtn.addEventListener('click', nextSlide);
-    prevBtn.addEventListener('click', prevSlide);
+                // 解析输入的词汇，支持多种分隔符
+                const inputWords = input.split(/[\s,，;；|｜、。]+/).filter(word => word.length > 0);
 
-    // 键盘支持（可选）
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') prevSlide();
-      if (e.key === 'ArrowRight') nextSlide();
-    });
-  </script>
+                // 生成学习序列：每个词随机出现3次
+                this.words = [];
+                for (let round = 1; round <= this.totalRounds; round++) {
+                    const shuffledWords = [...inputWords].sort(() => Math.random() - 0.5);
+                    shuffledWords.forEach(word => {
+                        this.words.push({ text: word, round: round });
+                    });
+                }
 
+                // 重置状态
+                this.currentIndex = 0;
+
+                // 切换到学习界面
+                this.inputSection.classList.add('hidden');
+                this.learningSection.classList.add('active');
+
+                // 重置显示内容
+                this.resetSlideDisplay();
+                this.updateDisplay();
+            }
+
+            resetSlideDisplay() {
+                // 重置幻灯片显示内容，确保没有完成界面的残留
+                const slide = document.getElementById('currentSlide');
+                slide.innerHTML = `<div class="hanzi" id="hanziDisplay"></div>`;
+                this.hanziDisplay = document.getElementById('hanziDisplay');
+            }
+
+            updateDisplay() {
+                if (this.words.length === 0) return;
+
+                const currentWord = this.words[this.currentIndex];
+
+                // 更新汉字
+                this.hanziDisplay.textContent = currentWord.text;
+
+                // 更新信息
+                this.wordInfo.textContent = `第 ${this.currentIndex + 1} / ${this.words.length} 张 (第${currentWord.round}遍)`;
+
+                // 更新进度条
+                const progress = ((this.currentIndex + 1) / this.words.length) * 100;
+                this.progressBar.style.width = progress + '%';
+            }
+
+            prevCard() {
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.updateDisplay();
+                }
+            }
+
+            nextCard() {
+                if (this.currentIndex < this.words.length - 1) {
+                    this.currentIndex++;
+                    this.updateDisplay();
+                } else {
+                    // 学习完成
+                    this.showCompletion();
+                }
+            }
+
+            showCompletion() {
+                this.stopAutoPlay();
+
+                // 显示完成界面
+                const slide = document.getElementById('currentSlide');
+                slide.innerHTML = `
+              <div class="completion-screen">
+                <div class="completion-icon">🎉</div>
+                <div class="completion-text">恭喜完成学习！</div>
+                <div style="font-size: 1.5vw; opacity: 0.8;">
+                  你已经学习了所有词汇${this.totalRounds}遍
+                </div>
+              </div>
+            `;
+
+                this.wordInfo.textContent = '学习完成';
+                this.progressBar.style.width = '100%';
+
+                // 5秒后自动返回
+                setTimeout(() => {
+                    this.exitLearning();
+                }, 5000);
+            }
+
+            toggleAutoPlay() {
+                if (this.isAutoPlay) {
+                    this.stopAutoPlay();
+                } else {
+                    this.startAutoPlay();
+                }
+            }
+
+            startAutoPlay() {
+                if (this.words.length === 0) return;
+
+                this.isAutoPlay = true;
+                this.autoPlayBtn.textContent = '⏸';
+                this.autoPlayBtn.classList.add('active');
+
+                this.autoPlayInterval = setInterval(() => {
+                    if (this.currentIndex < this.words.length - 1) {
+                        this.nextCard();
+                    } else {
+                        this.stopAutoPlay();
+                        this.showCompletion();
+                    }
+                }, this.speed);
+            }
+
+            stopAutoPlay() {
+                this.isAutoPlay = false;
+                this.autoPlayBtn.textContent = '▶';
+                this.autoPlayBtn.classList.remove('active');
+
+                if (this.autoPlayInterval) {
+                    clearInterval(this.autoPlayInterval);
+                    this.autoPlayInterval = null;
+                }
+            }
+
+            updateSpeed() {
+                this.speed = parseInt(this.speedRange.value);
+                this.speedValue.textContent = (this.speed / 1000).toFixed(1) + 's';
+
+                // 如果正在自动播放，重新启动以应用新速度
+                if (this.isAutoPlay) {
+                    clearInterval(this.autoPlayInterval);
+                    this.startAutoPlay();
+                }
+            }
+
+            exitLearning() {
+                this.stopAutoPlay();
+                this.learningSection.classList.remove('active');
+                this.inputSection.classList.remove('hidden');
+
+                // 重置显示
+                this.resetSlideDisplay();
+                this.hanziDisplay.textContent = '学';
+            }
+
+            clearInput() {
+                this.wordInput.value = '';
+                this.wordInput.focus();
+            }
+
+            loadExample() {
+                const examples = [
+                    {
+                        title: '识字1',
+                        content: '日 月 云 山 水 天'
+                    },
+                    {
+                        title: '识字2',
+                        content: '这 是 我 的 爸爸 妈妈 爷爷 奶奶 哥哥 姐姐 弟弟 妹妹 自己 爱'
+                    },
+                    {
+                        title: '识字3',
+                        content: '你 我 几岁 叫 什么 名字 一 二 三 四 五 六 七 八 九 十 两 岁'
+                    },
+                    {
+                        title: '识字4',
+                        content: '猫 狗 鱼 鸡 小猫 小狗 小鸡'
+                    },
+                    {
+                        title: '🍎 水果类',
+                        content: '苹果 香蕉 西瓜 草莓 橙子 葡萄'
+                    },
+                    {
+                        title: '🌟 天体自然',
+                        content: '太阳 月亮 星星 云朵 雨 雪 风'
+                    },
+                    {
+                        title: '🐱 动物类',
+                        content: '猫 狗 鸟 鱼 马 牛 羊'
+                    },
+                    {
+                        title: '🎨 颜色类',
+                        content: '红色 蓝色 绿色 黄色 黑色 白色'
+                    },
+                    {
+                        title: '🌸 四季',
+                        content: '春天 夏天 秋天 冬天'
+                    },
+                    {
+                        title: '👨‍👩‍👧‍👦 家庭成员',
+                        content: '爸爸 妈妈 爷爷 奶奶 哥哥 姐姐'
+                    },
+                    {
+                        title: '🔢 基础数字',
+                        content: '一 二 三 四 五 六 七 八 九 十'
+                    },
+                    {
+                        title: '📏 形容词',
+                        content: '大 小 多 少 好 坏 新 旧'
+                    },
+                    {
+                        title: '👁️ 身体部位',
+                        content: '眼睛 耳朵 鼻子 嘴巴 手 脚 头发'
+                    },
+                    {
+                        title: '📚 学习用品',
+                        content: '学习 书 笔 纸 桌子 椅子'
+                    }
+                ];
+
+                return examples;
+            }
+
+            showExampleModal() {
+                const examples = this.loadExample();
+                this.exampleList.innerHTML = '';
+
+                examples.forEach((example, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'example-item';
+                    item.innerHTML = `
+                <div class="example-title">${example.title}</div>
+                <div class="example-content">${example.content}</div>
+              `;
+
+                    item.addEventListener('click', () => {
+                        this.wordInput.value = example.content;
+                        this.hideExampleModal();
+                    });
+
+                    this.exampleList.appendChild(item);
+                });
+
+                this.exampleModal.classList.add('active');
+            }
+
+            hideExampleModal() {
+                this.exampleModal.classList.remove('active');
+            }
+        }
+
+        // 初始化应用
+        const app = new DynamicFlashCards();
+    </script>
 </body>
 </html>
