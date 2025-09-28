@@ -100,7 +100,7 @@
         }
 
         .hanzi {
-            font-size: 25vw;
+            font-size: 15vw;
             font-weight: normal;
             line-height: 1;
             margin-bottom: 20px;
@@ -153,7 +153,7 @@
             transform: translateX(-50%);
             background: rgba(45, 55, 72, 0.9);
             border-radius: 80px;
-            padding: 25px 40px;
+            padding: 15px 10px;
             display: flex;
             gap: 20px;
             backdrop-filter: blur(10px);
@@ -209,6 +209,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            display:none;
         }
 
         #speedRange {
@@ -636,7 +637,7 @@
                 this.hanziDisplay.textContent = currentWord.text;
 
                 // 更新信息
-                this.wordInfo.textContent = `第 ${this.currentIndex + 1} / ${this.words.length} 张 (第${currentWord.round}遍)`;
+                this.wordInfo.textContent = `${this.currentIndex + 1} / ${this.words.length}`;
 
                 // 更新进度条
                 const progress = ((this.currentIndex + 1) / this.words.length) * 100;
