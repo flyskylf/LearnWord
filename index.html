@@ -37,6 +37,7 @@
             text-align: center;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
             .input-section h2 {
@@ -73,6 +74,15 @@
             flex-wrap: wrap;
             justify-content: center;
         }
+        
+        /* 隐藏输入界面 */
+        .input-section.hidden {
+            opacity: 0;
+            visibility: hidden;
+            position: absolute; 
+            pointer-events: none;
+        }
+
 
         /* 学习界面 - 全屏居中 */
         .learning-section {
@@ -87,6 +97,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            position: relative;
         }
 
             .learning-section.active {
@@ -97,72 +108,77 @@
             text-align: center;
             color: white;
             animation: slideIn 0.6s ease-out;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .hanzi {
-            font-size: 15vw;
+            font-size: 10vw; 
             font-weight: normal;
             line-height: 1;
-            margin-bottom: 20px;
             color: #f7fafc;
             text-shadow: 0 8px 16px rgba(0,0,0,0.3);
             animation: pulse 2s ease-in-out infinite alternate;
             font-family: "STKaiti", "FZKai-Z03S", "华文楷体", "方正楷体", "KaiTi", "楷体", "PingFang SC", "Microsoft YaHei", sans-serif;
         }
 
-
-
+        /* 左上角仅显示当前数量和总数量 */
         .word-info {
             position: absolute;
-            top: 50px;
-            left: 50px;
-            font-size: 1.5vw;
+            top: 30px; 
+            left: 30px; 
+            font-size: 20px; 
             color: #e2e8f0;
             background: rgba(45, 55, 72, 0.8);
-            padding: 15px 25px;
-            border-radius: 25px;
+            padding: 10px 20px; 
+            border-radius: 20px; 
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(226, 232, 240, 0.2);
+            border: 1px solid rgba(255,255,255,0.2);
+            z-index: 1010;
         }
 
+        /* 移除进度条样式 */
         .progress {
+            display: none;
+        }
+
+        /* 右上角退出按钮 (新样式: 与导航按钮保持一致) */
+        .exit-btn-top {
             position: absolute;
-            bottom: 200px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            height: 8px;
-            background: rgba(74, 85, 104, 0.6);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #4299e1, #63b3ed);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-            box-shadow: 0 0 20px rgba(66, 153, 225, 0.4);
-        }
-
-        /* 控制面板 */
-        .control-panel {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(45, 55, 72, 0.9);
-            border-radius: 80px;
-            padding: 15px 10px;
+            top: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(226, 232, 240, 0.3); /* 边框与导航按钮一致 */
+            border-radius: 50%;
+            background: rgba(74, 85, 104, 0.6); /* 背景色与导航按钮一致 */
+            color: #e2e8f0; /* 文字颜色与导航按钮一致 */
+            cursor: pointer;
             display: flex;
-            gap: 20px;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(226, 232, 240, 0.3);
-            opacity: 1;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s ease;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1); /* 调整阴影 */
+            z-index: 1010;
         }
 
-        .control-btn {
+        .exit-btn-top:hover {
+            background: rgba(113, 128, 150, 0.8); /* 悬停效果与导航按钮一致 */
+            transform: scale(1.1);
+            border-color: rgba(226, 232, 240, 0.6);
+            color: #f7fafc;
+        }
+
+        /* 左边和右边上一个和下一个按钮 (作为参考，保持不变) */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
             width: 80px;
             height: 80px;
             border: none;
@@ -174,49 +190,28 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            font-size: 24px;
+            font-size: 36px;
             font-weight: bold;
             border: 2px solid rgba(226, 232, 240, 0.3);
+            z-index: 1005;
         }
 
-            .control-btn:hover {
-                background: rgba(113, 128, 150, 0.8);
-                transform: scale(1.1);
-                border-color: rgba(226, 232, 240, 0.6);
-                color: #f7fafc;
-            }
-
-            .control-btn.active {
-                background: #4299e1;
-                color: #ffffff;
-                border-color: #4299e1;
-                box-shadow: 0 0 20px rgba(66, 153, 225, 0.4);
-            }
-
-        /* 速度控制 */
-        .speed-panel {
-            position: fixed;
-            top: 50px;
-            right: 50px;
-            background: rgba(45, 55, 72, 0.8);
-            border-radius: 25px;
-            padding: 15px 25px;
-            color: #e2e8f0;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(226, 232, 240, 0.2);
-            opacity: 1;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            display:none;
+        .nav-btn.prev {
+            left: 30px;
         }
 
-        #speedRange {
-            width: 120px;
+        .nav-btn.next {
+            right: 30px;
         }
 
-        /* 通用按钮样式 */
+        .nav-btn:hover {
+            background: rgba(113, 128, 150, 0.8);
+            transform: translateY(-50%) scale(1.1);
+            border-color: rgba(226, 232, 240, 0.6);
+            color: #f7fafc;
+        }
+
+        /* 通用按钮样式 (保持不变) */
         button {
             background: rgba(74, 85, 104, 0.8);
             color: #e2e8f0;
@@ -244,7 +239,7 @@
                 transform: none;
             }
 
-        /* 完成界面 */
+        /* 完成界面 (保持不变) */
         .completion-screen {
             text-align: center;
             color: white;
@@ -262,7 +257,7 @@
             margin-bottom: 50px;
         }
 
-        /* 动画效果 */
+        /* 动画效果 (保持不变) */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -309,7 +304,7 @@
             }
         }
 
-        /* 示例选择模态窗口 */
+        /* 示例选择模态窗口 (保持不变) */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -339,6 +334,7 @@
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideInUp 0.3s ease-out;
+            position: relative;
         }
 
         .modal-header {
@@ -422,36 +418,42 @@
         /* 响应式设计 */
         @media (max-width: 768px) {
             .hanzi {
-                font-size: 35vw;
+                font-size: 30vw; 
             }
 
             .word-info {
-                font-size: 3vw;
-                top: 20px;
-                left: 20px;
+                font-size: 18px;
+                top: 15px;
+                left: 15px;
+                padding: 8px 15px;
             }
 
-            .control-panel {
-                bottom: 20px;
-                right: 20px;
+            .exit-btn-top {
+                top: 15px;
+                right: 15px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+            
+            .nav-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
             }
 
-            .control-btn {
-                width: 70px;
-                height: 70px;
-                font-size: 22px;
+            .nav-btn.prev {
+                left: 10px;
             }
 
-            .speed-panel {
-                top: 20px;
-                right: 20px;
+            .nav-btn.next {
+                right: 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- 输入界面 -->
         <div class="input-section" id="inputSection">
             <h2>🎯 识字卡片学习</h2>
             <div class="input-area">
@@ -462,13 +464,12 @@
                     <button id="exampleBtn">💡 选择示例</button>
                 </div>
                 <div style="margin-top: 20px; color: #666; font-size: 14px;">
-                    💡 提示：支持键盘操作 - 左右键翻页，空格键播放/暂停<br>
+                    💡 提示：支持键盘操作 - **左右键翻页**，**ESC键退出**<br>
                     🔤 支持多种分隔符：空格、逗号、分号、竖线等
                 </div>
             </div>
         </div>
 
-        <!-- 示例选择模态窗口 -->
         <div class="modal-overlay" id="exampleModal">
             <div class="modal-content">
                 <button class="modal-close" id="modalClose">×</button>
@@ -477,34 +478,19 @@
             </div>
         </div>
 
-        <!-- 学习界面 -->
         <div class="learning-section" id="learningSection">
             <div class="word-info" id="wordInfo">
-                第 1 / 10 张 (第1遍)
+                1 / 10
             </div>
 
             <div class="slide" id="currentSlide">
                 <div class="hanzi" id="hanziDisplay">学</div>
             </div>
 
-            <div class="progress">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
+            <button class="exit-btn-top" id="exitBtn" title="退出学习">✖</button>
 
-            <!-- 控制面板 -->
-            <div class="control-panel">
-                <button class="control-btn" id="prevBtn" title="上一张">◀</button>
-                <button class="control-btn" id="autoPlayBtn" title="自动播放">▶</button>
-                <button class="control-btn" id="nextBtn" title="下一张">▶</button>
-                <button class="control-btn" id="exitBtn" title="退出学习">✖</button>
-            </div>
-
-            <!-- 速度控制 -->
-            <div class="speed-panel">
-                <label>速度：</label>
-                <input type="range" id="speedRange" min="500" max="4000" value="2500" step="100">
-                <span id="speedValue">2.5s</span>
-            </div>
+            <button class="nav-btn prev" id="prevBtn" title="上一张">◀</button>
+            <button class="nav-btn next" id="nextBtn" title="下一张">▶</button>
         </div>
     </div>
 
@@ -514,9 +500,6 @@
                 this.words = [];
                 this.currentIndex = 0;
                 this.totalRounds = 3;
-                this.isAutoPlay = false;
-                this.autoPlayInterval = null;
-                this.speed = 2500;
 
                 this.initElements();
                 this.bindEvents();
@@ -533,11 +516,8 @@
                 this.hanziDisplay = document.getElementById('hanziDisplay');
                 this.prevBtn = document.getElementById('prevBtn');
                 this.nextBtn = document.getElementById('nextBtn');
-                this.autoPlayBtn = document.getElementById('autoPlayBtn');
                 this.exitBtn = document.getElementById('exitBtn');
-                this.speedRange = document.getElementById('speedRange');
-                this.speedValue = document.getElementById('speedValue');
-                this.progressBar = document.getElementById('progressBar');
+                
                 this.exampleModal = document.getElementById('exampleModal');
                 this.exampleList = document.getElementById('exampleList');
                 this.modalClose = document.getElementById('modalClose');
@@ -550,9 +530,7 @@
                 this.modalClose.addEventListener('click', () => this.hideExampleModal());
                 this.prevBtn.addEventListener('click', () => this.prevCard());
                 this.nextBtn.addEventListener('click', () => this.nextCard());
-                this.autoPlayBtn.addEventListener('click', () => this.toggleAutoPlay());
                 this.exitBtn.addEventListener('click', () => this.exitLearning());
-                this.speedRange.addEventListener('input', () => this.updateSpeed());
 
                 // 点击模态窗口背景关闭
                 this.exampleModal.addEventListener('click', (e) => {
@@ -561,8 +539,9 @@
                     }
                 });
 
-                // ESC键关闭模态窗口
+                // 键盘事件
                 document.addEventListener('keydown', (e) => {
+                    // ESC键关闭模态窗口
                     if (e.key === 'Escape' && this.exampleModal.classList.contains('active')) {
                         this.hideExampleModal();
                         return;
@@ -571,10 +550,6 @@
                     if (this.learningSection.classList.contains('active')) {
                         if (e.key === 'ArrowLeft') this.prevCard();
                         if (e.key === 'ArrowRight') this.nextCard();
-                        if (e.key === ' ') {
-                            e.preventDefault();
-                            this.toggleAutoPlay();
-                        }
                         if (e.key === 'Escape') this.exitLearning();
                     }
                 });
@@ -594,9 +569,6 @@
                     return;
                 }
 
-                // 先停止当前的自动播放（如果有）
-                this.stopAutoPlay();
-
                 // 解析输入的词汇，支持多种分隔符
                 const inputWords = input.split(/[\s,，;；|｜、。]+/).filter(word => word.length > 0);
 
@@ -612,17 +584,19 @@
                 // 重置状态
                 this.currentIndex = 0;
 
-                // 切换到学习界面
+                // 切换到学习界面：先确保学习界面已重置
+                this.resetSlideDisplay(); 
+
+                // 切换界面
                 this.inputSection.classList.add('hidden');
                 this.learningSection.classList.add('active');
 
-                // 重置显示内容
-                this.resetSlideDisplay();
+                // 更新显示内容
                 this.updateDisplay();
             }
 
             resetSlideDisplay() {
-                // 重置幻灯片显示内容，确保没有完成界面的残留
+                // 重置幻灯片显示内容
                 const slide = document.getElementById('currentSlide');
                 slide.innerHTML = `<div class="hanzi" id="hanziDisplay"></div>`;
                 this.hanziDisplay = document.getElementById('hanziDisplay');
@@ -636,17 +610,18 @@
                 // 更新汉字
                 this.hanziDisplay.textContent = currentWord.text;
 
-                // 更新信息
+                // 更新信息：仅显示当前数量和总数量
                 this.wordInfo.textContent = `${this.currentIndex + 1} / ${this.words.length}`;
 
-                // 更新进度条
-                const progress = ((this.currentIndex + 1) / this.words.length) * 100;
-                this.progressBar.style.width = progress + '%';
+                // 更新导航按钮状态
+                this.prevBtn.disabled = this.currentIndex === 0;
+                this.nextBtn.disabled = this.currentIndex === this.words.length - 1;
             }
 
             prevCard() {
                 if (this.currentIndex > 0) {
                     this.currentIndex--;
+                    this.resetSlideDisplay(); 
                     this.updateDisplay();
                 }
             }
@@ -662,8 +637,6 @@
             }
 
             showCompletion() {
-                this.stopAutoPlay();
-
                 // 显示完成界面
                 const slide = document.getElementById('currentSlide');
                 slide.innerHTML = `
@@ -677,7 +650,10 @@
             `;
 
                 this.wordInfo.textContent = '学习完成';
-                this.progressBar.style.width = '100%';
+
+                // 禁用导航按钮
+                this.prevBtn.disabled = true;
+                this.nextBtn.disabled = true;
 
                 // 5秒后自动返回
                 setTimeout(() => {
@@ -685,55 +661,8 @@
                 }, 5000);
             }
 
-            toggleAutoPlay() {
-                if (this.isAutoPlay) {
-                    this.stopAutoPlay();
-                } else {
-                    this.startAutoPlay();
-                }
-            }
-
-            startAutoPlay() {
-                if (this.words.length === 0) return;
-
-                this.isAutoPlay = true;
-                this.autoPlayBtn.textContent = '⏸';
-                this.autoPlayBtn.classList.add('active');
-
-                this.autoPlayInterval = setInterval(() => {
-                    if (this.currentIndex < this.words.length - 1) {
-                        this.nextCard();
-                    } else {
-                        this.stopAutoPlay();
-                        this.showCompletion();
-                    }
-                }, this.speed);
-            }
-
-            stopAutoPlay() {
-                this.isAutoPlay = false;
-                this.autoPlayBtn.textContent = '▶';
-                this.autoPlayBtn.classList.remove('active');
-
-                if (this.autoPlayInterval) {
-                    clearInterval(this.autoPlayInterval);
-                    this.autoPlayInterval = null;
-                }
-            }
-
-            updateSpeed() {
-                this.speed = parseInt(this.speedRange.value);
-                this.speedValue.textContent = (this.speed / 1000).toFixed(1) + 's';
-
-                // 如果正在自动播放，重新启动以应用新速度
-                if (this.isAutoPlay) {
-                    clearInterval(this.autoPlayInterval);
-                    this.startAutoPlay();
-                }
-            }
 
             exitLearning() {
-                this.stopAutoPlay();
                 this.learningSection.classList.remove('active');
                 this.inputSection.classList.remove('hidden');
 
