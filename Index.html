@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>识字卡片幻灯片</title>
+  <style>
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: #f0f8ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      text-align: center;
+    }
+    .slide {
+      display: none;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      padding: 40px;
+      margin: 20px auto;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    .slide.active {
+      display: block;
+    }
+    .hanzi {
+      font-size: 180px;
+      font-weight: bold;
+      color: #333;
+      line-height: 1;
+      margin-bottom: 10px;
+      text-shadow: 3px 3px 6px rgba(0,0,0,0.1);
+    }
+    .pinyin {
+      font-size: 48px;
+      color: #e63946;
+      margin: 10px 0;
+    }
+    .number {
+      font-size: 28px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .image {
+      width: 300px;
+      height: 200px;
+      margin: 20px auto;
+      background: #eee;
+      border: 2px dashed #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #999;
+      font-size: 18px;
+    }
+    .controls {
+      margin-top: 30px;
+    }
+    button {
+      background: #0077b6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 18px;
+      border-radius: 8px;
+      margin: 0 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #023e8a;
+    }
+    .dots {
+      margin: 20px 0 0;
+    }
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: #ccc;
+      border-radius: 50%;
+      margin: 0 5px;
+      cursor: pointer;
+    }
+    .dot.active {
+      background: #0077b6;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1 style="color: #0077b6;">识字卡片学习</h1>
+
+    <!-- 幻灯片容器 -->
+    <div id="slides">
+      <!-- 卡片 1 -->
+      <div class="slide active">
+        <div class="hanzi">八</div>
+        <div class="pinyin">bā</div>
+        <div class="number">编号：0021</div>
+        <div class="image">[图片：八]</div>
+      </div>
+      <!-- 卡片 2 -->
+      <div class="slide">
+        <div class="hanzi">九</div>
+        <div class="pinyin">jiǔ</div>
+        <div class="number">编号：0022</div>
+        <div class="image">[图片：九]</div>
+      </div>
+      <!-- 卡片 3 -->
+      <div class="slide">
+        <div class="hanzi">十</div>
+        <div class="pinyin">shí</div>
+        <div class="number">编号：0023</div>
+        <div class="image">[图片：十]</div>
+      </div>
+      <!-- 卡片 4 -->
+      <div class="slide">
+        <div class="hanzi">马</div>
+        <div class="pinyin">mǎ</div>
+        <div class="number">编号：0024</div>
+        <div class="image">[图片：马]</div>
+      </div>
+      <!-- 卡片 5 -->
+      <div class="slide">
+        <div class="hanzi">牛</div>
+        <div class="pinyin">niú</div>
+        <div class="number">编号：0025</div>
+        <div class="image">[图片：牛]</div>
+      </div>
+      <!-- 卡片 6 -->
+      <div class="slide">
+        <div class="hanzi">羊</div>
+        <div class="pinyin">yáng</div>
+        <div class="number">编号：0026</div>
+        <div class="image">[图片：羊]</div>
+      </div>
+      <!-- 卡片 7 -->
+      <div class="slide">
+        <div class="hanzi">鱼</div>
+        <div class="pinyin">yú</div>
+        <div class="number">编号：0027</div>
+        <div class="image">[图片：鱼]</div>
+      </div>
+      <!-- 卡片 8 -->
+      <div class="slide">
+        <div class="hanzi">虫</div>
+        <div class="pinyin">chóng</div>
+        <div class="number">编号：0028</div>
+        <div class="image">[图片：虫]</div>
+      </div>
+      <!-- 卡片 9 -->
+      <div class="slide">
+        <div class="hanzi">鸟</div>
+        <div class="pinyin">niǎo</div>
+        <div class="number">编号：0029</div>
+        <div class="image">[图片：鸟]</div>
+      </div>
+      <!-- 卡片 10 -->
+      <div class="slide">
+        <div class="hanzi">天</div>
+        <div class="pinyin">tiān</div>
+        <div class="number">编号：0030</div>
+        <div class="image">[图片：天]</div>
+      </div>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+      <button id="prev">上一张</button>
+      <button id="next">下一张</button>
+    </div>
+
+    <!-- 指示点 -->
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const dotsContainer = document.getElementById('dots');
+
+    // 创建指示点
+    slides.forEach((_, index) => {
+      const dot = document.createElement('span');
+      dot.classList.add('dot');
+      if (index === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => goToSlide(index));
+      dotsContainer.appendChild(dot);
+    });
+    const dots = document.querySelectorAll('.dot');
+
+    // 显示指定幻灯片
+    function showSlide(index) {
+      slides[currentSlide].classList.remove('active');
+      dots[currentSlide].classList.remove('active');
+
+      currentSlide = index;
+      if (currentSlide < 0) currentSlide = slides.length - 1;
+      if (currentSlide >= slides.length) currentSlide = 0;
+
+      slides[currentSlide].classList.add('active');
+      dots[currentSlide].classList.add('active');
+    }
+
+    function goToSlide(index) {
+      showSlide(index);
+    }
+
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
+
+    // 绑定按钮事件
+    nextBtn.addEventListener('click', nextSlide);
+    prevBtn.addEventListener('click', prevSlide);
+
+    // 键盘支持（可选）
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight') nextSlide();
+    });
+  </script>
+
+</body>
+</html>
