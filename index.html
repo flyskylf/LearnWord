@@ -111,7 +111,7 @@
             width: 100%;
             height: 100%;
             display: flex;
-            flex-direction: column; /* 允许堆叠文字和朗读按钮 */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
         }
@@ -125,33 +125,11 @@
             text-shadow: 0 8px 16px rgba(0,0,0,0.3);
             animation: pulse 2s ease-in-out infinite alternate;
             font-family: "STKaiti", "FZKai-Z03S", "华文楷体", "方正楷体", "KaiTi", "楷体", "PingFang SC", "Microsoft YaHei", sans-serif;
-            margin-bottom: 30px; /* 为朗读按钮留出空间 */
-        }
-        
-        /* 新增：手动朗读按钮样式 */
-        #speakBtn {
-            background: rgba(102, 126, 234, 0.8);
-            color: white;
-            border: none;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            font-size: 28px;
+            /* **核心：设置为可点击的样式** */
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
+            padding: 20px; /* 增加点击区域 */
         }
         
-        #speakBtn:hover {
-            background: rgba(102, 126, 234, 1);
-            transform: scale(1.1);
-        }
-
-
         /* 左上角仅显示当前数量和总数量 */
         .word-info {
             position: absolute;
@@ -172,7 +150,7 @@
             display: none;
         }
 
-        /* 右上角退出按钮 (新样式: 与导航按钮保持一致) */
+        /* 右上角退出按钮 */
         .exit-btn-top {
             position: absolute;
             top: 30px;
@@ -201,7 +179,7 @@
             color: #f7fafc;
         }
 
-        /* 左边和右边上一个和下一个按钮 (保持不变) */
+        /* 左边和右边上一个和下一个按钮 */
         .nav-btn {
             position: absolute;
             top: 50%;
@@ -238,25 +216,24 @@
             color: #f7fafc;
         }
 
-        /* **修复：禁用状态下的上一个按钮样式，保持位置和颜色，只降低不透明度** */
+        /* 修复：禁用状态下的上一个按钮样式 */
         .nav-btn:disabled {
             opacity: 0.3;
             cursor: not-allowed;
-            /* 必须保持 translateY(-50%) 来覆盖通用 button:disabled 的 transform:none */
             transform: translateY(-50%); 
         }
 
         /* 阻止禁用按钮的悬停效果 */
         .nav-btn:disabled:hover {
             opacity: 0.3;
-            background: rgba(74, 85, 104, 0.6); /* 悬停背景保持不变 */
+            background: rgba(74, 85, 104, 0.6); 
             border-color: rgba(226, 232, 240, 0.3);
             color: #e2e8f0;
             box-shadow: none;
             transform: translateY(-50%);
         }
 
-        /* 通用按钮样式 (保持不变) */
+        /* 通用按钮样式 */
         button {
             background: rgba(74, 85, 104, 0.8);
             color: #e2e8f0;
@@ -284,7 +261,7 @@
                 transform: none;
             }
 
-        /* 完成界面 (保持不变) */
+        /* 完成界面 */
         .completion-screen {
             text-align: center;
             color: white;
@@ -299,10 +276,10 @@
 
         .completion-text {
             font-size: 3vw;
-            margin-bottom: 10px; /* 稍微缩小了底部的空间 */
+            margin-bottom: 10px;
         }
 
-        /* 动画效果 (保持不变) */
+        /* 动画效果 */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -349,7 +326,7 @@
             }
         }
 
-        /* 示例选择模态窗口 (保持不变) */
+        /* 示例选择模态窗口 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -466,12 +443,6 @@
                 font-size: 20vw; /* 移动端字体相应调小 */
             }
             
-            #speakBtn {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-            }
-
             .word-info {
                 font-size: 18px;
                 top: 15px;
@@ -515,8 +486,7 @@
                     <button id="exampleBtn">💡 选择示例</button>
                 </div>
                 <div style="margin-top: 20px; color: #666; font-size: 14px;">
-                    💡 提示：支持键盘操作 - **左右键翻页**，**ESC键退出**<br>
-                    🔤 支持多种分隔符：空格、逗号、分号、竖线等
+                    💡 提示：支持键盘操作 - **左右键翻页**，**ESC键退出**
                 </div>
                 <div style="margin-top: 15px; font-size: 14px; font-weight: bold;" id="speechSupportStatus">
                     </div>
@@ -537,8 +507,7 @@
             </div>
 
             <div class="slide" id="currentSlide">
-                <div class="hanzi" id="hanziDisplay">学</div>
-                <button id="speakBtn" title="朗读当前字词">🔊</button>
+                <div class="hanzi" id="hanziDisplay" title="点击朗读">学</div>
             </div>
 
             <button class="exit-btn-top" id="exitBtn" title="退出学习">✖</button>
@@ -553,12 +522,12 @@
             constructor() {
                 this.words = [];
                 this.currentIndex = 0;
-                this.chineseVoice = null; // 用于存储找到的中文语音包
+                this.chineseVoice = null; 
 
                 this.initElements();
                 this.bindEvents();
                 this.checkSpeechSupport(); 
-                this.loadChineseVoice(); // 确保加载中文语音
+                this.loadChineseVoice(); 
             }
 
             initElements() {
@@ -578,7 +547,7 @@
                 this.modalClose = document.getElementById('modalClose');
                 this.speechSupportStatus = document.getElementById('speechSupportStatus');
 
-                this.speakBtn = document.getElementById('speakBtn');
+                // **修正点：只引用 hanziDisplay 元素**
                 this.hanziDisplay = document.getElementById('hanziDisplay');
             }
 
@@ -591,8 +560,8 @@
                 this.nextBtn.addEventListener('click', () => this.nextCard());
                 this.exitBtn.addEventListener('click', () => this.exitLearning());
                 
-                // 新增：手动朗读按钮事件
-                this.speakBtn.addEventListener('click', () => {
+                // **修正点：将朗读事件绑定到大汉字区域**
+                this.hanziDisplay.addEventListener('click', () => {
                     if (this.words.length > 0) {
                         this.speakWord(this.words[this.currentIndex].text);
                     }
@@ -616,13 +585,7 @@
                         if (e.key === 'ArrowLeft') this.prevCard();
                         if (e.key === 'ArrowRight') this.nextCard();
                         if (e.key === 'Escape') this.exitLearning();
-                        // 新增：按下空格键朗读
-                        if (e.key === ' ') {
-                             e.preventDefault(); // 阻止滚动
-                            if (this.words.length > 0) {
-                                this.speakWord(this.words[this.currentIndex].text);
-                            }
-                        }
+                        // 移除空格键朗读功能
                     }
                 });
 
@@ -642,7 +605,6 @@
                 if (!isSupported) {
                     this.speechSupportStatus.innerHTML = '<span style="color: #f56565;">🔇 朗读功能：您的浏览器**不支持**语音合成 API。</span>';
                 }
-                // 具体的中文语音加载状态在 loadChineseVoice 中更新
             }
 
             /**
@@ -650,28 +612,23 @@
              */
             loadChineseVoice() {
                 const setVoice = () => {
-                    // 确保取消任何旧的监听器
                     window.speechSynthesis.removeEventListener('voiceschanged', setVoice); 
 
                     const voices = window.speechSynthesis.getVoices();
-                    // 尝试找到一个特定的普通话/中文语音
                     this.chineseVoice = voices.find(voice => 
                         voice.lang.includes('zh-') || voice.lang.includes('cmn-')
                     );
 
                     if (this.chineseVoice) {
-                        this.speechSupportStatus.innerHTML = '<span style="color: #48bb78;">🎤 朗读功能：已启用 (请点击 🔊 按钮或按空格键)</span>';
+                        this.speechSupportStatus.innerHTML = '<span style="color: #48bb78;">🎤 朗读功能：已启用 (**请点击文字区域**)</span>';
                     } else {
-                        // 如果未找到特定中文语音，设置通用 zh-CN 作为后备，并给出警告
-                        this.speechSupportStatus.innerHTML = '<span style="color: #fb8332;">⚠️ 朗读功能：未找到合适的中文语音包，将尝试使用默认系统声音，可能无效。</span>';
+                        this.speechSupportStatus.innerHTML = '<span style="color: #fb8332;">⚠️ 朗读功能：未找到合适的中文语音包，将尝试使用默认系统声音。</span>';
                     }
                 };
 
-                // 1. 如果语音列表已经加载，则立即设置
                 if (window.speechSynthesis.getVoices().length > 0) {
                     setVoice();
                 } else {
-                    // 2. 否则，等待 `voiceschanged` 事件（对 Safari/Chrome on iOS 至关重要）
                     window.speechSynthesis.addEventListener('voiceschanged', setVoice);
                 }
             }
@@ -685,18 +642,13 @@
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(text);
                     
-                    // 使用已选择的中文语音
                     if (this.chineseVoice) {
                         utterance.voice = this.chineseVoice;
                         utterance.lang = this.chineseVoice.lang; 
                     } else {
-                        // 后备方案
                         utterance.lang = 'zh-CN'; 
                     }
-
-                    // 提高语速适应儿童学习场景（可选）
-                    // utterance.rate = 0.8; 
-
+                    
                     window.speechSynthesis.cancel();
                     window.speechSynthesis.speak(utterance);
                 }
@@ -723,23 +675,19 @@
 
                 this.updateDisplay();
                 
-                // 自动尝试朗读一次（对于需要用户手势激活的 iOS 设备，此次可能失败）
-                if (this.words.length > 0) {
-                    this.speakWord(this.words[this.currentIndex].text);
-                }
+                // **修正点：移除自动朗读调用**
             }
 
             resetSlideDisplay() {
                 // 重置幻灯片显示内容
                 const slide = document.getElementById('currentSlide');
                 slide.innerHTML = `
-                    <div class="hanzi" id="hanziDisplay"></div>
-                    <button id="speakBtn" title="朗读当前字词">🔊</button>
+                    <div class="hanzi" id="hanziDisplay" title="点击朗读"></div>
                 `;
                 // 重新获取元素引用
                 this.hanziDisplay = document.getElementById('hanziDisplay');
-                this.speakBtn = document.getElementById('speakBtn');
-                this.speakBtn.addEventListener('click', () => {
+                // **修正点：重新绑定点击事件到新的 hanziDisplay 元素**
+                this.hanziDisplay.addEventListener('click', () => {
                     if (this.words.length > 0) {
                         this.speakWord(this.words[this.currentIndex].text);
                     }
@@ -764,15 +712,16 @@
                     this.currentIndex--;
                     this.resetSlideDisplay(); 
                     this.updateDisplay();
-                    this.speakWord(this.words[this.currentIndex].text); // 换页后尝试朗读
+                    // **修正点：移除换页后自动朗读调用**
                 }
             }
 
             nextCard() {
                 if (this.currentIndex < this.words.length - 1) {
                     this.currentIndex++;
+                    this.resetSlideDisplay(); 
                     this.updateDisplay();
-                    this.speakWord(this.words[this.currentIndex].text); // 换页后尝试朗读
+                    // **修正点：移除换页后自动朗读调用**
                 } else {
                     this.showCompletion();
                 }
