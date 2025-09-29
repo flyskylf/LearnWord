@@ -212,6 +212,24 @@
             color: #f7fafc;
         }
 
+        /* **修复：禁用状态下的上一个按钮样式，保持位置和颜色，只降低不透明度** */
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            /* 必须保持 translateY(-50%) 来覆盖通用 button:disabled 的 transform:none */
+            transform: translateY(-50%); 
+        }
+
+        /* 阻止禁用按钮的悬停效果 */
+        .nav-btn:disabled:hover {
+            opacity: 0.3;
+            background: rgba(74, 85, 104, 0.6); /* 悬停背景保持不变 */
+            border-color: rgba(226, 232, 240, 0.3);
+            color: #e2e8f0;
+            box-shadow: none;
+            transform: translateY(-50%);
+        }
+
         /* 通用按钮样式 (保持不变) */
         button {
             background: rgba(74, 85, 104, 0.8);
@@ -255,7 +273,7 @@
 
         .completion-text {
             font-size: 3vw;
-            margin-bottom: 50px;
+            margin-bottom: 10px; /* 稍微缩小了底部的空间 */
         }
 
         /* 动画效果 (保持不变) */
@@ -468,6 +486,8 @@
                     💡 提示：支持键盘操作 - **左右键翻页**，**ESC键退出**<br>
                     🔤 支持多种分隔符：空格、逗号、分号、竖线等
                 </div>
+                <div style="margin-top: 15px; font-size: 14px; font-weight: bold;" id="speechSupportStatus">
+                    </div>
             </div>
         </div>
 
@@ -500,10 +520,11 @@
             constructor() {
                 this.words = [];
                 this.currentIndex = 0;
-                this.totalRounds = 3;
+                // this.totalRounds = 1; // 移除循环功能，不再需要此属性
 
                 this.initElements();
                 this.bindEvents();
+                this.checkSpeechSupport(); // 检查发音支持
             }
 
             initElements() {
@@ -522,6 +543,8 @@
                 this.exampleModal = document.getElementById('exampleModal');
                 this.exampleList = document.getElementById('exampleList');
                 this.modalClose = document.getElementById('modalClose');
+
+                this.speechSupportStatus = document.getElementById('speechSupportStatus');
             }
 
             bindEvents() {
@@ -564,6 +587,19 @@
             }
 
             /**
+             * 检查浏览器是否支持语音合成并更新状态提示
+             */
+            checkSpeechSupport() {
+                const isSupported = 'speechSynthesis' in window;
+                if (isSupported) {
+                    this.speechSupportStatus.innerHTML = '<span style="color: #48bb78;">🎤 朗读功能：已支持 (卡片将自动朗读)</span>';
+                } else {
+                    this.speechSupportStatus.innerHTML = '<span style="color: #f56565;">🔇 朗读功能：浏览器不支持，朗读功能可能无法使用。</span>';
+                }
+            }
+
+
+            /**
              * 调用 Web Speech API 朗读文字
              * @param {string} text 要朗读的文字
              */
@@ -593,14 +629,9 @@
                 // 解析输入的词汇，支持多种分隔符
                 const inputWords = input.split(/[\s,，;；|｜、。]+/).filter(word => word.length > 0);
 
-                // 生成学习序列：每个词随机出现3次
-                this.words = [];
-                for (let round = 1; round <= this.totalRounds; round++) {
-                    const shuffledWords = [...inputWords].sort(() => Math.random() - 0.5);
-                    shuffledWords.forEach(word => {
-                        this.words.push({ text: word, round: round });
-                    });
-                }
+                // **移除三次循环功能：只生成一次打乱的序列**
+                const shuffledWords = [...inputWords].sort(() => Math.random() - 0.5);
+                this.words = shuffledWords.map(word => ({ text: word }));
 
                 // 重置状态
                 this.currentIndex = 0;
@@ -631,14 +662,14 @@
                 // 更新汉字
                 this.hanziDisplay.textContent = currentWord.text;
                 
-                // *** 朗读当前汉字/词组 ***
+                // 朗读当前汉字/词组
                 this.speakWord(currentWord.text);
 
                 // 更新信息：仅显示当前数量和总数量
                 this.wordInfo.textContent = `${this.currentIndex + 1} / ${this.words.length}`;
 
                 // 更新导航按钮状态
-                this.prevBtn.disabled = this.currentIndex === 0;
+                this.prevBtn.disabled = this.currentIndex === 0; // 禁用上一个按钮
                 this.nextBtn.disabled = this.currentIndex === this.words.length - 1;
             }
 
@@ -661,14 +692,14 @@
             }
 
             showCompletion() {
-                // 显示完成界面
+                // **简化显示完成界面**
                 const slide = document.getElementById('currentSlide');
                 slide.innerHTML = `
               <div class="completion-screen">
                 <div class="completion-icon">🎉</div>
                 <div class="completion-text">恭喜完成学习！</div>
-                <div style="font-size: 1.5vw; opacity: 0.8;">
-                  你已经学习了所有词汇${this.totalRounds}遍
+                <div style="font-size: 1.5vw; opacity: 0.8; margin-top: 20px;">
+                  所有卡片学习完毕！
                 </div>
               </div>
             `;
