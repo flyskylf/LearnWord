@@ -553,10 +553,12 @@
             constructor() {
                 this.words = [];
                 this.currentIndex = 0;
+                this.chineseVoice = null; // 用于存储找到的中文语音包
 
                 this.initElements();
                 this.bindEvents();
                 this.checkSpeechSupport(); 
+                this.loadChineseVoice(); // 确保加载中文语音
             }
 
             initElements() {
@@ -576,7 +578,6 @@
                 this.modalClose = document.getElementById('modalClose');
                 this.speechSupportStatus = document.getElementById('speechSupportStatus');
 
-                // 新增：朗读按钮和汉字显示元素
                 this.speakBtn = document.getElementById('speakBtn');
                 this.hanziDisplay = document.getElementById('hanziDisplay');
             }
@@ -634,14 +635,44 @@
             }
 
             /**
-             * 检查浏览器是否支持语音合成并更新状态提示
+             * 检查浏览器是否支持语音合成
              */
             checkSpeechSupport() {
                 const isSupported = 'speechSynthesis' in window;
-                if (isSupported) {
-                    this.speechSupportStatus.innerHTML = '<span style="color: #48bb78;">🎤 朗读功能：已支持 (请点击卡片上的 🔊 按钮或按空格键朗读)</span>';
+                if (!isSupported) {
+                    this.speechSupportStatus.innerHTML = '<span style="color: #f56565;">🔇 朗读功能：您的浏览器**不支持**语音合成 API。</span>';
+                }
+                // 具体的中文语音加载状态在 loadChineseVoice 中更新
+            }
+
+            /**
+             * 异步加载并选择一个中文语音包
+             */
+            loadChineseVoice() {
+                const setVoice = () => {
+                    // 确保取消任何旧的监听器
+                    window.speechSynthesis.removeEventListener('voiceschanged', setVoice); 
+
+                    const voices = window.speechSynthesis.getVoices();
+                    // 尝试找到一个特定的普通话/中文语音
+                    this.chineseVoice = voices.find(voice => 
+                        voice.lang.includes('zh-') || voice.lang.includes('cmn-')
+                    );
+
+                    if (this.chineseVoice) {
+                        this.speechSupportStatus.innerHTML = '<span style="color: #48bb78;">🎤 朗读功能：已启用 (请点击 🔊 按钮或按空格键)</span>';
+                    } else {
+                        // 如果未找到特定中文语音，设置通用 zh-CN 作为后备，并给出警告
+                        this.speechSupportStatus.innerHTML = '<span style="color: #fb8332;">⚠️ 朗读功能：未找到合适的中文语音包，将尝试使用默认系统声音，可能无效。</span>';
+                    }
+                };
+
+                // 1. 如果语音列表已经加载，则立即设置
+                if (window.speechSynthesis.getVoices().length > 0) {
+                    setVoice();
                 } else {
-                    this.speechSupportStatus.innerHTML = '<span style="color: #f56565;">🔇 朗读功能：浏览器不支持，朗读功能可能无法使用。</span>';
+                    // 2. 否则，等待 `voiceschanged` 事件（对 Safari/Chrome on iOS 至关重要）
+                    window.speechSynthesis.addEventListener('voiceschanged', setVoice);
                 }
             }
 
@@ -653,12 +684,21 @@
             speakWord(text) {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'zh-CN'; 
+                    
+                    // 使用已选择的中文语音
+                    if (this.chineseVoice) {
+                        utterance.voice = this.chineseVoice;
+                        utterance.lang = this.chineseVoice.lang; 
+                    } else {
+                        // 后备方案
+                        utterance.lang = 'zh-CN'; 
+                    }
+
+                    // 提高语速适应儿童学习场景（可选）
+                    // utterance.rate = 0.8; 
 
                     window.speechSynthesis.cancel();
                     window.speechSynthesis.speak(utterance);
-                } else {
-                    console.warn("Speech synthesis not supported in this browser.");
                 }
             }
 
@@ -683,7 +723,7 @@
 
                 this.updateDisplay();
                 
-                // 自动尝试朗读一次 (在Safari中可能失败，但值得尝试)
+                // 自动尝试朗读一次（对于需要用户手势激活的 iOS 设备，此次可能失败）
                 if (this.words.length > 0) {
                     this.speakWord(this.words[this.currentIndex].text);
                 }
@@ -713,9 +753,6 @@
 
                 this.hanziDisplay.textContent = currentWord.text;
                 
-                // 移除自动朗读调用，改为依赖用户点击按钮
-                // this.speakWord(currentWord.text); 
-
                 this.wordInfo.textContent = `${this.currentIndex + 1} / ${this.words.length}`;
 
                 this.prevBtn.disabled = this.currentIndex === 0; 
