@@ -111,6 +111,7 @@
             width: 100%;
             height: 100%;
             display: flex;
+            flex-direction: column; /* 允许堆叠文字和朗读按钮 */
             justify-content: center;
             align-items: center;
         }
@@ -124,7 +125,32 @@
             text-shadow: 0 8px 16px rgba(0,0,0,0.3);
             animation: pulse 2s ease-in-out infinite alternate;
             font-family: "STKaiti", "FZKai-Z03S", "华文楷体", "方正楷体", "KaiTi", "楷体", "PingFang SC", "Microsoft YaHei", sans-serif;
+            margin-bottom: 30px; /* 为朗读按钮留出空间 */
         }
+        
+        /* 新增：手动朗读按钮样式 */
+        #speakBtn {
+            background: rgba(102, 126, 234, 0.8);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        #speakBtn:hover {
+            background: rgba(102, 126, 234, 1);
+            transform: scale(1.1);
+        }
+
 
         /* 左上角仅显示当前数量和总数量 */
         .word-info {
@@ -439,6 +465,12 @@
             .hanzi {
                 font-size: 20vw; /* 移动端字体相应调小 */
             }
+            
+            #speakBtn {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
 
             .word-info {
                 font-size: 18px;
@@ -506,6 +538,7 @@
 
             <div class="slide" id="currentSlide">
                 <div class="hanzi" id="hanziDisplay">学</div>
+                <button id="speakBtn" title="朗读当前字词">🔊</button>
             </div>
 
             <button class="exit-btn-top" id="exitBtn" title="退出学习">✖</button>
@@ -520,11 +553,10 @@
             constructor() {
                 this.words = [];
                 this.currentIndex = 0;
-                // this.totalRounds = 1; // 移除循环功能，不再需要此属性
 
                 this.initElements();
                 this.bindEvents();
-                this.checkSpeechSupport(); // 检查发音支持
+                this.checkSpeechSupport(); 
             }
 
             initElements() {
@@ -535,7 +567,6 @@
                 this.clearBtn = document.getElementById('clearBtn');
                 this.exampleBtn = document.getElementById('exampleBtn');
                 this.wordInfo = document.getElementById('wordInfo');
-                this.hanziDisplay = document.getElementById('hanziDisplay');
                 this.prevBtn = document.getElementById('prevBtn');
                 this.nextBtn = document.getElementById('nextBtn');
                 this.exitBtn = document.getElementById('exitBtn');
@@ -543,8 +574,11 @@
                 this.exampleModal = document.getElementById('exampleModal');
                 this.exampleList = document.getElementById('exampleList');
                 this.modalClose = document.getElementById('modalClose');
-
                 this.speechSupportStatus = document.getElementById('speechSupportStatus');
+
+                // 新增：朗读按钮和汉字显示元素
+                this.speakBtn = document.getElementById('speakBtn');
+                this.hanziDisplay = document.getElementById('hanziDisplay');
             }
 
             bindEvents() {
@@ -555,6 +589,13 @@
                 this.prevBtn.addEventListener('click', () => this.prevCard());
                 this.nextBtn.addEventListener('click', () => this.nextCard());
                 this.exitBtn.addEventListener('click', () => this.exitLearning());
+                
+                // 新增：手动朗读按钮事件
+                this.speakBtn.addEventListener('click', () => {
+                    if (this.words.length > 0) {
+                        this.speakWord(this.words[this.currentIndex].text);
+                    }
+                });
 
                 // 点击模态窗口背景关闭
                 this.exampleModal.addEventListener('click', (e) => {
@@ -565,7 +606,6 @@
 
                 // 键盘事件
                 document.addEventListener('keydown', (e) => {
-                    // ESC键关闭模态窗口
                     if (e.key === 'Escape' && this.exampleModal.classList.contains('active')) {
                         this.hideExampleModal();
                         return;
@@ -575,6 +615,13 @@
                         if (e.key === 'ArrowLeft') this.prevCard();
                         if (e.key === 'ArrowRight') this.nextCard();
                         if (e.key === 'Escape') this.exitLearning();
+                        // 新增：按下空格键朗读
+                        if (e.key === ' ') {
+                             e.preventDefault(); // 阻止滚动
+                            if (this.words.length > 0) {
+                                this.speakWord(this.words[this.currentIndex].text);
+                            }
+                        }
                     }
                 });
 
@@ -592,7 +639,7 @@
             checkSpeechSupport() {
                 const isSupported = 'speechSynthesis' in window;
                 if (isSupported) {
-                    this.speechSupportStatus.innerHTML = '<span style="color: #48bb78;">🎤 朗读功能：已支持 (卡片将自动朗读)</span>';
+                    this.speechSupportStatus.innerHTML = '<span style="color: #48bb78;">🎤 朗读功能：已支持 (请点击卡片上的 🔊 按钮或按空格键朗读)</span>';
                 } else {
                     this.speechSupportStatus.innerHTML = '<span style="color: #f56565;">🔇 朗读功能：浏览器不支持，朗读功能可能无法使用。</span>';
                 }
@@ -604,13 +651,10 @@
              * @param {string} text 要朗读的文字
              */
             speakWord(text) {
-                // 检查浏览器是否支持语音合成
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(text);
-                    // 设置为中文 (zh-CN: 简体中文普通话)
                     utterance.lang = 'zh-CN'; 
 
-                    // 避免重复朗读，先取消当前所有朗读任务
                     window.speechSynthesis.cancel();
                     window.speechSynthesis.speak(utterance);
                 } else {
@@ -626,32 +670,40 @@
                     return;
                 }
 
-                // 解析输入的词汇，支持多种分隔符
                 const inputWords = input.split(/[\s,，;；|｜、。]+/).filter(word => word.length > 0);
-
-                // **移除三次循环功能：只生成一次打乱的序列**
                 const shuffledWords = [...inputWords].sort(() => Math.random() - 0.5);
                 this.words = shuffledWords.map(word => ({ text: word }));
 
-                // 重置状态
                 this.currentIndex = 0;
 
-                // 切换到学习界面：先确保学习界面已重置
                 this.resetSlideDisplay(); 
 
-                // 切换界面
                 this.inputSection.classList.add('hidden');
                 this.learningSection.classList.add('active');
 
-                // 更新显示内容
                 this.updateDisplay();
+                
+                // 自动尝试朗读一次 (在Safari中可能失败，但值得尝试)
+                if (this.words.length > 0) {
+                    this.speakWord(this.words[this.currentIndex].text);
+                }
             }
 
             resetSlideDisplay() {
                 // 重置幻灯片显示内容
                 const slide = document.getElementById('currentSlide');
-                slide.innerHTML = `<div class="hanzi" id="hanziDisplay"></div>`;
+                slide.innerHTML = `
+                    <div class="hanzi" id="hanziDisplay"></div>
+                    <button id="speakBtn" title="朗读当前字词">🔊</button>
+                `;
+                // 重新获取元素引用
                 this.hanziDisplay = document.getElementById('hanziDisplay');
+                this.speakBtn = document.getElementById('speakBtn');
+                this.speakBtn.addEventListener('click', () => {
+                    if (this.words.length > 0) {
+                        this.speakWord(this.words[this.currentIndex].text);
+                    }
+                });
             }
 
             updateDisplay() {
@@ -659,17 +711,14 @@
 
                 const currentWord = this.words[this.currentIndex];
 
-                // 更新汉字
                 this.hanziDisplay.textContent = currentWord.text;
                 
-                // 朗读当前汉字/词组
-                this.speakWord(currentWord.text);
+                // 移除自动朗读调用，改为依赖用户点击按钮
+                // this.speakWord(currentWord.text); 
 
-                // 更新信息：仅显示当前数量和总数量
                 this.wordInfo.textContent = `${this.currentIndex + 1} / ${this.words.length}`;
 
-                // 更新导航按钮状态
-                this.prevBtn.disabled = this.currentIndex === 0; // 禁用上一个按钮
+                this.prevBtn.disabled = this.currentIndex === 0; 
                 this.nextBtn.disabled = this.currentIndex === this.words.length - 1;
             }
 
@@ -678,6 +727,7 @@
                     this.currentIndex--;
                     this.resetSlideDisplay(); 
                     this.updateDisplay();
+                    this.speakWord(this.words[this.currentIndex].text); // 换页后尝试朗读
                 }
             }
 
@@ -685,14 +735,13 @@
                 if (this.currentIndex < this.words.length - 1) {
                     this.currentIndex++;
                     this.updateDisplay();
+                    this.speakWord(this.words[this.currentIndex].text); // 换页后尝试朗读
                 } else {
-                    // 学习完成
                     this.showCompletion();
                 }
             }
 
             showCompletion() {
-                // **简化显示完成界面**
                 const slide = document.getElementById('currentSlide');
                 slide.innerHTML = `
               <div class="completion-screen">
@@ -703,16 +752,13 @@
                 </div>
               </div>
             `;
-                // 停止朗读
                 window.speechSynthesis.cancel();
 
                 this.wordInfo.textContent = '学习完成';
 
-                // 禁用导航按钮
                 this.prevBtn.disabled = true;
                 this.nextBtn.disabled = true;
 
-                // 5秒后自动返回
                 setTimeout(() => {
                     this.exitLearning();
                 }, 5000);
@@ -722,7 +768,6 @@
             exitLearning() {
                 this.learningSection.classList.remove('active');
                 this.inputSection.classList.remove('hidden');
-                // 停止朗读
                 window.speechSynthesis.cancel();
 
                 // 重置显示
