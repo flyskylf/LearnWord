@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iCloud 绘本阅读器</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #121212; color: #fff; font-family: -apple-system, sans-serif; }
+        
+        /* 启动上传界面 */
+        #upload-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            gap: 20px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .upload-card {
+            border: 2px dashed #444;
+            border-radius: 20px;
+            padding: 40px 20px;
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-card:active { background: rgba(255,255,255,0.1); border-color: #2196F3; }
+
+        .btn-select {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+
+        /* 渲染绘本的全屏容器 */
+        #book-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="upload-container">
+        <div class="upload-card" onclick="document.getElementById('file-input').click()">
+            <div style="font-size: 50px; margin-bottom: 10px;">📚</div>
+            <h2>点击选择 iCloud 中的 HTML 绘本</h2>
+            <p style="color: #aaa; font-size: 14px; margin-top: 8px;">支持单独打包的 Base64 绘本文件</p>
+            <button class="btn-select">打开文件</button>
+        </div>
+        <input type="file" id="file-input" accept=".html,.htm" style="display: none;" onchange="loadHtmlFile(this.files[0])">
+    </div>
+
+    <!-- 渲染绘本的独立沙盒 -->
+    <iframe id="book-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+
+    <script>
+        function loadHtmlFile(file) {
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const htmlContent = e.target.result;
+                const iframe = document.getElementById('book-frame');
+                const container = document.getElementById('upload-container');
+
+                // 隐藏上传界面，显示绘本容器
+                container.style.display = 'none';
+                iframe.style.display = 'block';
+
+                // 将读取到的单文件 HTML 注入到 iframe 中运行
+                const doc = iframe.contentWindow.document;
+                doc.open();
+                doc.write(htmlContent);
+                doc.close();
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
