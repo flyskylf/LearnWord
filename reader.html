@@ -2,71 +2,132 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- iOS PWA 沉浸式全屏支持（关键：隐藏地址栏，并将状态栏时间设为透明浮层） -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="绘本阅读器">
+
     <title>iCloud 绘本阅读器</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { width: 100%; height: 100%; overflow: hidden; background: #121212; color: #fff; font-family: -apple-system, sans-serif; }
-        
-        /* 启动上传界面 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* 文件选择界面 (适配刘海屏 safe-area) */
         #upload-container {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100%;
-            gap: 20px;
-            padding: 20px;
+            width: 100vw;
+            height: 100dvh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            background-color: #000000;
             text-align: center;
         }
 
         .upload-card {
-            border: 2px dashed #444;
-            border-radius: 20px;
-            padding: 40px 20px;
-            width: 90%;
-            max-width: 400px;
-            background: rgba(255,255,255,0.05);
+            border: 2px dashed #444444;
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 85%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
         }
 
-        .upload-card:active { background: rgba(255,255,255,0.1); border-color: #2196F3; }
+        .upload-card:active {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #2196F3;
+            transform: scale(0.98);
+        }
+
+        .upload-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+
+        .upload-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .upload-subtitle {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
 
         .btn-select {
-            background: #2196F3;
-            color: white;
+            background-color: #007aff;
+            color: #ffffff;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 28px;
             font-size: 16px;
-            border-radius: 25px;
-            font-weight: bold;
-            margin-top: 15px;
+            border-radius: 20px;
+            font-weight: 600;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
         }
 
-        /* 渲染绘本的全屏容器 */
+        /* 全屏渲染绘本的 iframe 容器 */
         #book-frame {
-            width: 100%;
-            height: 100%;
+            width: 100vw;
+            height: 100dvh;
             border: none;
             display: none;
+            background-color: #000000;
+        }
+
+        /* 竖屏持握时，强制旋转 90 度填充屏幕 */
+        @media screen and (orientation: portrait) {
+            #stage-container {
+                width: 100dvh !important;
+                height: 100vw !important;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(90deg);
+                transform-origin: center center;
+            }
         }
     </style>
 </head>
 <body>
 
+    <!-- 选择文件界面 -->
     <div id="upload-container">
         <div class="upload-card" onclick="document.getElementById('file-input').click()">
-            <div style="font-size: 50px; margin-bottom: 10px;">📚</div>
-            <h2>点击选择 iCloud 中的 HTML 绘本</h2>
-            <p style="color: #aaa; font-size: 14px; margin-top: 8px;">支持单独打包的 Base64 绘本文件</p>
-            <button class="btn-select">打开文件</button>
+            <div class="upload-icon">📖</div>
+            <div class="upload-title">点击打开 iCloud 绘本</div>
+            <div class="upload-subtitle">请选择导出的 .html 或 .htm 绘本文件</div>
+            <button class="btn-select">选择文件</button>
         </div>
         <input type="file" id="file-input" accept=".html,.htm" style="display: none;" onchange="loadHtmlFile(this.files[0])">
     </div>
 
-    <!-- 渲染绘本的独立沙盒 -->
+    <!-- 绘本渲染容器 -->
     <iframe id="book-frame" sandbox="allow-scripts allow-same-origin"></iframe>
 
     <script>
@@ -79,11 +140,11 @@
                 const iframe = document.getElementById('book-frame');
                 const container = document.getElementById('upload-container');
 
-                // 隐藏上传界面，显示绘本容器
+                // 切换界面显示
                 container.style.display = 'none';
                 iframe.style.display = 'block';
 
-                // 将读取到的单文件 HTML 注入到 iframe 中运行
+                // 将读取的绘本 HTML 代码写入 iframe 中
                 const doc = iframe.contentWindow.document;
                 doc.open();
                 doc.write(htmlContent);
