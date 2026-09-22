@@ -83,21 +83,21 @@
             box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
         }
 
-        /* 舞台容器 */
+        /* 舞台容器：设置底色为黑色，负责处理左右留白 */
         #stage-container {
             position: fixed;
             inset: 0;
             display: none;
             justify-content: center;
             align-items: center;
-            background-color: #000000; /* 将空白处底色设置为黑色 */
+            background-color: #000000; /* 左右两侧多余的空白区域显示为黑色 */
             overflow: hidden;
             
-            /* 上下不需要额外的空间边距（顶满），左右根据需要留白 */
+            /* 上下顶满，左右留出安全距离 */
             padding-top: 0;
             padding-bottom: 0;
-            padding-left: max(env(safe-area-inset-left), 40px);   /* 左右留出空间 */
-            padding-right: max(env(safe-area-inset-right), 40px);
+            padding-left: max(env(safe-area-inset-left), 30px);
+            padding-right: max(env(safe-area-inset-right), 30px);
         }
 
         .slide-wrapper {
@@ -107,16 +107,16 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #000000; /* 包装容器背景也设为黑色，确保两侧留白处纯黑 */
-            border-radius: 0;          /* 取消圆角，让图片上下边缘完全贴合屏幕 */
-            box-shadow: none;          /* 去掉阴影 */
+            background-color: #000000; /* 包装容器也设为黑色，确保两侧空白区纯黑 */
+            border-radius: 0;
+            box-shadow: none;
             overflow: hidden;
         }
         
         .slide-img {
             max-width: 100%;
-            max-height: 100%;          /* 高度拉满，上下不留空间 */
-            object-fit: contain;       /* 等比缩放，高度撑满后，左右自然产生黑色空白边 */
+            max-height: 100%;          /* 高度撑满，上下贴边 */
+            object-fit: contain;       /* 等比缩放：图片自身的底色、内容完全不变，仅在两侧产生黑色留白 */
             border: none;
             outline: none;
             display: block;
