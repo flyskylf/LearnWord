@@ -83,40 +83,40 @@
             box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
         }
 
-        /* 1. 外层舞台：纯黑色底色，同时包含安全区留白，防止灵动岛遮挡 */
+        /* 舞台容器 */
         #stage-container {
             position: fixed;
             inset: 0;
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
-            background-color: #000000; /* 安全区空白和左右两侧多余的空白全部是黑色 */
+            background-color: #000000; /* 将空白处底色设置为黑色 */
             overflow: hidden;
             
-            /* 恢复安全区 padding，避开灵动岛和边缘圆角 */
+            /* 上下不需要额外的空间边距（顶满），左右根据需要留白 */
             padding-top: 0;
             padding-bottom: 0;
-            padding-left: max(env(safe-area-inset-left), 30px);
-            padding-right: max(env(safe-area-inset-right), 30px);
+            padding-left: max(env(safe-area-inset-left), 40px);   /* 左右留出空间 */
+            padding-right: max(env(safe-area-inset-right), 40px);
         }
 
-        /* 2. 幻灯片包装容器：高度撑满，宽度自适应，底色保持白色 */
         .slide-wrapper {
-            height: 100%;           
-            width: auto;            
-            background-color: #ffffff; /* 中间幻灯片本身保持白色底色 */
+            position: relative;
+            width: 100%;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            background-color: #ffffff; /* 包装容器背景也设为黑色，确保两侧留白处纯黑 */
+            border-radius: 0;          /* 取消圆角，让图片上下边缘完全贴合屏幕 */
+            box-shadow: none;          /* 去掉阴影 */
             overflow: hidden;
         }
         
-        /* 3. 图片样式：高度撑满，宽度自适应 */
         .slide-img {
-            height: 100%;          
-            width: auto;           
             max-width: 100%;
-            object-fit: contain;
+            max-height: 100%;          /* 高度拉满，上下不留空间 */
+            object-fit: contain;       /* 等比缩放，高度撑满后，左右自然产生黑色空白边 */
             border: none;
             outline: none;
             display: block;
@@ -243,21 +243,22 @@
 
     <!-- 2. 绘本播放舞台 -->
     <div id="stage-container">
-        <!-- 返回主页按钮 -->
-        <button id="back-btn" onclick="closeBook()" aria-label="返回">✕</button>
 
         <div class="slide-wrapper">
+		<!-- 返回主页按钮 -->
+		<button id="back-btn" onclick="closeBook()" aria-label="返回">✕</button>
+
             <img id="book-img" class="slide-img" src="" alt="Slide" />
+
+			<!-- 左右翻页按钮 -->
+			<button id="prev-btn" class="nav-btn" onclick="prevPage()" aria-label="上一页">‹</button>
+			<button id="next-btn" class="nav-btn" onclick="nextPage()" aria-label="下一页">›</button>
+
+			<!-- 动态 1, 2, 3 音频按钮容器 (纵向) -->
+			<div id="audio-buttons-container"></div>
+
+			<audio id="audio-player"></audio>
         </div>
-
-        <!-- 左右翻页按钮 -->
-        <button id="prev-btn" class="nav-btn" onclick="prevPage()" aria-label="上一页">‹</button>
-        <button id="next-btn" class="nav-btn" onclick="nextPage()" aria-label="下一页">›</button>
-
-        <!-- 动态 1, 2, 3 音频按钮容器 (纵向) -->
-        <div id="audio-buttons-container"></div>
-
-        <audio id="audio-player"></audio>
     </div>
 
     <script>
