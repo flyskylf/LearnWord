@@ -339,26 +339,57 @@
             imgEl.src = page.image || '';
             updateNavState();
 
-            // 渲染右侧纵向排列的 1, 2, 3 句音频按钮
-            btnContainer.innerHTML = '';
-            if (page.sentenceAudios && page.sentenceAudios.length > 0) {
-                page.sentenceAudios.forEach((audioUri, idx) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'audio-num-btn';
-                    btn.textContent = (idx + 1).toString();
-                    btn.onclick = (e) => {
-                        e.stopPropagation();
-                        playSingleAudio(audioUri, btn);
-                    };
-                    btnContainer.appendChild(btn);
-                });
+            // 渲染右侧纵向排列的音频按钮（每列最多8个，自动向左分列并避开中央）
+btnContainer.innerHTML = '';
+if (page.sentenceAudios && page.sentenceAudios.length > 0) {
+    const btnWidth = 54;   // 按钮宽度
+    const btnHeight = 42;  // 按钮高度
+    const spacing = 10;    // 间距
+    const rightBase = 20;  // 基础右边距
+    
+    // 获取舞台高度，用于计算中心翻页按钮的位置
+    const stageHeight = stageContainer.clientHeight || window.innerHeight;
+    const nextBtnCenter = stageHeight / 2;
+    const nextBtnHeight = 72; // 翻页按钮的大致高度
 
-                // 首次切页自动播放第 1 句音频
-                if (page.sentenceAudios[0]) {
-                    const firstBtn = btnContainer.children[0];
-                    playSingleAudio(page.sentenceAudios[0], firstBtn);
-                }
-            }
+    page.sentenceAudios.forEach((audioUri, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'audio-num-btn';
+        btn.style.position = 'absolute'; // 使用绝对定位控制坐标
+        btn.textContent = (idx + 1).toString();
+        
+        // 1. 计算列与行（每列最多 8 个按钮）
+        const col = Math.floor(idx / 8);
+        const row = idx % 8;
+        
+        // 2. 计算 X 坐标：每多一列就向左整体平移
+        const rightPx = rightBase + col * (btnWidth + spacing);
+        btn.style.right = `${rightPx}px`;
+        
+        // 3. 计算 Y 坐标（核心避让逻辑）：
+        let topPx;
+        const topMargin = 15; // 顶部安全距离
+        
+        if (row < 4) {
+            // 前 4 个按钮：从顶部向下正常排列
+            topPx = topMargin + row * (btnHeight + spacing);
+        } else {
+            // 第 5 到第 8 个按钮：人为增加额外的偏移量（跳过中间的翻页按钮区域）
+            // 这里让它们在屏幕下半部分排列
+            const skipGap = 20; // 额外空隙
+            const lowerStartTop = nextBtnCenter + (nextBtnHeight / 2) + skipGap;
+            topPx = lowerStartTop + (row - 4) * (btnHeight + spacing);
+        }
+        
+        btn.style.top = `${topPx}px`;
+        
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            playSingleAudio(audioUri, btn);
+        };
+        btnContainer.appendChild(btn);
+    });
+}
         }
 
         function playSingleAudio(uri, btnEl) {
