@@ -288,6 +288,8 @@
                     if (pages && pages.length > 0) {
                         uploadContainer.style.display = 'none';
                         stageContainer.style.display = 'flex';
+						// 通知 MAUI 切换为横屏
+						window.location.href = "app://orientation/landscape";
                         
                         // 解禁 iOS Safari 音频限制
                         audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
@@ -310,6 +312,9 @@
             stageContainer.style.display = 'none';
             uploadContainer.style.display = 'flex';
             document.getElementById('file-input').value = '';
+			
+			// 通知 MAUI 切换回竖屏
+			window.location.href = "app://orientation/portrait";
         }
 
         function updateNavState() {
