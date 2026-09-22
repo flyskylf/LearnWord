@@ -84,18 +84,21 @@
         }
 
         /* 舞台容器 */
-		#stage-container {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			display: none;
-			justify-content: center;
-			align-items: center;
-			background-color: #ffffff;
-			overflow: hidden;
-		}
+        #stage-container {
+            position: fixed;
+            inset: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f4f6; /* 可以改成你喜欢的边框背景色，比如 #ffffff 或 #1c1c1e */
+            overflow: hidden;
+            
+            /* 关键：利用 iOS 安全区变量，自动在四周留出空间，避开灵动岛和黑条 */
+            padding-top: max(env(safe-area-inset-top), 20px);
+            padding-bottom: max(env(safe-area-inset-bottom), 20px);
+            padding-left: max(env(safe-area-inset-left), 40px);   /* 左右留出宽裕的白边，像 PPT 一样 */
+            padding-right: max(env(safe-area-inset-right), 40px);
+        }
 
         .slide-wrapper {
             position: relative;
@@ -104,17 +107,20 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #ffffff;
+            background-color: #ffffff; /* 绘本页面的背景色 */
+            border-radius: 12px;       /* 给绘本加一点微弱的圆角，更有 PPT/实体书质感 */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* 淡淡的阴影，让绘本从背景中浮现出来 */
+            overflow: hidden;
         }
         
 		.slide-img {
-			max-width: 100%;
-			max-height: 100%;
-			object-fit: contain;
-			border: none;
-			outline: none;
-			display: block;
-		}
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border: none;
+            outline: none;
+            display: block;
+        }
 
         /* 左右翻页按钮 */
         .nav-btn {
@@ -141,14 +147,15 @@
         }
         .nav-btn:active { background-color: rgba(0, 0, 0, 0.45); }
         .nav-btn:disabled { opacity: 0.1; cursor: not-allowed; }
-        #prev-btn { left: 20px; }
-        #next-btn { right: 20px; }
+        /* 左右翻页按钮：往内收一点 */
+        #prev-btn { left: calc(env(safe-area-inset-left) + 20px); }
+        #next-btn { right: calc(env(safe-area-inset-right) + 20px); }
 
-        /* 左上角返回/重新选书按钮 */
+        /* 左上角返回按钮 */
         #back-btn {
             position: absolute;
-            top: 15px;
-            left: 20px;
+            top: max(env(safe-area-inset-top), 15px);
+            left: max(env(safe-area-inset-left), 20px);
             width: 44px;
             height: 44px;
             background-color: rgba(0, 0, 0, 0.25);
@@ -165,12 +172,12 @@
             -webkit-backdrop-filter: blur(2px);
         }
 
-        /* 右上角句音频按钮容器：纵向排列 */
+        /* 右上角音频按钮容器 */
         #audio-buttons-container {
             position: absolute;
-            top: 15px;
-            right: 20px;
-            bottom: 15px;
+            top: max(env(safe-area-inset-top), 15px);
+            right: max(env(safe-area-inset-right), 20px);
+            bottom: max(env(safe-area-inset-bottom), 15px);
             display: flex;
             flex-direction: column;  /* 纵向排列 */
             flex-wrap: wrap-reverse; /* 超过一列时向左扩展 */
