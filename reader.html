@@ -1,237 +1,264 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="绘本阅读器">
-    <title>iCloud 绘本阅读器</title>
+    <meta name="apple-mobile-web-app-title" content="Reader">
+    <title>Reader</title>
 
     <style>
-               * {
-                   box-sizing: border-box;
-                   margin: 0;
-                   padding: 0;
-                   user-select: none;
-                   -webkit-user-select: none;
-                   -webkit-tap-highlight-color: transparent;
-               }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-               html, body {
-                   position: fixed;
-                   inset: 0;
-                   overflow: hidden;
-                   background: #000;
-                   color: #333;
-                   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-               }
+        html, body {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: #000;
+            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-               /* 文件选择界面 */
-               #upload-container {
-                   position: fixed;
-                   inset: 0;
-                   display: flex;
-                   flex-direction: column;
-                   justify-content: center;
-                   align-items: center;
-                   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-                   background: #1c1c1e;
-                   text-align: center;
-               }
+        /* File Upload Interface */
+        #upload-container {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            background: #1c1c1e;
+            text-align: center;
+        }
 
-               .upload-card {
-                   border: 2px dashed #444;
-                   border-radius: 24px;
-                   padding: 40px 30px;
-                   width: 85%;
-                   max-width: 420px;
-                   background: rgba(255,255,255,.08);
-                   backdrop-filter: blur(10px);
-                   -webkit-backdrop-filter: blur(10px);
-                   cursor: pointer;
-               }
+        .upload-card {
+            border: 2px dashed #444;
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 85%;
+            max-width: 420px;
+            background: rgba(255,255,255,.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
 
-               .upload-icon {
-                   font-size: 56px;
-                   margin-bottom: 12px;
-               }
+        .upload-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
 
-               .upload-title {
-                   font-size: 20px;
-                   font-weight: 600;
-                   margin-bottom: 8px;
-                   color: #fff;
-               }
+        .upload-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #fff;
+        }
 
-               .upload-subtitle {
-                   color: #8e8e93;
-                   font-size: 14px;
-                   margin-bottom: 20px;
-               }
+        .upload-subtitle {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
 
-               .btn-select {
-                   background: #0a84ff;
-                   color: #fff;
-                   border: none;
-                   padding: 12px 28px;
-                   font-size: 16px;
-                   border-radius: 20px;
-                   font-weight: 600;
-               }
+        .btn-select {
+            background: #0a84ff;
+            color: #fff;
+            border: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
 
-               /*
-        * 外层 viewport：
-        * 只负责黑色背景和设备可视区域。
-        * 这里绝对不能给固定 PPT 舞台增加 padding。
-        */
-               #viewport {
-                   position: fixed;
-                   inset: 0;
-                   display: none;
-                   overflow: hidden;
-                   background: #000;
-               }
+        #viewport {
+            position: fixed;
+            inset: 0;
+            display: none;
+            overflow: hidden;
+            background: #000;
+        }
 
-               /*
-        * 固定 PPT 舞台。
-        *
-        * PPT 中所有坐标都是基于 SlideWidth / SlideHeight，
-        * 所以 HTML 也采用完全固定的坐标系。
-        *
-        * 与 PptBuilder.cs 的 SlideWidth / SlideHeight 保持一致，当前为 960 x 540。
-        * 后续可以由 C# 导出器自动写入真实的 SlideWidth / SlideHeight。
-        */
-               :root {
-                   --stage-width: 960px;
-                   --stage-height: 540px;
-               }
+        :root {
+            --stage-width: 960px;
+            --stage-height: 540px;
+        }
 
-               #stage {
-                   position: absolute;
-                   left: 50%;
-                   top: 50%;
-                   width: var(--stage-width);
-                   height: var(--stage-height);
-                   transform-origin: center center;
-                   background: #fff; /* PPT 默认空白 slide 背景 */
-                   overflow: hidden;
-               }
+        #stage {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: var(--stage-width);
+            height: var(--stage-height);
+            transform-origin: center center;
+            background: #fff;
+            overflow: hidden;
+        }
 
-               /*
-        * 图片的缩放规则完全对应 PptBuilder.AddImageProportional：
-        *
-        * scale = min(slideWidth / imageWidth,
-        *             slideHeight / imageHeight)
-        *
-        * 然后居中。
-        */
-               #book-img {
-                   position: absolute;
-                   display: block;
-                   border: 0;
-                   outline: 0;
-                   max-width: none;
-                   max-height: none;
-               }
+        #book-img {
+            position: absolute;
+            display: block;
+            border: 0;
+            outline: 0;
+            max-width: none;
+            max-height: none;
+        }
 
-               /*
-        * 翻页按钮：
-        * 完全按照 PptBuilder.AddNavigationButtons() 的坐标。
-        *
-        * width  = 60
-        * height = 70
-        * margin = 15
-        * top    = (stageHeight - 70) / 2
-        */
-               .nav-btn {
-                   position: absolute;
-                   width: 60px;
-                   height: 70px;
-                   padding: 0;
-                   margin: 0;
-                   background: rgba(120,120,120,.65);
-                   color: #fff;
-                   border: 0;
-                   border-radius: 10px;
-                   font-size: 32px;
-                   font-weight: 700;
-                   line-height: 70px;
-                   text-align: center;
-                   z-index: 200;
-                   cursor: pointer;
-               }
+        .nav-btn {
+            position: absolute;
+            width: 60px;
+            height: 70px;
+            padding: 0;
+            margin: 0;
+            background: rgba(120,120,120,.65);
+            color: #fff;
+            border: 0;
+            border-radius: 10px;
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 70px;
+            text-align: center;
+            z-index: 200;
+            cursor: pointer;
+        }
 
-               #prev-btn {
-                   left: 15px;
-                   top: 235px; /* (540 - 70) / 2 */
-               }
+        #prev-btn {
+            left: 15px;
+            top: 235px; /* (540 - 70) / 2 */
+        }
 
-               #next-btn {
-                   right: 15px;
-                   top: 235px;
-               }
+        #next-btn {
+            right: 15px;
+            top: 235px;
+        }
 
-               .nav-btn:disabled {
-                   display: none;
-               }
+        .nav-btn:disabled {
+            display: none;
+        }
 
-               /*
-        * 左上角返回按钮。
-        * 这个不是 PPT 原始按钮，所以仍然单独放置。
-        */
-               #back-btn {
-                   position: absolute;
-                   top: 15px;
-                   left: 15px;
-                   width: 44px;
-                   height: 44px;
-                   padding: 0;
-                   margin: 0;
-                   background: rgba(0,0,0,.25);
-                   color: #fff;
-                   border: 0;
-                   border-radius: 10px;
-                   font-size: 20px;
-                   z-index: 300;
-               }
+        /* Top-left Back Button */
+        #back-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            margin: 0;
+            background: rgba(0,0,0,.25);
+            color: #fff;
+            border: 0;
+            border-radius: 10px;
+            font-size: 20px;
+            z-index: 300;
+            cursor: pointer;
+        }
 
-               /*
-        * 句子音频按钮：
-        * 完全采用 PptBuilder.AddSentenceAudioButtons() 的尺寸。
-        */
-               .audio-num-btn {
-                   position: absolute;
-                   width: 60px;
-                   height: 48px;
-                   padding: 0;
-                   margin: 0;
-                   color: #fff;
-                   font-size: 18px;
-                   font-weight: 700;
-                   border: 2px solid #fff;
-                   border-radius: 8px;
-                   display: flex;
-                   justify-content: center;
-                   align-items: center;
-                   z-index: 300;
-                   cursor: pointer;
-                   box-shadow: 1px 2px 3px rgba(0,0,0,.5);
-               }
+        /* Bottom-left Setting Button */
+        #settings-btn {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            margin: 0;
+            background: rgba(0,0,0,.35);
+            color: #fff;
+            border: 0;
+            border-radius: 10px;
+            font-size: 22px;
+            z-index: 300;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-                   .audio-num-btn:active {
-                       transform: scale(.96);
-                   }
+            #settings-btn:active {
+                transform: scale(0.95);
+            }
 
-                   .audio-num-btn.playing {
-                       filter: brightness(.85);
-                       border-color: #fef08a;
-                   }
+        /* Settings Modal */
+        #settings-modal {
+            display: none;
+            position: absolute;
+            bottom: 68px;
+            left: 15px;
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #fff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            z-index: 400;
+            min-width: 220px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
 
-               /* 音频播放元素不参与布局 */
-               #audio-player {
-                   display: none;
-               }
+            #settings-modal.show {
+                display: block;
+            }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            user-select: none;
+            cursor: pointer;
+            gap: 12px;
+        }
+
+            .setting-item input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                accent-color: #0a84ff;
+                cursor: pointer;
+            }
+
+        /* Sentence Audio Buttons */
+        .audio-num-btn {
+            position: absolute;
+            width: 60px;
+            height: 48px;
+            padding: 0;
+            margin: 0;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            cursor: pointer;
+            box-shadow: 1px 2px 3px rgba(0,0,0,.5);
+        }
+
+            .audio-num-btn:active {
+                transform: scale(.96);
+            }
+
+            .audio-num-btn.playing {
+                filter: brightness(.85);
+                border-color: #fef08a;
+            }
+
+        #audio-player {
+            display: none;
+        }
     </style>
 </head>
 
@@ -240,9 +267,9 @@
     <div id="upload-container">
         <div class="upload-card" onclick="document.getElementById('file-input').click()">
             <div class="upload-icon">📖</div>
-            <div class="upload-title">打开 iCloud 绘本</div>
-            <div class="upload-subtitle">请选择导出的绘本 HTML 数据包</div>
-            <button class="btn-select">选择文件</button>
+            <div class="upload-title">Open File</div>
+            <div class="upload-subtitle">Please select a file</div>
+            <button class="btn-select">Select File</button>
         </div>
         <input id="file-input" type="file" accept=".html,.htm"
                style="display:none" onchange="loadBookFile(this.files[0])">
@@ -251,12 +278,21 @@
     <div id="viewport">
         <div id="stage">
 
-            <button id="back-btn" onclick="closeBook()" aria-label="返回">✕</button>
+            <button id="back-btn" onclick="handleCloseClick()" aria-label="Back">✕</button>
+
+            <!-- Bottom-left Setting Button & Modal -->
+            <button id="settings-btn" onclick="toggleSettingsModal(event)" aria-label="Settings">⚙️</button>
+            <div id="settings-modal" onclick="event.stopPropagation()">
+                <label class="setting-item">
+                    <span>Auto-play first audio</span>
+                    <input type="checkbox" id="auto-play-toggle" onchange="handleAutoPlayChange(this.checked)">
+                </label>
+            </div>
 
             <img id="book-img" src="" alt="Slide">
 
-            <button id="prev-btn" class="nav-btn" onclick="prevPage()" aria-label="上一页">‹</button>
-            <button id="next-btn" class="nav-btn" onclick="nextPage()" aria-label="下一页">›</button>
+            <button id="prev-btn" class="nav-btn" onclick="prevPage()" aria-label="Previous">‹</button>
+            <button id="next-btn" class="nav-btn" onclick="nextPage()" aria-label="Next">›</button>
 
             <div id="audio-buttons-container"></div>
 
@@ -265,23 +301,15 @@
     </div>
 
     <script>
-/*
-         * ============================================================
-         * 固定 PPT 坐标系统
-         * ============================================================
-         *
-         * 与 PptBuilder.cs 中 presentation.PageSetup.SlideWidth / SlideHeight
-         * 保持完全一致（调试确认为 960 x 540），这样所有按钮坐标
-         * （60/70/15/48/8 等）才能和 C# 端 1:1 对应，无需再做比例换算。
-         *
-         * 如果以后 C# 导出器写入真实 PPT 尺寸，只需要替换这里两个值。
-         */
 const STAGE_WIDTH = 960;
 const STAGE_HEIGHT = 540;
 
 let pages = [];
 let currentIndex = 0;
 let currentPlayingBtn = null;
+
+// Default to auto-play first audio unless explicitly turned off
+let autoPlayFirstAudio = localStorage.getItem('autoPlayFirstAudio') !== 'false';
 
 const uploadContainer = document.getElementById('upload-container');
 const viewport = document.getElementById('viewport');
@@ -291,16 +319,12 @@ const audioEl = document.getElementById('audio-player');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 const btnContainer = document.getElementById('audio-buttons-container');
+const settingsModal = document.getElementById('settings-modal');
+const autoPlayToggle = document.getElementById('auto-play-toggle');
 
-/*
-         * 设备屏幕 -> PPT 固定舞台
-         *
-         * 注意：
-         * 1. safe-area 不参与 PPT 坐标计算。
-         * 2. stage 永远保持 960 x 540。
-         * 3. 整个 stage 等比例缩放。
-         * 4. 多出来的区域永远是黑色。
-         */
+// Initialize checkbox state
+autoPlayToggle.checked = autoPlayFirstAudio;
+
 function resizeStage() {
             const vw = window.innerWidth;
             const vh = window.innerHeight;
@@ -310,8 +334,7 @@ function resizeStage() {
                 vh / STAGE_HEIGHT
             );
 
-            stage.style.transform =
-                `translate(-50%, -50%) scale(${scale})`;
+            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 window.addEventListener('resize', resizeStage);
@@ -319,9 +342,23 @@ window.addEventListener('orientationchange', () => {
             setTimeout(resizeStage, 100);
 });
 
-/*
-         * 读取导出的 HTML 中的 book-data。
-         */
+// Close settings modal when clicking outside
+stage.addEventListener('click', (e) => {
+            if (settingsModal.classList.contains('show')) {
+                settingsModal.classList.remove('show');
+            }
+});
+
+function toggleSettingsModal(e) {
+            e.stopPropagation();
+            settingsModal.classList.toggle('show');
+}
+
+function handleAutoPlayChange(checked) {
+            autoPlayFirstAudio = checked;
+            localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
+}
+
 function loadBookFile(file) {
             if (!file) return;
 
@@ -335,7 +372,7 @@ function loadBookFile(file) {
                 const dataScript = doc.getElementById('book-data');
 
                 if (!dataScript) {
-                    alert('无效的绘本数据包！未找到 book-data 节点。');
+                    alert('Invalid file format! "book-data" element not found.');
                     return;
                 }
 
@@ -349,28 +386,35 @@ function loadBookFile(file) {
                     uploadContainer.style.display = 'none';
                     viewport.style.display = 'block';
 
-                    /*
-                     * 通知 MAUI：
-                     * HTML 自己不旋转、不修改屏幕方向。
-                     * MAUI 负责真正锁定横屏。
-                     */
                     window.location.href = "app://orientation/landscape";
 
                     resizeStage();
 
-                    // 尝试解禁 iOS 音频
-                    audioEl.src =
-                        'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+                    // Unlock audio on iOS
+                    audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
                     audioEl.play().catch(() => {});
 
                     loadPage(0);
 
                 } catch (err) {
-                    alert('解析绘本数据失败: ' + err.message);
+                    alert('Failed to parse data: ' + err.message);
                 }
             };
 
             reader.readAsText(file);
+}
+
+function handleCloseClick() {
+            const isLastPage = currentIndex === pages.length - 1;
+
+            if (isLastPage) {
+                closeBook();
+                return;
+            }
+
+            if (window.confirm('Are you sure you want to exit the current book?')) {
+                closeBook();
+            }
 }
 
 function closeBook() {
@@ -378,6 +422,10 @@ function closeBook() {
 
             pages = [];
             currentIndex = 0;
+
+            if (settingsModal.classList.contains('show')) {
+                settingsModal.classList.remove('show');
+            }
 
             viewport.style.display = 'none';
             uploadContainer.style.display = 'flex';
@@ -392,13 +440,6 @@ function updateNavState() {
             nextBtn.disabled = currentIndex === pages.length - 1;
 }
 
-/*
-         * PPT AddImageProportional 的 JS 等价实现。
-         *
-         * 注意：
-         * 图片不是 width:100% / height:100%。
-         * 而是按照 PPT 的 slideWidth / slideHeight 等比缩放并居中。
-         */
 function layoutImage() {
             if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
                 return;
@@ -421,9 +462,6 @@ function layoutImage() {
             imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
 }
 
-/*
-         * 加载页面。
-         */
 function loadPage(index) {
             if (index < 0 || index >= pages.length) return;
 
@@ -438,47 +476,16 @@ function loadPage(index) {
             updateNavState();
             renderSentenceButtons(page);
 
-            /*
-             * 如果图片已经在缓存中，onload 可能已经不会再次触发。
-             */
             if (imgEl.complete) {
                 layoutImage();
             }
+
+            if (autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
+                const firstBtn = btnContainer.querySelector('.audio-num-btn');
+                playSingleAudio(page.sentenceAudios[0], firstBtn);
+            }
 }
 
-/*
-         * ============================================================
-         * 句子按钮
-         * ============================================================
-         *
-         * 这里严格对应 PptBuilder.AddSentenceAudioButtons()
-         *
-         * PPT:
-         *   btnHeight = 48
-         *   btnWidth  = 60
-         *   spacing   = 8
-         *   rightMargin = 15
-         *   topMargin = 8
-         *
-         * 第一列：
-         *   left = slideWidth - 15 - 60
-         *
-         * 第二列：
-         *   left = 第一列 - 60 - 8
-         *
-         * 前 4 个：
-         *   top = 8 + row * (48 + 8)
-         *
-         * 后 4 个：
-         *   top = nextBtnBottom + 8 + (row - 4) * 56
-         *
-         * 下一页：
-         *   top = (540 - 70) / 2 = 235
-         *   bottom = 235 + 70 = 305
-         *
-         * 所以后 4 个按钮第一个：
-         *   top = 305 + 8 = 313
-         */
 function renderSentenceButtons(page) {
             btnContainer.innerHTML = '';
 
@@ -498,8 +505,7 @@ function renderSentenceButtons(page) {
             const nextBtnBottom = nextBtnTop + navButtonHeight;
             const skipGap = 8;
 
-            const baseLeft =
-                STAGE_WIDTH - rightMargin - btnWidth;
+            const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
 
             const macaronColors = [
                 'rgb(255,154,162)',
@@ -511,50 +517,27 @@ function renderSentenceButtons(page) {
             ];
 
             page.sentenceAudios.forEach((audioUri, idx) => {
-
                 const col = Math.floor(idx / 8);
                 const row = idx % 8;
 
-                /*
-                 * 完全对应 C#：
-                 * left = baseLeft - col * (btnWidth + spacing)
-                 */
-                const left =
-                    baseLeft - col * (btnWidth + spacing);
+                const left = baseLeft - col * (btnWidth + spacing);
 
                 let top;
-
                 if (row < 4) {
-                    top =
-                        topMargin +
-                        row * (btnHeight + spacing);
+                    top = topMargin + row * (btnHeight + spacing);
                 } else {
-                    top =
-                        nextBtnBottom +
-                        skipGap +
-                        (row - 4) * (btnHeight + spacing);
+                    top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
                 }
 
-                /*
-                 * 与 C# 的安全边界判断一致。
-                 */
-                if (left < 10) {
-                    return;
-                }
-
-                if (top + btnHeight > STAGE_HEIGHT - 10) {
+                if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
                     return;
                 }
 
                 const btn = document.createElement('button');
-
                 btn.className = 'audio-num-btn';
-
                 btn.style.left = left + 'px';
                 btn.style.top = top + 'px';
-                btn.style.backgroundColor =
-                    macaronColors[idx % macaronColors.length];
-
+                btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
                 btn.textContent = String(idx + 1);
 
                 btn.onclick = function(e) {
@@ -571,8 +554,10 @@ function playSingleAudio(uri, btnEl) {
 
             if (!uri) return;
 
-            currentPlayingBtn = btnEl;
-            currentPlayingBtn.classList.add('playing');
+            if (btnEl) {
+                currentPlayingBtn = btnEl;
+                currentPlayingBtn.classList.add('playing');
+            }
 
             audioEl.src = uri;
             audioEl.onended = function() {
@@ -580,7 +565,7 @@ function playSingleAudio(uri, btnEl) {
             };
 
             audioEl.play().catch(err => {
-                console.log('播放受限:', err);
+                console.log('Playback restricted:', err);
             });
 }
 
@@ -610,19 +595,16 @@ function prevPage() {
 
 document.addEventListener('keydown', function(e) {
             if (viewport.style.display === 'block') {
-                if (e.key === 'ArrowRight' ||
-                    e.key === ' ' ||
-                    e.key === 'PageDown') {
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
                     nextPage();
                 }
 
-                if (e.key === 'ArrowLeft' ||
-                    e.key === 'PageUp') {
+                if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
                     prevPage();
                 }
 
                 if (e.key === 'Escape') {
-                    closeBook();
+                    handleCloseClick();
                 }
             }
 });
