@@ -259,6 +259,20 @@
         #audio-player {
             display: none;
         }
+
+        /*
+         * 外接屏"展示模式" (?mode=display)：
+         * 只保留内容画面本身，把上传界面、翻页按钮、设置、返回、句子音频按钮全部隐藏，
+         * 因为电视屏幕不可触摸，这些控件在这份拷贝上没有意义。
+         */
+        html.display-mode #upload-container,
+        html.display-mode #back-btn,
+        html.display-mode #settings-btn,
+        html.display-mode #settings-modal,
+        html.display-mode .nav-btn,
+        html.display-mode #audio-buttons-container {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -304,6 +318,15 @@
 const STAGE_WIDTH = 960;
 const STAGE_HEIGHT = 540;
 
+// ==================== 外接屏展示模式 ====================
+// 通过 URL 参数 ?mode=display 区分：这份网页实例是加载在电视(外接屏)上的"只读镜像"，
+// 还是加载在 iPad/iPhone 本机屏幕上的"可交互"主实例。
+const __isDisplayMode = new URLSearchParams(window.location.search).get('mode') === 'display';
+if (__isDisplayMode) {
+            document.documentElement.classList.add('display-mode');
+}
+// ==========================================================
+
 let pages = [];
 let currentIndex = 0;
 let currentPlayingBtn = null;
@@ -326,298 +349,346 @@ const autoPlayToggle = document.getElementById('auto-play-toggle');
 autoPlayToggle.checked = autoPlayFirstAudio;
 
 function resizeStage() {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
+                    const vw = window.innerWidth;
+                    const vh = window.innerHeight;
 
-            const scale = Math.min(
-                vw / STAGE_WIDTH,
-                vh / STAGE_HEIGHT
-            );
+                    const scale = Math.min(
+                        vw / STAGE_WIDTH,
+                        vh / STAGE_HEIGHT
+                    );
 
-            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 window.addEventListener('resize', resizeStage);
 window.addEventListener('orientationchange', () => {
-            setTimeout(resizeStage, 100);
+                    setTimeout(resizeStage, 100);
 });
 
 // Close settings modal when clicking outside
 stage.addEventListener('click', (e) => {
-            if (settingsModal.classList.contains('show')) {
-                settingsModal.classList.remove('show');
-            }
+                    if (settingsModal.classList.contains('show')) {
+                        settingsModal.classList.remove('show');
+                    }
 });
 
 function toggleSettingsModal(e) {
-            e.stopPropagation();
-            settingsModal.classList.toggle('show');
+                    e.stopPropagation();
+                    settingsModal.classList.toggle('show');
 }
 
 function handleAutoPlayChange(checked) {
-            autoPlayFirstAudio = checked;
-            localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
+                    autoPlayFirstAudio = checked;
+                    localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
 }
 
 function loadBookFile(file) {
-    if (!file) return;
+            if (!file) return;
 
-    const reader = new FileReader();
+            const reader = new FileReader();
 
-    reader.onload = function (e) {
-        const htmlContent = e.target.result;
+            reader.onload = function (e) {
+                const htmlContent = e.target.result;
 
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlContent, 'text/html');
-        const dataScript = doc.getElementById('book-data');
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlContent, 'text/html');
+                const dataScript = doc.getElementById('book-data');
 
-        if (!dataScript) {
-            alert('Invalid file format! "book-data" element not found.');
-            return;
-        }
-
-        try {
-            pages = JSON.parse(dataScript.textContent);
-
-            if (!pages || pages.length === 0) {
-                return;
-            }
-
-            // ==================== 特殊处理首图重复问题 ====================
-            // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
-            if (!pages[0].image) {
-                const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
-                if (coverImgEl) {
-                    pages[0].image = coverImgEl.getAttribute('src') || '';
-                }
-            }
-            // ==============================================================
-
-            uploadContainer.style.display = 'none';
-            viewport.style.display = 'block';
-
-            window.location.href = "app://orientation/landscape";
-
-            resizeStage();
-
-            // Unlock audio on iOS
-            audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-            audioEl.play().catch(() => { });
-
-            loadPage(0);
-
-        } catch (err) {
-            alert('Failed to parse data: ' + err.message);
-        }
-    };
-
-    reader.readAsText(file);
-}
-
-function handleCloseClick() {
-            const isLastPage = currentIndex === pages.length - 1;
-
-            if (isLastPage) {
-                closeBook();
-                return;
-            }
-
-            if (window.confirm('Are you sure you want to exit the current book?')) {
-                closeBook();
-            }
-}
-
-function closeBook() {
-            stopAudio();
-
-            pages = [];
-            currentIndex = 0;
-
-            if (settingsModal.classList.contains('show')) {
-                settingsModal.classList.remove('show');
-            }
-
-            viewport.style.display = 'none';
-            uploadContainer.style.display = 'flex';
-
-            document.getElementById('file-input').value = '';
-
-            window.location.href = "app://orientation/portrait";
-}
-
-function updateNavState() {
-            prevBtn.disabled = currentIndex === 0;
-            nextBtn.disabled = currentIndex === pages.length - 1;
-}
-
-function layoutImage() {
-            if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
-                return;
-            }
-
-            const originalWidth = imgEl.naturalWidth;
-            const originalHeight = imgEl.naturalHeight;
-
-            const scale = Math.min(
-                STAGE_WIDTH / originalWidth,
-                STAGE_HEIGHT / originalHeight
-            );
-
-            const width = originalWidth * scale;
-            const height = originalHeight * scale;
-
-            imgEl.style.width = width + 'px';
-            imgEl.style.height = height + 'px';
-            imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
-            imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
-}
-
-function loadPage(index) {
-            if (index < 0 || index >= pages.length) return;
-
-            currentIndex = index;
-            stopAudio();
-
-            const page = pages[currentIndex];
-
-            imgEl.onload = layoutImage;
-            imgEl.src = page.image || '';
-
-            updateNavState();
-            renderSentenceButtons(page);
-
-            if (imgEl.complete) {
-                layoutImage();
-            }
-
-            if (autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
-                const firstBtn = btnContainer.querySelector('.audio-num-btn');
-                playSingleAudio(page.sentenceAudios[0], firstBtn);
-            }
-}
-
-function renderSentenceButtons(page) {
-            btnContainer.innerHTML = '';
-
-            if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
-                return;
-            }
-
-            const btnWidth = 60;
-            const btnHeight = 48;
-            const spacing = 8;
-
-            const rightMargin = 15;
-            const topMargin = 8;
-
-            const navButtonHeight = 70;
-            const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
-            const nextBtnBottom = nextBtnTop + navButtonHeight;
-            const skipGap = 8;
-
-            const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
-
-            const macaronColors = [
-                'rgb(255,154,162)',
-                'rgb(255,183,178)',
-                'rgb(255,218,193)',
-                'rgb(226,240,203)',
-                'rgb(181,234,215)',
-                'rgb(199,206,234)'
-            ];
-
-            page.sentenceAudios.forEach((audioUri, idx) => {
-                const col = Math.floor(idx / 8);
-                const row = idx % 8;
-
-                const left = baseLeft - col * (btnWidth + spacing);
-
-                let top;
-                if (row < 4) {
-                    top = topMargin + row * (btnHeight + spacing);
-                } else {
-                    top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
-                }
-
-                if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
+                if (!dataScript) {
+                    alert('Invalid file format! "book-data" element not found.');
                     return;
                 }
 
-                const btn = document.createElement('button');
-                btn.className = 'audio-num-btn';
-                btn.style.left = left + 'px';
-                btn.style.top = top + 'px';
-                btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
-                btn.textContent = String(idx + 1);
+                try {
+                    pages = JSON.parse(dataScript.textContent);
 
-                btn.onclick = function(e) {
-                    e.stopPropagation();
-                    playSingleAudio(audioUri, btn);
-                };
+                    if (!pages || pages.length === 0) {
+                        return;
+                    }
 
-                btnContainer.appendChild(btn);
-            });
+                    // ==================== 特殊处理首图重复问题 ====================
+                    // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
+                    if (!pages[0].image) {
+                        const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
+                        if (coverImgEl) {
+                            pages[0].image = coverImgEl.getAttribute('src') || '';
+                        }
+                    }
+                    // ==============================================================
+
+                    uploadContainer.style.display = 'none';
+                    viewport.style.display = 'block';
+
+                    window.location.href = "app://orientation/landscape";
+
+                    resizeStage();
+
+                    // Unlock audio on iOS
+                    audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+                    audioEl.play().catch(() => { });
+
+                    loadPage(0);
+
+                    // 通知原生：书已经加载好了，请把 pages 数据同步给外接屏(如果已连接)
+                    if (!__isDisplayMode) {
+                        window.location.href = "app://display/loadbook";
+                    }
+
+                } catch (err) {
+                    alert('Failed to parse data: ' + err.message);
+                }
+            };
+
+            reader.readAsText(file);
+}
+
+function handleCloseClick() {
+                    const isLastPage = currentIndex === pages.length - 1;
+
+                    if (isLastPage) {
+                        closeBook();
+                        return;
+                    }
+
+                    if (window.confirm('Are you sure you want to exit the current book?')) {
+                        closeBook();
+                    }
+}
+
+function closeBook() {
+                    stopAudio();
+
+                    pages = [];
+                    currentIndex = 0;
+
+                    if (settingsModal.classList.contains('show')) {
+                        settingsModal.classList.remove('show');
+                    }
+
+                    viewport.style.display = 'none';
+                    uploadContainer.style.display = 'flex';
+
+                    document.getElementById('file-input').value = '';
+
+                    window.location.href = "app://orientation/portrait";
+
+                    // 通知原生：书关闭了，外接屏也应该清空
+                    if (!__isDisplayMode) {
+                        window.location.href = "app://display/close";
+                    }
+}
+
+function updateNavState() {
+                    prevBtn.disabled = currentIndex === 0;
+                    nextBtn.disabled = currentIndex === pages.length - 1;
+}
+
+function layoutImage() {
+                    if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
+                        return;
+                    }
+
+                    const originalWidth = imgEl.naturalWidth;
+                    const originalHeight = imgEl.naturalHeight;
+
+                    const scale = Math.min(
+                        STAGE_WIDTH / originalWidth,
+                        STAGE_HEIGHT / originalHeight
+                    );
+
+                    const width = originalWidth * scale;
+                    const height = originalHeight * scale;
+
+                    imgEl.style.width = width + 'px';
+                    imgEl.style.height = height + 'px';
+                    imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
+                    imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
+}
+
+function loadPage(index) {
+                    if (index < 0 || index >= pages.length) return;
+
+                    currentIndex = index;
+                    stopAudio();
+
+                    const page = pages[currentIndex];
+
+                    imgEl.onload = layoutImage;
+                    imgEl.src = page.image || '';
+
+                    updateNavState();
+                    renderSentenceButtons(page);
+
+                    if (imgEl.complete) {
+                        layoutImage();
+                    }
+
+                    // 展示模式(电视)上不自动播放音频，避免和主设备的声音重叠
+                    if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
+                        const firstBtn = btnContainer.querySelector('.audio-num-btn');
+                        playSingleAudio(page.sentenceAudios[0], firstBtn);
+                    }
+
+                    // 通知原生：翻页了，请把新的页码同步给外接屏(如果已连接)
+                    if (!__isDisplayMode) {
+                        window.location.href = "app://display/page/" + currentIndex;
+                    }
+}
+
+function renderSentenceButtons(page) {
+                    btnContainer.innerHTML = '';
+
+                    if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
+                        return;
+                    }
+
+                    const btnWidth = 60;
+                    const btnHeight = 48;
+                    const spacing = 8;
+
+                    const rightMargin = 15;
+                    const topMargin = 8;
+
+                    const navButtonHeight = 70;
+                    const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
+                    const nextBtnBottom = nextBtnTop + navButtonHeight;
+                    const skipGap = 8;
+
+                    const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
+
+                    const macaronColors = [
+                        'rgb(255,154,162)',
+                        'rgb(255,183,178)',
+                        'rgb(255,218,193)',
+                        'rgb(226,240,203)',
+                        'rgb(181,234,215)',
+                        'rgb(199,206,234)'
+                    ];
+
+                    page.sentenceAudios.forEach((audioUri, idx) => {
+                        const col = Math.floor(idx / 8);
+                        const row = idx % 8;
+
+                        const left = baseLeft - col * (btnWidth + spacing);
+
+                        let top;
+                        if (row < 4) {
+                            top = topMargin + row * (btnHeight + spacing);
+                        } else {
+                            top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
+                        }
+
+                        if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
+                            return;
+                        }
+
+                        const btn = document.createElement('button');
+                        btn.className = 'audio-num-btn';
+                        btn.style.left = left + 'px';
+                        btn.style.top = top + 'px';
+                        btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
+                        btn.textContent = String(idx + 1);
+
+                        btn.onclick = function(e) {
+                            e.stopPropagation();
+                            playSingleAudio(audioUri, btn);
+                        };
+
+                        btnContainer.appendChild(btn);
+                    });
 }
 
 function playSingleAudio(uri, btnEl) {
-            stopAudio();
+                    stopAudio();
 
-            if (!uri) return;
+                    if (!uri) return;
 
-            if (btnEl) {
-                currentPlayingBtn = btnEl;
-                currentPlayingBtn.classList.add('playing');
-            }
+                    if (btnEl) {
+                        currentPlayingBtn = btnEl;
+                        currentPlayingBtn.classList.add('playing');
+                    }
 
-            audioEl.src = uri;
-            audioEl.onended = function() {
-                stopAudio();
-            };
+                    audioEl.src = uri;
+                    audioEl.onended = function() {
+                        stopAudio();
+                    };
 
-            audioEl.play().catch(err => {
-                console.log('Playback restricted:', err);
-            });
+                    audioEl.play().catch(err => {
+                        console.log('Playback restricted:', err);
+                    });
 }
 
 function stopAudio() {
-            audioEl.pause();
-            audioEl.removeAttribute('src');
-            audioEl.load();
-            audioEl.onended = null;
+                    audioEl.pause();
+                    audioEl.removeAttribute('src');
+                    audioEl.load();
+                    audioEl.onended = null;
 
-            if (currentPlayingBtn) {
-                currentPlayingBtn.classList.remove('playing');
-                currentPlayingBtn = null;
-            }
+                    if (currentPlayingBtn) {
+                        currentPlayingBtn.classList.remove('playing');
+                        currentPlayingBtn = null;
+                    }
 }
 
 function nextPage() {
-            if (currentIndex < pages.length - 1) {
-                loadPage(currentIndex + 1);
-            }
+                    if (currentIndex < pages.length - 1) {
+                        loadPage(currentIndex + 1);
+                    }
 }
 
 function prevPage() {
-            if (currentIndex > 0) {
-                loadPage(currentIndex - 1);
-            }
+                    if (currentIndex > 0) {
+                        loadPage(currentIndex - 1);
+                    }
 }
 
 document.addEventListener('keydown', function(e) {
-            if (viewport.style.display === 'block') {
-                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-                    nextPage();
-                }
+                    if (viewport.style.display === 'block') {
+                        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                            nextPage();
+                        }
 
-                if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-                    prevPage();
-                }
+                        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                            prevPage();
+                        }
 
-                if (e.key === 'Escape') {
-                    handleCloseClick();
-                }
-            }
+                        if (e.key === 'Escape') {
+                            handleCloseClick();
+                        }
+                    }
 });
+
+// ==================== 供原生调用的展示模式接口 ====================
+// 原生层(ExternalDisplayManager)在外接屏的 WKWebView 加载完这份网页后，
+// 会调用下面两个函数，把主屏当前的书本数据 / 当前页码同步过来。
+// 这两个函数只在 ?mode=display 的实例里有意义。
+
+window.__loadBookFromNative = function (pagesJson) {
+            try {
+                pages = JSON.parse(pagesJson);
+                if (!pages || pages.length === 0) return;
+
+                uploadContainer.style.display = 'none';
+                viewport.style.display = 'block';
+                resizeStage();
+            } catch (err) {
+                console.error('__loadBookFromNative failed:', err);
+            }
+};
+
+window.__showPageFromNative = function (index) {
+            if (!pages || pages.length === 0) return;
+            loadPage(index);
+};
+
+window.__closeBookFromNative = function () {
+            stopAudio();
+            pages = [];
+            currentIndex = 0;
+            viewport.style.display = 'none';
+            // 展示模式下 upload-container 本来就被 CSS 强制隐藏，这里保持黑屏即可
+};
+// ====================================================================
     </script>
 
 </body>
