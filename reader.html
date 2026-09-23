@@ -323,7 +323,7 @@ const STAGE_HEIGHT = 540;
 // 还是加载在 iPad/iPhone 本机屏幕上的"可交互"主实例。
 const __isDisplayMode = new URLSearchParams(window.location.search).get('mode') === 'display';
 if (__isDisplayMode) {
-            document.documentElement.classList.add('display-mode');
+    document.documentElement.classList.add('display-mode');
 }
 // ==========================================================
 
@@ -349,313 +349,326 @@ const autoPlayToggle = document.getElementById('auto-play-toggle');
 autoPlayToggle.checked = autoPlayFirstAudio;
 
 function resizeStage() {
-                    const vw = window.innerWidth;
-                    const vh = window.innerHeight;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
 
-                    const scale = Math.min(
-                        vw / STAGE_WIDTH,
-                        vh / STAGE_HEIGHT
-                    );
+            const scale = Math.min(
+                vw / STAGE_WIDTH,
+                vh / STAGE_HEIGHT
+            );
 
-                    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 window.addEventListener('resize', resizeStage);
 window.addEventListener('orientationchange', () => {
-                    setTimeout(resizeStage, 100);
+            setTimeout(resizeStage, 100);
 });
 
 // Close settings modal when clicking outside
 stage.addEventListener('click', (e) => {
-                    if (settingsModal.classList.contains('show')) {
-                        settingsModal.classList.remove('show');
-                    }
+            if (settingsModal.classList.contains('show')) {
+                settingsModal.classList.remove('show');
+            }
 });
 
 function toggleSettingsModal(e) {
-                    e.stopPropagation();
-                    settingsModal.classList.toggle('show');
+            e.stopPropagation();
+            settingsModal.classList.toggle('show');
 }
 
 function handleAutoPlayChange(checked) {
-                    autoPlayFirstAudio = checked;
-                    localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
+            autoPlayFirstAudio = checked;
+            localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
 }
 
 function loadBookFile(file) {
-            if (!file) return;
+    if (!file) return;
 
-            const reader = new FileReader();
+    const reader = new FileReader();
 
-            reader.onload = function (e) {
-                const htmlContent = e.target.result;
+    reader.onload = function (e) {
+        const htmlContent = e.target.result;
 
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlContent, 'text/html');
-                const dataScript = doc.getElementById('book-data');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+        const dataScript = doc.getElementById('book-data');
 
-                if (!dataScript) {
-                    alert('Invalid file format! "book-data" element not found.');
-                    return;
+        if (!dataScript) {
+            alert('Invalid file format! "book-data" element not found.');
+            return;
+        }
+
+        try {
+            pages = JSON.parse(dataScript.textContent);
+
+            if (!pages || pages.length === 0) {
+                return;
+            }
+
+            // ==================== 特殊处理首图重复问题 ====================
+            // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
+            if (!pages[0].image) {
+                const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
+                if (coverImgEl) {
+                    pages[0].image = coverImgEl.getAttribute('src') || '';
                 }
+            }
+            // ==============================================================
 
-                try {
-                    pages = JSON.parse(dataScript.textContent);
+            uploadContainer.style.display = 'none';
+            viewport.style.display = 'block';
 
-                    if (!pages || pages.length === 0) {
-                        return;
-                    }
+            // 注意：不要在同一个 JS 同步任务里连续多次给 location.href 赋值——
+            // 浏览器/WKWebView 只会真正处理"最后一次"赋值，前面几次会被静默打断，
+            // 之前横屏失效就是因为这里紧接着又赋值了一次 app://display/loadbook，
+            // 把 app://orientation/landscape 这条命令给顶掉了。
+            window.location.href = "app://orientation/landscape";
 
-                    // ==================== 特殊处理首图重复问题 ====================
-                    // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
-                    if (!pages[0].image) {
-                        const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
-                        if (coverImgEl) {
-                            pages[0].image = coverImgEl.getAttribute('src') || '';
-                        }
-                    }
-                    // ==============================================================
+            resizeStage();
 
-                    uploadContainer.style.display = 'none';
-                    viewport.style.display = 'block';
+            // Unlock audio on iOS
+            audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+            audioEl.play().catch(() => { });
 
-                    window.location.href = "app://orientation/landscape";
+            // 首次加载页面时不单独触发"翻页同步"通知，避免它再和下面的 loadbook 通知互相覆盖，
+            // 外接屏那边会通过 loadbook 通知一次性拿到 pages + 当前页码。
+            loadPage(0, false);
 
-                    resizeStage();
+            // 通知原生：书已经加载好了，请把 pages 数据同步给外接屏(如果已连接)。
+            // 用 setTimeout 错开到下一个宏任务，确保上面的横屏命令已经被原生处理掉，不会被这条覆盖。
+            if (!__isDisplayMode) {
+                setTimeout(() => {
+                    window.location.href = "app://display/loadbook";
+                }, 60);
+            }
 
-                    // Unlock audio on iOS
-                    audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-                    audioEl.play().catch(() => { });
+        } catch (err) {
+            alert('Failed to parse data: ' + err.message);
+        }
+    };
 
-                    loadPage(0);
-
-                    // 通知原生：书已经加载好了，请把 pages 数据同步给外接屏(如果已连接)
-                    if (!__isDisplayMode) {
-                        window.location.href = "app://display/loadbook";
-                    }
-
-                } catch (err) {
-                    alert('Failed to parse data: ' + err.message);
-                }
-            };
-
-            reader.readAsText(file);
+    reader.readAsText(file);
 }
 
 function handleCloseClick() {
-                    const isLastPage = currentIndex === pages.length - 1;
+            const isLastPage = currentIndex === pages.length - 1;
 
-                    if (isLastPage) {
-                        closeBook();
-                        return;
-                    }
+            if (isLastPage) {
+                closeBook();
+                return;
+            }
 
-                    if (window.confirm('Are you sure you want to exit the current book?')) {
-                        closeBook();
-                    }
+            if (window.confirm('Are you sure you want to exit the current book?')) {
+                closeBook();
+            }
 }
 
 function closeBook() {
-                    stopAudio();
+            stopAudio();
 
-                    pages = [];
-                    currentIndex = 0;
+            pages = [];
+            currentIndex = 0;
 
-                    if (settingsModal.classList.contains('show')) {
-                        settingsModal.classList.remove('show');
-                    }
+            if (settingsModal.classList.contains('show')) {
+                settingsModal.classList.remove('show');
+            }
 
-                    viewport.style.display = 'none';
-                    uploadContainer.style.display = 'flex';
+            viewport.style.display = 'none';
+            uploadContainer.style.display = 'flex';
 
-                    document.getElementById('file-input').value = '';
+            document.getElementById('file-input').value = '';
 
-                    window.location.href = "app://orientation/portrait";
+            window.location.href = "app://orientation/portrait";
 
-                    // 通知原生：书关闭了，外接屏也应该清空
-                    if (!__isDisplayMode) {
-                        window.location.href = "app://display/close";
-                    }
+            // 通知原生：书关闭了，外接屏也应该清空。同样错开一个宏任务，避免覆盖上面的竖屏命令。
+            if (!__isDisplayMode) {
+                setTimeout(() => {
+                    window.location.href = "app://display/close";
+                }, 60);
+            }
 }
 
 function updateNavState() {
-                    prevBtn.disabled = currentIndex === 0;
-                    nextBtn.disabled = currentIndex === pages.length - 1;
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === pages.length - 1;
 }
 
 function layoutImage() {
-                    if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
-                        return;
-                    }
+            if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
+                return;
+            }
 
-                    const originalWidth = imgEl.naturalWidth;
-                    const originalHeight = imgEl.naturalHeight;
+            const originalWidth = imgEl.naturalWidth;
+            const originalHeight = imgEl.naturalHeight;
 
-                    const scale = Math.min(
-                        STAGE_WIDTH / originalWidth,
-                        STAGE_HEIGHT / originalHeight
-                    );
+            const scale = Math.min(
+                STAGE_WIDTH / originalWidth,
+                STAGE_HEIGHT / originalHeight
+            );
 
-                    const width = originalWidth * scale;
-                    const height = originalHeight * scale;
+            const width = originalWidth * scale;
+            const height = originalHeight * scale;
 
-                    imgEl.style.width = width + 'px';
-                    imgEl.style.height = height + 'px';
-                    imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
-                    imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
+            imgEl.style.width = width + 'px';
+            imgEl.style.height = height + 'px';
+            imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
+            imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
 }
 
-function loadPage(index) {
-                    if (index < 0 || index >= pages.length) return;
+function loadPage(index, notifyDisplay = true) {
+            if (index < 0 || index >= pages.length) return;
 
-                    currentIndex = index;
-                    stopAudio();
+            currentIndex = index;
+            stopAudio();
 
-                    const page = pages[currentIndex];
+            const page = pages[currentIndex];
 
-                    imgEl.onload = layoutImage;
-                    imgEl.src = page.image || '';
+            imgEl.onload = layoutImage;
+            imgEl.src = page.image || '';
 
-                    updateNavState();
-                    renderSentenceButtons(page);
+            updateNavState();
+            renderSentenceButtons(page);
 
-                    if (imgEl.complete) {
-                        layoutImage();
-                    }
+            if (imgEl.complete) {
+                layoutImage();
+            }
 
-                    // 展示模式(电视)上不自动播放音频，避免和主设备的声音重叠
-                    if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
-                        const firstBtn = btnContainer.querySelector('.audio-num-btn');
-                        playSingleAudio(page.sentenceAudios[0], firstBtn);
-                    }
+            // 展示模式(电视)上不自动播放音频，避免和主设备的声音重叠
+            if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
+                const firstBtn = btnContainer.querySelector('.audio-num-btn');
+                playSingleAudio(page.sentenceAudios[0], firstBtn);
+            }
 
-                    // 通知原生：翻页了，请把新的页码同步给外接屏(如果已连接)
-                    if (!__isDisplayMode) {
-                        window.location.href = "app://display/page/" + currentIndex;
-                    }
+            // 通知原生：翻页了，请把新的页码同步给外接屏(如果已连接)
+            if (!__isDisplayMode && notifyDisplay) {
+                setTimeout(() => {
+                    window.location.href = "app://display/page/" + currentIndex;
+                }, 30);
+            }
 }
 
 function renderSentenceButtons(page) {
-                    btnContainer.innerHTML = '';
+            btnContainer.innerHTML = '';
 
-                    if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
-                        return;
-                    }
+            if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
+                return;
+            }
 
-                    const btnWidth = 60;
-                    const btnHeight = 48;
-                    const spacing = 8;
+            const btnWidth = 60;
+            const btnHeight = 48;
+            const spacing = 8;
 
-                    const rightMargin = 15;
-                    const topMargin = 8;
+            const rightMargin = 15;
+            const topMargin = 8;
 
-                    const navButtonHeight = 70;
-                    const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
-                    const nextBtnBottom = nextBtnTop + navButtonHeight;
-                    const skipGap = 8;
+            const navButtonHeight = 70;
+            const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
+            const nextBtnBottom = nextBtnTop + navButtonHeight;
+            const skipGap = 8;
 
-                    const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
+            const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
 
-                    const macaronColors = [
-                        'rgb(255,154,162)',
-                        'rgb(255,183,178)',
-                        'rgb(255,218,193)',
-                        'rgb(226,240,203)',
-                        'rgb(181,234,215)',
-                        'rgb(199,206,234)'
-                    ];
+            const macaronColors = [
+                'rgb(255,154,162)',
+                'rgb(255,183,178)',
+                'rgb(255,218,193)',
+                'rgb(226,240,203)',
+                'rgb(181,234,215)',
+                'rgb(199,206,234)'
+            ];
 
-                    page.sentenceAudios.forEach((audioUri, idx) => {
-                        const col = Math.floor(idx / 8);
-                        const row = idx % 8;
+            page.sentenceAudios.forEach((audioUri, idx) => {
+                const col = Math.floor(idx / 8);
+                const row = idx % 8;
 
-                        const left = baseLeft - col * (btnWidth + spacing);
+                const left = baseLeft - col * (btnWidth + spacing);
 
-                        let top;
-                        if (row < 4) {
-                            top = topMargin + row * (btnHeight + spacing);
-                        } else {
-                            top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
-                        }
+                let top;
+                if (row < 4) {
+                    top = topMargin + row * (btnHeight + spacing);
+                } else {
+                    top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
+                }
 
-                        if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
-                            return;
-                        }
+                if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
+                    return;
+                }
 
-                        const btn = document.createElement('button');
-                        btn.className = 'audio-num-btn';
-                        btn.style.left = left + 'px';
-                        btn.style.top = top + 'px';
-                        btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
-                        btn.textContent = String(idx + 1);
+                const btn = document.createElement('button');
+                btn.className = 'audio-num-btn';
+                btn.style.left = left + 'px';
+                btn.style.top = top + 'px';
+                btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
+                btn.textContent = String(idx + 1);
 
-                        btn.onclick = function(e) {
-                            e.stopPropagation();
-                            playSingleAudio(audioUri, btn);
-                        };
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    playSingleAudio(audioUri, btn);
+                };
 
-                        btnContainer.appendChild(btn);
-                    });
+                btnContainer.appendChild(btn);
+            });
 }
 
 function playSingleAudio(uri, btnEl) {
-                    stopAudio();
+            stopAudio();
 
-                    if (!uri) return;
+            if (!uri) return;
 
-                    if (btnEl) {
-                        currentPlayingBtn = btnEl;
-                        currentPlayingBtn.classList.add('playing');
-                    }
+            if (btnEl) {
+                currentPlayingBtn = btnEl;
+                currentPlayingBtn.classList.add('playing');
+            }
 
-                    audioEl.src = uri;
-                    audioEl.onended = function() {
-                        stopAudio();
-                    };
+            audioEl.src = uri;
+            audioEl.onended = function() {
+                stopAudio();
+            };
 
-                    audioEl.play().catch(err => {
-                        console.log('Playback restricted:', err);
-                    });
+            audioEl.play().catch(err => {
+                console.log('Playback restricted:', err);
+            });
 }
 
 function stopAudio() {
-                    audioEl.pause();
-                    audioEl.removeAttribute('src');
-                    audioEl.load();
-                    audioEl.onended = null;
+            audioEl.pause();
+            audioEl.removeAttribute('src');
+            audioEl.load();
+            audioEl.onended = null;
 
-                    if (currentPlayingBtn) {
-                        currentPlayingBtn.classList.remove('playing');
-                        currentPlayingBtn = null;
-                    }
+            if (currentPlayingBtn) {
+                currentPlayingBtn.classList.remove('playing');
+                currentPlayingBtn = null;
+            }
 }
 
 function nextPage() {
-                    if (currentIndex < pages.length - 1) {
-                        loadPage(currentIndex + 1);
-                    }
+            if (currentIndex < pages.length - 1) {
+                loadPage(currentIndex + 1);
+            }
 }
 
 function prevPage() {
-                    if (currentIndex > 0) {
-                        loadPage(currentIndex - 1);
-                    }
+            if (currentIndex > 0) {
+                loadPage(currentIndex - 1);
+            }
 }
 
 document.addEventListener('keydown', function(e) {
-                    if (viewport.style.display === 'block') {
-                        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-                            nextPage();
-                        }
+            if (viewport.style.display === 'block') {
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                    nextPage();
+                }
 
-                        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-                            prevPage();
-                        }
+                if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                    prevPage();
+                }
 
-                        if (e.key === 'Escape') {
-                            handleCloseClick();
-                        }
-                    }
+                if (e.key === 'Escape') {
+                    handleCloseClick();
+                }
+            }
 });
 
 // ==================== 供原生调用的展示模式接口 ====================
@@ -664,29 +677,29 @@ document.addEventListener('keydown', function(e) {
 // 这两个函数只在 ?mode=display 的实例里有意义。
 
 window.__loadBookFromNative = function (pagesJson) {
-            try {
-                pages = JSON.parse(pagesJson);
-                if (!pages || pages.length === 0) return;
+    try {
+        pages = JSON.parse(pagesJson);
+        if (!pages || pages.length === 0) return;
 
-                uploadContainer.style.display = 'none';
-                viewport.style.display = 'block';
-                resizeStage();
-            } catch (err) {
-                console.error('__loadBookFromNative failed:', err);
-            }
+        uploadContainer.style.display = 'none';
+        viewport.style.display = 'block';
+        resizeStage();
+    } catch (err) {
+        console.error('__loadBookFromNative failed:', err);
+    }
 };
 
 window.__showPageFromNative = function (index) {
-            if (!pages || pages.length === 0) return;
-            loadPage(index);
+    if (!pages || pages.length === 0) return;
+    loadPage(index);
 };
 
 window.__closeBookFromNative = function () {
-            stopAudio();
-            pages = [];
-            currentIndex = 0;
-            viewport.style.display = 'none';
-            // 展示模式下 upload-container 本来就被 CSS 强制隐藏，这里保持黑屏即可
+    stopAudio();
+    pages = [];
+    currentIndex = 0;
+    viewport.style.display = 'none';
+    // 展示模式下 upload-container 本来就被 CSS 强制隐藏，这里保持黑屏即可
 };
 // ====================================================================
     </script>
