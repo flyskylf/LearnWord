@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-black">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>iCloud Image Viewer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Safe area utility padding for notched screens */
+        .pt-safe { padding-top: env(safe-area-inset-top, 20px); }
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 20px); }
+        .top-safe { top: calc(env(safe-area-inset-top, 0px) + 1rem); }
+        .right-safe { right: calc(env(safe-area-inset-right, 0px) + 1rem); }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col justify-between items-center antialiased overflow-hidden">
+
+    <header class="w-full pt-safe px-6 pt-6 pb-2 text-center z-10">
+        <h1 class="text-base font-semibold tracking-tight text-zinc-300">iCloud Image Viewer</h1>
+    </header>
+
+    <main class="w-full max-w-sm px-6 my-auto flex flex-col items-center">
+        <label 
+            for="file-input"
+            class="w-full aspect-[4/5] border border-zinc-800 active:scale-[0.98] rounded-3xl bg-zinc-900/60 active:bg-zinc-900 transition-all duration-200 flex flex-col items-center justify-center p-6 text-center relative cursor-pointer shadow-xl backdrop-blur-xl"
+        >
+            <input 
+                type="file" 
+                id="file-input" 
+                accept="image/*" 
+                class="hidden"
+                aria-label="Select Photo from iCloud"
+            />
+
+            <div class="w-16 h-16 rounded-full bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-zinc-300 mb-5 shadow-inner">
+                <i data-lucide="cloud-upload" class="w-8 h-8"></i>
+            </div>
+
+            <p class="text-base font-medium text-zinc-200 mb-1">Select Photo</p>
+            <p class="text-xs text-zinc-500 max-w-[200px]">Tap to pick from Photos, Camera, or iCloud Files</p>
+        </label>
+    </main>
+
+    <footer class="w-full pb-safe pb-4 text-center text-[11px] text-zinc-600 tracking-wider uppercase font-medium">
+        iCloud Image Viewer
+    </footer>
+
+    <div 
+        id="fullscreen-overlay" 
+        class="fixed inset-0 z-50 bg-black opacity-0 pointer-events-none transition-opacity duration-300 ease-out flex items-center justify-center"
+    >
+        <!-- Top Right Safe Close Button -->
+        <button 
+            id="close-btn" 
+            title="Close"
+            class="fixed top-safe right-safe z-50 w-11 h-11 bg-zinc-900/80 active:bg-zinc-800 text-zinc-200 border border-zinc-700/50 rounded-full flex items-center justify-center transition-transform active:scale-90 shadow-2xl backdrop-blur-md"
+        >
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+
+        <!-- Image Container -->
+        <div class="w-full h-full flex items-center justify-center p-0">
+            <img 
+                id="fullscreen-img" 
+                src="" 
+                alt="iCloud Photo" 
+                class="w-full h-full object-contain"
+            />
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // DOM elements
+        const fileInput = document.getElementById('file-input');
+        const overlay = document.getElementById('fullscreen-overlay');
+        const fullscreenImg = document.getElementById('fullscreen-img');
+        const closeBtn = document.getElementById('close-btn');
+
+        let currentObjectUrl = null;
+
+        // Process file selection
+        function handleFileSelect(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+
+            if (currentObjectUrl) {
+                URL.revokeObjectURL(currentObjectUrl);
+            }
+
+            currentObjectUrl = URL.createObjectURL(file);
+            fullscreenImg.src = currentObjectUrl;
+
+            openFullscreen();
+        }
+
+        // Open fullscreen viewer
+        function openFullscreen() {
+            overlay.classList.remove('pointer-events-none', 'opacity-0');
+            overlay.classList.add('opacity-100');
+        }
+
+        // Close fullscreen viewer (only via X button)
+        function closeFullscreen() {
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            // Clear input value so selecting the same image triggers 'change' again
+            fileInput.value = '';
+        }
+
+        // Event listeners
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        closeBtn.addEventListener('click', closeFullscreen);
+    </script>
+</body>
+</html>
