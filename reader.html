@@ -326,21 +326,38 @@ const autoPlayToggle = document.getElementById('auto-play-toggle');
 autoPlayToggle.checked = autoPlayFirstAudio;
 
 function resizeStage() {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-            const scale = Math.min(
-                vw / STAGE_WIDTH,
-                vh / STAGE_HEIGHT
-            );
+    // 计算当前屏幕/投屏视口的实际宽高比
+    const currentAspect = vw / vh;
+    const targetAspect = STAGE_WIDTH / STAGE_HEIGHT; // 960 / 540 = 1.777 (16:9)
 
-            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    let scale;
+    if (currentAspect > targetAspect) {
+        // 如果设备/投屏屏幕比 16:9 更宽（例如 19.5:9 手机屏）
+        // 以高度为基准缩放，并动态拓展 stage 的宽度，消除左右黑边
+        scale = vh / STAGE_HEIGHT;
+        const dynamicWidth = vw / scale;
+        stage.style.width = dynamicWidth + 'px';
+        stage.style.height = STAGE_HEIGHT + 'px';
+    } else {
+        // 标屏或窄屏情况，按高度/宽度等比缩放
+        scale = Math.min(vw / STAGE_WIDTH, vh / STAGE_HEIGHT);
+        stage.style.width = STAGE_WIDTH + 'px';
+        stage.style.height = STAGE_HEIGHT + 'px';
+    }
+
+    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+
+    // 如果页面已经加载了图片，重新调整图片和按钮布局
+    if (imgEl.src) {
+        layoutImage();
+        if (pages[currentIndex]) {
+            renderSentenceButtons(pages[currentIndex]);
+        }
+    }
 }
-
-window.addEventListener('resize', resizeStage);
-window.addEventListener('orientationchange', () => {
-            setTimeout(resizeStage, 100);
-});
 
 // Close settings modal when clicking outside
 stage.addEventListener('click', (e) => {
@@ -451,25 +468,29 @@ function updateNavState() {
 }
 
 function layoutImage() {
-            if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
-                return;
-            }
+    if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
+        return;
+    }
 
-            const originalWidth = imgEl.naturalWidth;
-            const originalHeight = imgEl.naturalHeight;
+    // 获取当前 stage 实际的物理像素宽度和高度
+    const currentStageWidth = parseFloat(stage.style.width) || STAGE_WIDTH;
+    const currentStageHeight = parseFloat(stage.style.height) || STAGE_HEIGHT;
 
-            const scale = Math.min(
-                STAGE_WIDTH / originalWidth,
-                STAGE_HEIGHT / originalHeight
-            );
+    const originalWidth = imgEl.naturalWidth;
+    const originalHeight = imgEl.naturalHeight;
 
-            const width = originalWidth * scale;
-            const height = originalHeight * scale;
+    const scale = Math.min(
+        currentStageWidth / originalWidth,
+        currentStageHeight / originalHeight
+    );
 
-            imgEl.style.width = width + 'px';
-            imgEl.style.height = height + 'px';
-            imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
-            imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
+    const width = originalWidth * scale;
+    const height = originalHeight * scale;
+
+    imgEl.style.width = width + 'px';
+    imgEl.style.height = height + 'px';
+    imgEl.style.left = ((currentStageWidth - width) / 2) + 'px';
+    imgEl.style.top = ((currentStageHeight - height) / 2) + 'px';
 }
 
 function loadPage(index) {
@@ -515,7 +536,8 @@ function renderSentenceButtons(page) {
             const nextBtnBottom = nextBtnTop + navButtonHeight;
             const skipGap = 8;
 
-            const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
+            const currentStageWidth = parseFloat(stage.style.width) || STAGE_WIDTH;
+            const baseLeft = currentStageWidth - rightMargin - btnWidth;
 
             const macaronColors = [
                 'rgb(255,154,162)',
