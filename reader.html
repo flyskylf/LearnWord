@@ -100,7 +100,7 @@
             width: var(--stage-width);
             height: var(--stage-height);
             transform-origin: center center;
-            background: #fff;
+            background: #000; /* 改为黑色，与外部 #viewport 背景融为一体 */
             overflow: hidden;
         }
 
@@ -329,23 +329,15 @@ function resizeStage() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
-    // 16:9 的标准目标比例
-    const targetAspect = STAGE_WIDTH / STAGE_HEIGHT; // 960 / 540 = 1.7778
-    const currentAspect = vw / vh;
-
-    let scale;
-    if (currentAspect > targetAspect) {
-        // 当前屏幕比 16:9 更宽（例如 19.5:9 的手机横屏）
-        // 以高度为基准缩放，保证上下完全贴合，100% 不超屏、不截断
-        scale = vh / STAGE_HEIGHT;
-    } else {
-        // 当前屏幕比例 <= 16:9（例如 16:9 的电视，或者 iPad 4:3）
-        // 以宽度为基准缩放，完美铺满 16:9 屏幕
-        scale = vw / STAGE_WIDTH;
-    }
+    // 严格按比例缩放，保证 960x540 的完整舞台不超屏、不贴边
+    const scale = Math.min(
+        vw / STAGE_WIDTH,
+        vh / STAGE_HEIGHT
+    );
 
     stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
+
 
 window.addEventListener('resize', resizeStage);
 window.addEventListener('orientationchange', () => {
