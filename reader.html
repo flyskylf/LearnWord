@@ -326,15 +326,14 @@ const autoPlayToggle = document.getElementById('auto-play-toggle');
 autoPlayToggle.checked = autoPlayFirstAudio;
 
 function resizeStage() {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-            const scale = Math.min(
-                vw / STAGE_WIDTH,
-                vh / STAGE_HEIGHT
-            );
+    // 不再用 Math.min(vw/width, vh/height)
+    // 而是直接以宽度为基准等比缩放，完美撑满左右，保持 16:9 不变形！
+    const scale = vw / STAGE_WIDTH;
 
-            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 window.addEventListener('resize', resizeStage);
@@ -360,48 +359,58 @@ function handleAutoPlayChange(checked) {
 }
 
 function loadBookFile(file) {
-            if (!file) return;
+    if (!file) return;
 
-            const reader = new FileReader();
+    const reader = new FileReader();
 
-            reader.onload = function(e) {
-                const htmlContent = e.target.result;
+    reader.onload = function (e) {
+        const htmlContent = e.target.result;
 
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlContent, 'text/html');
-                const dataScript = doc.getElementById('book-data');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlContent, 'text/html');
+        const dataScript = doc.getElementById('book-data');
 
-                if (!dataScript) {
-                    alert('Invalid file format! "book-data" element not found.');
-                    return;
+        if (!dataScript) {
+            alert('Invalid file format! "book-data" element not found.');
+            return;
+        }
+
+        try {
+            pages = JSON.parse(dataScript.textContent);
+
+            if (!pages || pages.length === 0) {
+                return;
+            }
+
+            // ==================== 特殊处理首图重复问题 ====================
+            // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
+            if (!pages[0].image) {
+                const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
+                if (coverImgEl) {
+                    pages[0].image = coverImgEl.getAttribute('src') || '';
                 }
+            }
+            // ==============================================================
 
-                try {
-                    pages = JSON.parse(dataScript.textContent);
+            uploadContainer.style.display = 'none';
+            viewport.style.display = 'block';
 
-                    if (!pages || pages.length === 0) {
-                        return;
-                    }
+            window.location.href = "app://orientation/landscape";
 
-                    uploadContainer.style.display = 'none';
-                    viewport.style.display = 'block';
+            resizeStage();
 
-                    window.location.href = "app://orientation/landscape";
+            // Unlock audio on iOS
+            audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+            audioEl.play().catch(() => { });
 
-                    resizeStage();
+            loadPage(0);
 
-                    // Unlock audio on iOS
-                    audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-                    audioEl.play().catch(() => {});
+        } catch (err) {
+            alert('Failed to parse data: ' + err.message);
+        }
+    };
 
-                    loadPage(0);
-
-                } catch (err) {
-                    alert('Failed to parse data: ' + err.message);
-                }
-            };
-
-            reader.readAsText(file);
+    reader.readAsText(file);
 }
 
 function handleCloseClick() {
