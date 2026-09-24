@@ -671,6 +671,66 @@ document.addEventListener('keydown', function(e) {
             }
 });
 
+// ==================== 左右滑动翻页 ====================
+// 屏幕上左右滑动即可翻页；在最后一页再向左滑（相当于"翻到下一页"）时，
+// 直接关闭电子书，不弹确认框（和点击右上角关闭按钮的行为不同）。
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartTime = 0;
+
+const SWIPE_MIN_DISTANCE = 50;   // 触发翻页所需的最小水平滑动距离(px)
+const SWIPE_MAX_DURATION = 600;  // 超过这个时长(ms)就不当作"滑动手势"了
+const SWIPE_MAX_VERTICAL = 60;   // 纵向偏移超过这个值，判定为上下滚动而不是翻页
+
+function isInteractiveSwipeTarget(target) {
+            return !!(target && target.closest && target.closest(
+                '.nav-btn, #back-btn, #settings-btn, #settings-modal, .audio-num-btn'
+            ));
+}
+
+viewport.addEventListener('touchstart', (e) => {
+            if (__isDisplayMode || !pages.length || e.touches.length !== 1) return;
+            if (isInteractiveSwipeTarget(e.target)) return;
+
+            const t = e.touches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchStartTime = Date.now();
+}, { passive: true });
+
+viewport.addEventListener('touchend', (e) => {
+            if (__isDisplayMode || !pages.length || !touchStartTime) return;
+            if (isInteractiveSwipeTarget(e.target)) {
+                touchStartTime = 0;
+                return;
+            }
+
+            const t = e.changedTouches[0];
+            const deltaX = t.clientX - touchStartX;
+            const deltaY = t.clientY - touchStartY;
+            const duration = Date.now() - touchStartTime;
+            touchStartTime = 0;
+
+            if (duration > SWIPE_MAX_DURATION) return;
+            if (Math.abs(deltaY) > SWIPE_MAX_VERTICAL) return;
+            if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
+
+            if (deltaX < 0) {
+                // 向左滑：下一页；已经是最后一页的话直接关闭，不提醒
+                if (currentIndex < pages.length - 1) {
+                    nextPage();
+                } else {
+                    closeBook();
+                }
+            } else {
+                // 向右滑：上一页
+                if (currentIndex > 0) {
+                    prevPage();
+                }
+            }
+}, { passive: true });
+// ==========================================================
+
 // ==================== 供原生调用的展示模式接口 ====================
 // 原生层(ExternalDisplayManager)在外接屏的 WKWebView 加载完这份网页后，
 // 会调用下面两个函数，把主屏当前的书本数据 / 当前页码同步过来。
