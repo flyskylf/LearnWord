@@ -261,16 +261,280 @@
         }
 
         /*
+         * 旧版"每句一个编号按钮"的容器——按要求先隐藏、不删除，方便以后恢复。
+         * renderSentenceButtons() 仍然会正常执行、生成这些按钮，只是整体不显示。
+         */
+        #audio-buttons-container {
+            display: none;
+        }
+
+        /* ==================== 新版播放控件：右上角纵向三按钮 + 倍速 + 计数 ==================== */
+        #audio-controls {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: none; /* 有配音的页才显示，由 JS 控制 */
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            z-index: 260;
+        }
+
+        .audio-ctrl-btn {
+            width: 46px;
+            height: 36px;
+            padding: 0;
+            margin: 0;
+            background: rgba(120,120,120,.65);
+            color: #fff;
+            border: 0;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+            .audio-ctrl-btn:disabled {
+                opacity: .35;
+                cursor: default;
+            }
+
+        .audio-ctrl-btn--play {
+            height: 46px;
+            font-size: 18px;
+            background: rgba(10,132,255,.85);
+        }
+
+            .audio-ctrl-btn--play.playing {
+                background: rgba(255,149,0,.9);
+            }
+
+        .audio-ctrl-btn--speed {
+            height: 28px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(80,80,80,.55);
+        }
+
+        #audio-counter {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,.6);
+        }
+        /* ============================================================================ */
+
+        /* ==================== 上传页快捷入口：最近阅读 / 统计 ==================== */
+        .quick-actions {
+            margin-top: 22px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .quick-action-btn {
+            background: rgba(255,255,255,.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,.2);
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 18px;
+            cursor: pointer;
+        }
+        /* ======================================================================== */
+
+        /* ==================== 最近阅读 / 统计 弹出页 ==================== */
+        .overlay-page {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: #2b2118;
+            display: none;
+            flex-direction: column;
+        }
+
+            .overlay-page.show {
+                display: flex;
+            }
+
+        .overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            padding-top: calc(14px + env(safe-area-inset-top));
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+        .overlay-close-btn {
+            width: 36px;
+            height: 36px;
+            border: 0;
+            background: none;
+            font-size: 22px;
+            color: #0a84ff;
+            cursor: pointer;
+        }
+
+        .overlay-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .overlay-grid {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: grid;
+            /* 手机上大约一行 3 个，iPad/横屏下自动多排几个，不需要单独写断点 */
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 18px;
+            padding: 18px;
+            padding-bottom: calc(18px + env(safe-area-inset-bottom));
+        }
+
+        .book-card {
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .book-card-cover {
+            position: relative;
+            aspect-ratio: 4 / 3;
+            border-radius: 10px 10px 4px 4px;
+            overflow: hidden;
+            background: #55524a;
+        }
+
+            .book-card-cover img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+
+        .book-card-spine {
+            height: 8px;
+            background: rgba(255,255,255,.85);
+            border-radius: 0 0 6px 6px;
+        }
+
+        .book-card-title {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            line-height: 1.25;
+        }
+
+        .book-card.unavailable {
+            opacity: .4;
+        }
+
+            .book-card.unavailable .book-card-cover::after {
+                content: "?";
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                color: #fff;
+                background: rgba(0,0,0,.35);
+            }
+
+        .book-card--add .book-card-cover {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed rgba(255,255,255,.4);
+            background: none;
+            font-size: 34px;
+            color: rgba(255,255,255,.6);
+        }
+
+        .stats-list {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 16px;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+        }
+
+        .stats-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,.06);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+        }
+
+            .stats-row img {
+                width: 56px;
+                height: 42px;
+                object-fit: cover;
+                border-radius: 6px;
+                flex-shrink: 0;
+                background: #55524a;
+            }
+
+        .stats-row-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stats-row-title {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .stats-row-meta {
+            color: rgba(255,255,255,.6);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .stats-row-count {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 800;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .stats-empty {
+            color: rgba(255,255,255,.5);
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+        /* ============================================================== */
+
+        /*
          * 外接屏"展示模式" (?mode=display)：
-         * 只保留内容画面本身，把上传界面、翻页按钮、设置、返回、句子音频按钮全部隐藏，
-         * 因为电视屏幕不可触摸，这些控件在这份拷贝上没有意义。
+         * 只保留内容画面本身，把上传界面、翻页按钮、设置、返回、句子音频按钮、
+         * 新版播放控件、最近阅读/统计入口全部隐藏，因为电视屏幕不可触摸，
+         * 这些控件在这份拷贝上没有意义。
          */
         html.display-mode #upload-container,
         html.display-mode #back-btn,
         html.display-mode #settings-btn,
         html.display-mode #settings-modal,
         html.display-mode .nav-btn,
-        html.display-mode #audio-buttons-container {
+        html.display-mode #audio-buttons-container,
+        html.display-mode #audio-controls,
+        html.display-mode .quick-actions,
+        html.display-mode .overlay-page {
             display: none !important;
         }
     </style>
@@ -279,14 +543,45 @@
 <body>
 
     <div id="upload-container">
-        <div class="upload-card" onclick="document.getElementById('file-input').click()">
+        <div class="upload-card" onclick="pickNewFile()">
             <div class="upload-icon">📖</div>
             <div class="upload-title">Open File</div>
             <div class="upload-subtitle">Please select a file</div>
             <button class="btn-select">Select File</button>
         </div>
+
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="openLibrary()">📚 My Library</button>
+            <button class="quick-action-btn" onclick="openStats()">📊 Reading Stats</button>
+        </div>
+
+        <!--
+            旧版"网页 <input type=file>"选择方式先保留，不删除。
+            现在主入口(上面的卡片)已经改成调用原生文件选择器(pickNewFile)，
+            这样才能拿到可以长期重新打开的"安全作用域书签"。
+        -->
         <input id="file-input" type="file" accept=".html,.htm"
                style="display:none" onchange="loadBookFile(this.files[0])">
+    </div>
+
+    <!-- 最近阅读 / 我的书架 -->
+    <div id="library-overlay" class="overlay-page">
+        <div class="overlay-header">
+            <button class="overlay-close-btn" onclick="closeLibrary()" aria-label="Close">✕</button>
+            <div class="overlay-title">My Library</div>
+            <div style="width:36px"></div>
+        </div>
+        <div id="library-grid" class="overlay-grid"></div>
+    </div>
+
+    <!-- 阅读统计 -->
+    <div id="stats-overlay" class="overlay-page">
+        <div class="overlay-header">
+            <button class="overlay-close-btn" onclick="closeStats()" aria-label="Close">✕</button>
+            <div class="overlay-title">Reading Stats</div>
+            <div style="width:36px"></div>
+        </div>
+        <div id="stats-list" class="stats-list"></div>
     </div>
 
     <div id="viewport">
@@ -310,6 +605,15 @@
 
             <div id="audio-buttons-container"></div>
 
+            <!-- 新版播放控件：上一句 / 播放当前 / 下一句，加一个倍速按钮和"第几句/共几句"计数 -->
+            <div id="audio-controls">
+                <button id="audio-prev-btn" class="audio-ctrl-btn" onclick="handleAudioPrev()" aria-label="Previous audio">▲</button>
+                <button id="audio-play-btn" class="audio-ctrl-btn audio-ctrl-btn--play" onclick="handleAudioReplay()" aria-label="Play current audio">▶</button>
+                <div id="audio-counter">0 / 0</div>
+                <button id="audio-next-btn" class="audio-ctrl-btn" onclick="handleAudioNext()" aria-label="Next audio">▼</button>
+                <button id="audio-speed-btn" class="audio-ctrl-btn audio-ctrl-btn--speed" onclick="handleSpeedToggle()">1x</button>
+            </div>
+
             <audio id="audio-player"></audio>
         </div>
     </div>
@@ -323,13 +627,17 @@ const STAGE_HEIGHT = 540;
 // 还是加载在 iPad/iPhone 本机屏幕上的"可交互"主实例。
 const __isDisplayMode = new URLSearchParams(window.location.search).get('mode') === 'display';
 if (__isDisplayMode) {
-    document.documentElement.classList.add('display-mode');
+            document.documentElement.classList.add('display-mode');
 }
 // ==========================================================
 
 let pages = [];
 let currentIndex = 0;
 let currentPlayingBtn = null;
+
+// 当前打开的这本书的标识信息（用于"最近阅读列表"和"阅读统计"）
+let currentBookId = null;
+let currentBookMeta = null; // { id, title, bookmark }
 
 // Default to auto-play first audio unless explicitly turned off
 let autoPlayFirstAudio = localStorage.getItem('autoPlayFirstAudio') !== 'false';
@@ -345,330 +653,752 @@ const btnContainer = document.getElementById('audio-buttons-container');
 const settingsModal = document.getElementById('settings-modal');
 const autoPlayToggle = document.getElementById('auto-play-toggle');
 
+// 新版播放控件（右上角纵向三按钮 + 倍速 + 计数）
+const audioControls = document.getElementById('audio-controls');
+const audioPrevBtn = document.getElementById('audio-prev-btn');
+const audioPlayBtn = document.getElementById('audio-play-btn');
+const audioNextBtn = document.getElementById('audio-next-btn');
+const audioCounterEl = document.getElementById('audio-counter');
+const audioSpeedBtn = document.getElementById('audio-speed-btn');
+
 // Initialize checkbox state
 autoPlayToggle.checked = autoPlayFirstAudio;
 
 function resizeStage() {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
+                    const vw = window.innerWidth;
+                    const vh = window.innerHeight;
 
-            const scale = Math.min(
-                vw / STAGE_WIDTH,
-                vh / STAGE_HEIGHT
-            );
+                    const scale = Math.min(
+                        vw / STAGE_WIDTH,
+                        vh / STAGE_HEIGHT
+                    );
 
-            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+                    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 window.addEventListener('resize', resizeStage);
 window.addEventListener('orientationchange', () => {
-            setTimeout(resizeStage, 100);
+                    setTimeout(resizeStage, 100);
 });
 
 // Close settings modal when clicking outside
 stage.addEventListener('click', (e) => {
-            if (settingsModal.classList.contains('show')) {
-                settingsModal.classList.remove('show');
-            }
+                    if (settingsModal.classList.contains('show')) {
+                        settingsModal.classList.remove('show');
+                    }
 });
 
 function toggleSettingsModal(e) {
-            e.stopPropagation();
-            settingsModal.classList.toggle('show');
+                    e.stopPropagation();
+                    settingsModal.classList.toggle('show');
 }
 
 function handleAutoPlayChange(checked) {
-            autoPlayFirstAudio = checked;
-            localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
+                    autoPlayFirstAudio = checked;
+                    localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
 }
 
+// ==================== 打开一本书的公共逻辑 ====================
+// 不管书是"网页 <input type=file> 选的"还是"原生文件选择器/重新打开书签选的"，
+// 最终都走这一个函数，避免同一套解析逻辑写两遍。
+// meta: { id, title, bookmark }  —— bookmark 没有(null)就说明这本书以后不能自动重新打开。
+function parseAndOpenBook(htmlContent, meta) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const dataScript = doc.getElementById('book-data');
+
+            if (!dataScript) {
+                alert('Invalid file format! "book-data" element not found.');
+                return false;
+            }
+
+            try {
+                pages = JSON.parse(dataScript.textContent);
+
+                if (!pages || pages.length === 0) {
+                    return false;
+                }
+
+                // ==================== 特殊处理首图重复问题 ====================
+                // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
+                if (!pages[0].image) {
+                    const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
+                    if (coverImgEl) {
+                        pages[0].image = coverImgEl.getAttribute('src') || '';
+                    }
+                }
+                // ==============================================================
+
+                currentBookId = meta.id;
+                currentBookMeta = meta;
+
+                uploadContainer.style.display = 'none';
+                viewport.style.display = 'block';
+
+                // 注意：不要在同一个 JS 同步任务里连续多次给 location.href 赋值——
+                // 浏览器/WKWebView 只会真正处理"最后一次"赋值，前面几次会被静默打断。
+                window.location.href = "app://orientation/landscape";
+
+                resizeStage();
+
+                // Unlock audio on iOS
+                audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+                audioEl.play().catch(() => { });
+
+                // 首次加载页面时不单独触发"翻页同步"通知，避免它再和下面的 loadbook 通知互相覆盖，
+                // 外接屏那边会通过 loadbook 通知一次性拿到 pages + 当前页码。
+                loadPage(0, false);
+
+                if (!__isDisplayMode) {
+                    // 通知原生：书已经加载好了，请把 pages 数据同步给外接屏(如果已连接)。
+                    // 用 setTimeout 错开到下一个宏任务，确保上面的横屏命令已经被原生处理掉，不会被这条覆盖。
+                    setTimeout(() => {
+                        window.location.href = "app://display/loadbook";
+                    }, 60);
+
+                    // 记录到"最近阅读"列表——等封面图片真正加载完再截图，避免拿到一张空白图
+                    scheduleCoverThumbnailThenRecordOpened(meta);
+                }
+
+                return true;
+            } catch (err) {
+                alert('Failed to parse data: ' + err.message);
+                return false;
+            }
+}
+
+// 旧版：网页 <input type=file> 选文件（先保留，不删除）。
+// 注意这条路径拿不到可以长期重新打开的安全作用域书签，bookmark 传 null。
 function loadBookFile(file) {
-    if (!file) return;
+            if (!file) return;
 
-    const reader = new FileReader();
+            const reader = new FileReader();
 
-    reader.onload = function (e) {
-        const htmlContent = e.target.result;
+            reader.onload = function (e) {
+                const htmlContent = e.target.result;
+                parseAndOpenBook(htmlContent, {
+                    id: file.name,
+                    title: file.name.replace(/\.[^.]+$/, ''),
+                    bookmark: null
+                });
+            };
 
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlContent, 'text/html');
-        const dataScript = doc.getElementById('book-data');
+            reader.readAsText(file);
+}
+// ================================================================
 
-        if (!dataScript) {
-            alert('Invalid file format! "book-data" element not found.');
-            return;
-        }
+// ==================== 最近阅读 / 阅读统计：本地存储读写 ====================
+const RECENT_BOOKS_KEY = 'recentBooks';
+const MAX_RECENT_BOOKS = 30; // 实际存储的上限(留一些缓冲)，展示时按屏幕能放下多少来截取
 
-        try {
-            pages = JSON.parse(dataScript.textContent);
+function loadRecentBooks() {
+            try {
+                const raw = localStorage.getItem(RECENT_BOOKS_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (err) {
+                return [];
+            }
+}
 
-            if (!pages || pages.length === 0) {
+function saveRecentBooks(list) {
+            try {
+                localStorage.setItem(RECENT_BOOKS_KEY, JSON.stringify(list));
+            } catch (err) {
+                console.log('saveRecentBooks failed:', err);
+            }
+}
+
+function upsertRecentBook(entry) {
+            let list = loadRecentBooks();
+            const idx = list.findIndex(b => b.id === entry.id);
+
+            if (idx >= 0) {
+                list[idx] = Object.assign({}, list[idx], entry);
+            } else {
+                list.unshift(Object.assign({
+                    readCount: 0,
+                    lastCompletedAt: null,
+                    unavailable: false
+                }, entry));
+            }
+
+            // 按"最近打开时间"排到最前
+            list.sort((a, b) => (b.lastOpenedAt || 0) - (a.lastOpenedAt || 0));
+
+            // 超过上限就直接砍掉最旧的，不做更复杂的处理——这只是个辅助功能，不用太精细
+            if (list.length > MAX_RECENT_BOOKS) {
+                list = list.slice(0, MAX_RECENT_BOOKS);
+            }
+
+            saveRecentBooks(list);
+            return list;
+}
+
+function recordBookOpened(meta) {
+            // 只要打开过就要出现在"最近阅读"里，不要求读完
+            upsertRecentBook(Object.assign({}, meta, { lastOpenedAt: Date.now() }));
+}
+
+function recordBookCompleted() {
+            if (!currentBookId) return;
+
+            const list = loadRecentBooks();
+            const idx = list.findIndex(b => b.id === currentBookId);
+            if (idx >= 0) {
+                list[idx].readCount = (list[idx].readCount || 0) + 1;
+                list[idx].lastCompletedAt = Date.now();
+                saveRecentBooks(list);
+            }
+}
+
+function generateCoverThumbnail() {
+            try {
+                const targetW = 240, targetH = 180; // 4:3，跟书架卡片的封面比例一致
+                const canvas = document.createElement('canvas');
+                canvas.width = targetW;
+                canvas.height = targetH;
+                const ctx = canvas.getContext('2d');
+
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, targetW, targetH);
+
+                const iw = imgEl.naturalWidth, ih = imgEl.naturalHeight;
+                if (iw && ih) {
+                    const scale = Math.max(targetW / iw, targetH / ih); // 裁切铺满，跟截图里的封面观感一致
+                    const w = iw * scale, h = ih * scale;
+                    ctx.drawImage(imgEl, (targetW - w) / 2, (targetH - h) / 2, w, h);
+                }
+
+                return canvas.toDataURL('image/jpeg', 0.6);
+            } catch (err) {
+                console.log('generateCoverThumbnail failed:', err);
+                return '';
+            }
+}
+
+function scheduleCoverThumbnailThenRecordOpened(meta) {
+            const doRecord = () => {
+                recordBookOpened({
+                    id: meta.id,
+                    title: meta.title,
+                    bookmark: meta.bookmark || null,
+                    cover: generateCoverThumbnail()
+                });
+            };
+
+            if (imgEl.complete && imgEl.naturalWidth > 0) {
+                doRecord();
+            } else {
+                imgEl.addEventListener('load', doRecord, { once: true });
+            }
+}
+
+function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : String(str);
+            return div.innerHTML;
+}
+// ================================================================================
+
+// ==================== 打开文件 / 重新打开(书签) / 存在性检查：原生桥接 ====================
+function pickNewFile() {
+            if (__isDisplayMode) return;
+            window.location.href = "app://book/pick";
+}
+
+function reopenBook(id) {
+            if (__isDisplayMode) return;
+
+            const list = loadRecentBooks();
+            const book = list.find(b => b.id === id);
+            if (!book) return;
+
+            if (!book.bookmark) {
+                alert('这本书是用旧方式打开的，暂时没法自动重新打开，请重新选择一次文件。');
                 return;
             }
 
-            // ==================== 特殊处理首图重复问题 ====================
-            // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
-            if (!pages[0].image) {
-                const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
-                if (coverImgEl) {
-                    pages[0].image = coverImgEl.getAttribute('src') || '';
-                }
-            }
-            // ==============================================================
-
-            uploadContainer.style.display = 'none';
-            viewport.style.display = 'block';
-
-            // 注意：不要在同一个 JS 同步任务里连续多次给 location.href 赋值——
-            // 浏览器/WKWebView 只会真正处理"最后一次"赋值，前面几次会被静默打断，
-            // 之前横屏失效就是因为这里紧接着又赋值了一次 app://display/loadbook，
-            // 把 app://orientation/landscape 这条命令给顶掉了。
-            window.location.href = "app://orientation/landscape";
-
-            resizeStage();
-
-            // Unlock audio on iOS
-            audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-            audioEl.play().catch(() => { });
-
-            // 首次加载页面时不单独触发"翻页同步"通知，避免它再和下面的 loadbook 通知互相覆盖，
-            // 外接屏那边会通过 loadbook 通知一次性拿到 pages + 当前页码。
-            loadPage(0, false);
-
-            // 通知原生：书已经加载好了，请把 pages 数据同步给外接屏(如果已连接)。
-            // 用 setTimeout 错开到下一个宏任务，确保上面的横屏命令已经被原生处理掉，不会被这条覆盖。
-            if (!__isDisplayMode) {
-                setTimeout(() => {
-                    window.location.href = "app://display/loadbook";
-                }, 60);
-            }
-
-        } catch (err) {
-            alert('Failed to parse data: ' + err.message);
-        }
-    };
-
-    reader.readAsText(file);
+            window.location.href = "app://book/reopen?id=" + encodeURIComponent(id) + "&bm=" + encodeURIComponent(book.bookmark);
 }
+
+// 原生：用户在原生文件选择器里选完文件(新选/重新打开都走这里)
+window.__onFilePicked = function (bookmarkBase64, fileName, htmlContent) {
+            parseAndOpenBook(htmlContent, {
+                id: fileName,
+                title: fileName.replace(/\.[^.]+$/, ''),
+                bookmark: bookmarkBase64 || null
+            });
+};
+
+// 原生：重新打开某本书失败(文件被删除/移动，书签已经失效)
+window.__onReopenFailed = function (id) {
+            const list = loadRecentBooks();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx >= 0) {
+                list[idx].unavailable = true;
+                saveRecentBooks(list);
+            }
+            alert('这本书好像找不到了，可能被移动或删除了，请重新选择一次文件。');
+            if (document.getElementById('library-overlay').classList.contains('show')) {
+                renderLibraryGrid();
+            }
+};
+
+// 原生：批量存在性检查的结果，格式 [{id, exists}, ...]
+window.__onCheckExistenceResult = function (resultsJson) {
+            try {
+                const results = JSON.parse(resultsJson);
+                const list = loadRecentBooks();
+                let changed = false;
+
+                results.forEach(r => {
+                    const idx = list.findIndex(b => b.id === r.id);
+                    if (idx >= 0 && list[idx].unavailable !== !r.exists) {
+                        list[idx].unavailable = !r.exists;
+                        changed = true;
+                    }
+                });
+
+                if (changed) {
+                    saveRecentBooks(list);
+                }
+
+                if (document.getElementById('library-overlay').classList.contains('show')) {
+                    renderLibraryGrid();
+                }
+            } catch (err) {
+                console.log('__onCheckExistenceResult failed:', err);
+            }
+};
+// ======================================================================================
+
+// ==================== 最近阅读(我的书架) 弹出页 ====================
+function openLibrary() {
+            renderLibraryGrid();
+            document.getElementById('library-overlay').classList.add('show');
+
+            // 列表先用缓存状态秒开，存在性检查异步跑，跑完了再刷新一次
+            if (!__isDisplayMode) {
+                window.location.href = "app://book/checkexistence";
+            }
+}
+
+function closeLibrary() {
+            document.getElementById('library-overlay').classList.remove('show');
+}
+
+function renderLibraryGrid() {
+            const grid = document.getElementById('library-grid');
+            grid.innerHTML = '';
+
+            const addTile = document.createElement('div');
+            addTile.className = 'book-card book-card--add';
+            addTile.innerHTML = '<div class="book-card-cover">＋</div><div class="book-card-title">Open New Book</div>';
+            addTile.onclick = () => { closeLibrary(); pickNewFile(); };
+            grid.appendChild(addTile);
+
+            loadRecentBooks().forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'book-card' + (book.unavailable ? ' unavailable' : '');
+                card.innerHTML =
+                    '<div class="book-card-cover"><img src="' + (book.cover || '') + '" alt=""></div>' +
+                    '<div class="book-card-spine"></div>' +
+                    '<div class="book-card-title">' + escapeHtml(book.title) + '</div>';
+                card.onclick = () => {
+                    closeLibrary();
+                    reopenBook(book.id);
+                };
+                grid.appendChild(card);
+            });
+}
+// ======================================================================
+
+// ==================== 阅读统计 弹出页 ====================
+function openStats() {
+            renderStatsList();
+            document.getElementById('stats-overlay').classList.add('show');
+}
+
+function closeStats() {
+            document.getElementById('stats-overlay').classList.remove('show');
+}
+
+function renderStatsList() {
+            const container = document.getElementById('stats-list');
+            container.innerHTML = '';
+
+            const list = loadRecentBooks()
+                .slice()
+                .sort((a, b) => (b.lastCompletedAt || b.lastOpenedAt || 0) - (a.lastCompletedAt || a.lastOpenedAt || 0));
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="stats-empty">还没有阅读记录</div>';
+                return;
+            }
+
+            list.forEach(book => {
+                const row = document.createElement('div');
+                row.className = 'stats-row';
+
+                const metaText = book.lastCompletedAt
+                    ? ('最近读完：' + formatRelativeTime(book.lastCompletedAt))
+                    : '还没有读完过';
+
+                row.innerHTML =
+                    '<img src="' + (book.cover || '') + '" alt="">' +
+                    '<div class="stats-row-info">' +
+                        '<div class="stats-row-title">' + escapeHtml(book.title) + '</div>' +
+                        '<div class="stats-row-meta">' + metaText + '</div>' +
+                    '</div>' +
+                    '<div class="stats-row-count">' + (book.readCount || 0) + '</div>';
+
+                container.appendChild(row);
+            });
+}
+
+function formatRelativeTime(ts) {
+            const diffMs = Date.now() - ts;
+            const diffMin = Math.round(diffMs / 60000);
+            if (diffMin < 1) return '刚刚';
+            if (diffMin < 60) return diffMin + ' 分钟前';
+            const diffHour = Math.round(diffMin / 60);
+            if (diffHour < 24) return diffHour + ' 小时前';
+            const diffDay = Math.round(diffHour / 24);
+            if (diffDay < 30) return diffDay + ' 天前';
+            const d = new Date(ts);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+// ==============================================================
 
 function handleCloseClick() {
-            const isLastPage = currentIndex === pages.length - 1;
+                    const isLastPage = currentIndex === pages.length - 1;
 
-            if (isLastPage) {
-                closeBook();
-                return;
-            }
+                    if (isLastPage) {
+                        closeBook();
+                        return;
+                    }
 
-            if (window.confirm('Are you sure you want to exit the current book?')) {
-                closeBook();
-            }
+                    if (window.confirm('Are you sure you want to exit the current book?')) {
+                        closeBook();
+                    }
 }
 
 function closeBook() {
-            stopAudio();
+                    // 只有在最后一页关闭，才算"读完一次"，计入统计
+                    if (pages.length > 0 && currentIndex === pages.length - 1) {
+                        recordBookCompleted();
+                    }
 
-            pages = [];
-            currentIndex = 0;
+                    stopAudio();
 
-            if (settingsModal.classList.contains('show')) {
-                settingsModal.classList.remove('show');
-            }
+                    pages = [];
+                    currentIndex = 0;
+                    currentBookId = null;
+                    currentBookMeta = null;
 
-            viewport.style.display = 'none';
-            uploadContainer.style.display = 'flex';
+                    if (settingsModal.classList.contains('show')) {
+                        settingsModal.classList.remove('show');
+                    }
 
-            document.getElementById('file-input').value = '';
+                    viewport.style.display = 'none';
+                    uploadContainer.style.display = 'flex';
 
-            window.location.href = "app://orientation/portrait";
+                    document.getElementById('file-input').value = '';
 
-            // 通知原生：书关闭了，外接屏也应该清空。同样错开一个宏任务，避免覆盖上面的竖屏命令。
-            if (!__isDisplayMode) {
-                setTimeout(() => {
-                    window.location.href = "app://display/close";
-                }, 60);
-            }
+                    window.location.href = "app://orientation/portrait";
+
+                    // 通知原生：书关闭了，外接屏也应该清空。同样错开一个宏任务，避免覆盖上面的竖屏命令。
+                    if (!__isDisplayMode) {
+                        setTimeout(() => {
+                            window.location.href = "app://display/close";
+                        }, 60);
+                    }
 }
 
 function updateNavState() {
-            prevBtn.disabled = currentIndex === 0;
-            nextBtn.disabled = currentIndex === pages.length - 1;
+                    prevBtn.disabled = currentIndex === 0;
+                    nextBtn.disabled = currentIndex === pages.length - 1;
 }
 
 function layoutImage() {
-            if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
-                return;
-            }
+                    if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
+                        return;
+                    }
 
-            const originalWidth = imgEl.naturalWidth;
-            const originalHeight = imgEl.naturalHeight;
+                    const originalWidth = imgEl.naturalWidth;
+                    const originalHeight = imgEl.naturalHeight;
 
-            const scale = Math.min(
-                STAGE_WIDTH / originalWidth,
-                STAGE_HEIGHT / originalHeight
-            );
+                    const scale = Math.min(
+                        STAGE_WIDTH / originalWidth,
+                        STAGE_HEIGHT / originalHeight
+                    );
 
-            const width = originalWidth * scale;
-            const height = originalHeight * scale;
+                    const width = originalWidth * scale;
+                    const height = originalHeight * scale;
 
-            imgEl.style.width = width + 'px';
-            imgEl.style.height = height + 'px';
-            imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
-            imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
+                    imgEl.style.width = width + 'px';
+                    imgEl.style.height = height + 'px';
+                    imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
+                    imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
 }
 
 function loadPage(index, notifyDisplay = true) {
-            if (index < 0 || index >= pages.length) return;
+                    if (index < 0 || index >= pages.length) return;
 
-            currentIndex = index;
-            stopAudio();
+                    currentIndex = index;
+                    stopAudio();
 
-            const page = pages[currentIndex];
+                    const page = pages[currentIndex];
 
-            imgEl.onload = layoutImage;
-            imgEl.src = page.image || '';
+                    imgEl.onload = layoutImage;
+                    imgEl.src = page.image || '';
 
-            updateNavState();
-            renderSentenceButtons(page);
+                    updateNavState();
+                    renderSentenceButtons(page); // 旧版编号按钮：照常生成数据，只是整体被 CSS 隐藏了
 
-            if (imgEl.complete) {
-                layoutImage();
-            }
+                    if (imgEl.complete) {
+                        layoutImage();
+                    }
 
-            // 展示模式(电视)上不自动播放音频，避免和主设备的声音重叠
-            if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
-                const firstBtn = btnContainer.querySelector('.audio-num-btn');
-                playSingleAudio(page.sentenceAudios[0], firstBtn);
-            }
+                    // 新一页先重置播放控件状态（还没选中任何一句）
+                    currentAudioIndex = -1;
+                    updateAudioControlsUI();
 
-            // 通知原生：翻页了，请把新的页码同步给外接屏(如果已连接)
-            if (!__isDisplayMode && notifyDisplay) {
-                setTimeout(() => {
-                    window.location.href = "app://display/page/" + currentIndex;
-                }, 30);
-            }
+                    // 展示模式(电视)上不自动播放音频，避免和主设备的声音重叠
+                    if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
+                        playAudioAt(0, true);
+                    }
+
+                    // 通知原生：翻页了，请把新的页码同步给外接屏(如果已连接)
+                    if (!__isDisplayMode && notifyDisplay) {
+                        setTimeout(() => {
+                            window.location.href = "app://display/page/" + currentIndex;
+                        }, 30);
+                    }
 }
 
 function renderSentenceButtons(page) {
-            btnContainer.innerHTML = '';
+                    btnContainer.innerHTML = '';
 
-            if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
-                return;
-            }
+                    if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
+                        return;
+                    }
 
-            const btnWidth = 60;
-            const btnHeight = 48;
-            const spacing = 8;
+                    const btnWidth = 60;
+                    const btnHeight = 48;
+                    const spacing = 8;
 
-            const rightMargin = 15;
-            const topMargin = 8;
+                    const rightMargin = 15;
+                    const topMargin = 8;
 
-            const navButtonHeight = 70;
-            const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
-            const nextBtnBottom = nextBtnTop + navButtonHeight;
-            const skipGap = 8;
+                    const navButtonHeight = 70;
+                    const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
+                    const nextBtnBottom = nextBtnTop + navButtonHeight;
+                    const skipGap = 8;
 
-            const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
+                    const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
 
-            const macaronColors = [
-                'rgb(255,154,162)',
-                'rgb(255,183,178)',
-                'rgb(255,218,193)',
-                'rgb(226,240,203)',
-                'rgb(181,234,215)',
-                'rgb(199,206,234)'
-            ];
+                    const macaronColors = [
+                        'rgb(255,154,162)',
+                        'rgb(255,183,178)',
+                        'rgb(255,218,193)',
+                        'rgb(226,240,203)',
+                        'rgb(181,234,215)',
+                        'rgb(199,206,234)'
+                    ];
 
-            page.sentenceAudios.forEach((audioUri, idx) => {
-                const col = Math.floor(idx / 8);
-                const row = idx % 8;
+                    page.sentenceAudios.forEach((audioUri, idx) => {
+                        const col = Math.floor(idx / 8);
+                        const row = idx % 8;
 
-                const left = baseLeft - col * (btnWidth + spacing);
+                        const left = baseLeft - col * (btnWidth + spacing);
 
-                let top;
-                if (row < 4) {
-                    top = topMargin + row * (btnHeight + spacing);
-                } else {
-                    top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
-                }
+                        let top;
+                        if (row < 4) {
+                            top = topMargin + row * (btnHeight + spacing);
+                        } else {
+                            top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
+                        }
 
-                if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
-                    return;
-                }
+                        if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
+                            return;
+                        }
 
-                const btn = document.createElement('button');
-                btn.className = 'audio-num-btn';
-                btn.style.left = left + 'px';
-                btn.style.top = top + 'px';
-                btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
-                btn.textContent = String(idx + 1);
+                        const btn = document.createElement('button');
+                        btn.className = 'audio-num-btn';
+                        btn.style.left = left + 'px';
+                        btn.style.top = top + 'px';
+                        btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
+                        btn.textContent = String(idx + 1);
 
-                btn.onclick = function(e) {
-                    e.stopPropagation();
-                    playSingleAudio(audioUri, btn);
-                };
+                        btn.onclick = function(e) {
+                            e.stopPropagation();
+                            playSingleAudio(audioUri, btn);
+                        };
 
-                btnContainer.appendChild(btn);
-            });
+                        btnContainer.appendChild(btn);
+                    });
 }
 
 function playSingleAudio(uri, btnEl) {
-            stopAudio();
+                    stopAudio();
 
-            if (!uri) return;
+                    if (!uri) return;
 
-            if (btnEl) {
-                currentPlayingBtn = btnEl;
-                currentPlayingBtn.classList.add('playing');
-            }
+                    if (btnEl) {
+                        currentPlayingBtn = btnEl;
+                        currentPlayingBtn.classList.add('playing');
+                    }
 
-            audioEl.src = uri;
-            audioEl.onended = function() {
-                stopAudio();
-            };
+                    audioEl.src = uri;
+                    audioEl.onended = function() {
+                        stopAudio();
+                    };
 
-            audioEl.play().catch(err => {
-                console.log('Playback restricted:', err);
-            });
+                    audioEl.play().catch(err => {
+                        console.log('Playback restricted:', err);
+                    });
 }
 
 function stopAudio() {
-            audioEl.pause();
-            audioEl.removeAttribute('src');
-            audioEl.load();
-            audioEl.onended = null;
+                    audioEl.pause();
+                    audioEl.removeAttribute('src');
+                    audioEl.load();
+                    audioEl.onended = null;
 
-            if (currentPlayingBtn) {
-                currentPlayingBtn.classList.remove('playing');
-                currentPlayingBtn = null;
-            }
+                    if (currentPlayingBtn) {
+                        currentPlayingBtn.classList.remove('playing');
+                        currentPlayingBtn = null;
+                    }
+
+                    if (audioPlayBtn) {
+                        audioPlayBtn.classList.remove('playing');
+                    }
 }
 
+// ==================== 新版播放控件：上一句 / 播放当前 / 下一句 + 倍速 ====================
+const SPEED_STEPS = [1, 1.1, 1.2, 1.3];
+let currentAudioIndex = -1;
+let currentPlaybackRate = 1;
+
+function currentSentenceAudios() {
+                    const page = pages[currentIndex];
+                    return (page && page.sentenceAudios) ? page.sentenceAudios : [];
+}
+
+function formatSpeedLabel(rate) {
+                    return rate.toFixed(1).replace(/\.0$/, '') + 'x';
+}
+
+function updateAudioControlsUI() {
+                    const list = currentSentenceAudios();
+                    const total = list.length;
+
+                    audioControls.style.display = total > 0 ? 'flex' : 'none';
+                    if (total === 0) return;
+
+                    audioCounterEl.textContent = (currentAudioIndex + 1) + ' / ' + total;
+                    audioPrevBtn.disabled = currentAudioIndex <= 0;
+                    audioNextBtn.disabled = currentAudioIndex >= total - 1;
+                    audioSpeedBtn.textContent = formatSpeedLabel(currentPlaybackRate);
+}
+
+// resetRate: 切到"新的一句"时要把倍速恢复默认 1x；重复播放同一句、或者手动调倍速时不重置
+function playAudioAt(index, resetRate) {
+                    const list = currentSentenceAudios();
+                    if (index < 0 || index >= list.length) return;
+
+                    currentAudioIndex = index;
+
+                    if (resetRate) {
+                        currentPlaybackRate = 1;
+                    }
+
+                    updateAudioControlsUI();
+                    playSentenceAudio(list[index]);
+}
+
+function playSentenceAudio(uri) {
+                    stopAudio();
+
+                    if (!uri) return;
+
+                    audioEl.src = uri;
+                    audioEl.playbackRate = currentPlaybackRate;
+
+                    // 有些机型切换 src 后倍速会被重置，metadata 加载完再保险地设一次
+                    audioEl.onloadedmetadata = function () {
+                        audioEl.playbackRate = currentPlaybackRate;
+                    };
+
+                    audioEl.onended = function () {
+                        audioPlayBtn.classList.remove('playing');
+                    };
+
+                    audioPlayBtn.classList.add('playing');
+
+                    audioEl.play().catch(err => {
+                        console.log('Playback restricted:', err);
+                    });
+}
+
+function handleAudioPrev() {
+                    if (currentAudioIndex > 0) {
+                        playAudioAt(currentAudioIndex - 1, true); // 切到新的一句，倍速恢复默认
+                    }
+}
+
+function handleAudioNext() {
+                    if (currentAudioIndex < currentSentenceAudios().length - 1) {
+                        playAudioAt(currentAudioIndex + 1, true); // 切到新的一句，倍速恢复默认
+                    }
+}
+
+function handleAudioReplay() {
+                    if (currentAudioIndex >= 0) {
+                        playAudioAt(currentAudioIndex, false); // 重复播放同一句，保留当前倍速
+                    }
+}
+
+function handleSpeedToggle() {
+                    const idx = SPEED_STEPS.indexOf(currentPlaybackRate);
+                    const nextIdx = (idx + 1) % SPEED_STEPS.length;
+                    currentPlaybackRate = SPEED_STEPS[nextIdx];
+                    updateAudioControlsUI();
+
+                    // 选完倍速自动播放当前这一句
+                    if (currentAudioIndex >= 0) {
+                        playAudioAt(currentAudioIndex, false);
+                    }
+}
+// ====================================================================================
+
 function nextPage() {
-            if (currentIndex < pages.length - 1) {
-                loadPage(currentIndex + 1);
-            }
+                    if (currentIndex < pages.length - 1) {
+                        loadPage(currentIndex + 1);
+                    }
 }
 
 function prevPage() {
-            if (currentIndex > 0) {
-                loadPage(currentIndex - 1);
-            }
+                    if (currentIndex > 0) {
+                        loadPage(currentIndex - 1);
+                    }
 }
 
 document.addEventListener('keydown', function(e) {
-            if (viewport.style.display === 'block') {
-                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-                    nextPage();
-                }
+                    if (viewport.style.display === 'block') {
+                        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                            nextPage();
+                        }
 
-                if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-                    prevPage();
-                }
+                        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                            prevPage();
+                        }
 
-                if (e.key === 'Escape') {
-                    handleCloseClick();
-                }
-            }
+                        if (e.key === 'Escape') {
+                            handleCloseClick();
+                        }
+                    }
 });
 
 // ==================== 左右滑动翻页 ====================
@@ -683,51 +1413,51 @@ const SWIPE_MAX_DURATION = 600;  // 超过这个时长(ms)就不当作"滑动手
 const SWIPE_MAX_VERTICAL = 60;   // 纵向偏移超过这个值，判定为上下滚动而不是翻页
 
 function isInteractiveSwipeTarget(target) {
-            return !!(target && target.closest && target.closest(
-                '.nav-btn, #back-btn, #settings-btn, #settings-modal, .audio-num-btn'
-            ));
+                    return !!(target && target.closest && target.closest(
+                        '.nav-btn, #back-btn, #settings-btn, #settings-modal, .audio-num-btn, #audio-controls'
+                    ));
 }
 
 viewport.addEventListener('touchstart', (e) => {
-            if (__isDisplayMode || !pages.length || e.touches.length !== 1) return;
-            if (isInteractiveSwipeTarget(e.target)) return;
+                    if (__isDisplayMode || !pages.length || e.touches.length !== 1) return;
+                    if (isInteractiveSwipeTarget(e.target)) return;
 
-            const t = e.touches[0];
-            touchStartX = t.clientX;
-            touchStartY = t.clientY;
-            touchStartTime = Date.now();
+                    const t = e.touches[0];
+                    touchStartX = t.clientX;
+                    touchStartY = t.clientY;
+                    touchStartTime = Date.now();
 }, { passive: true });
 
 viewport.addEventListener('touchend', (e) => {
-            if (__isDisplayMode || !pages.length || !touchStartTime) return;
-            if (isInteractiveSwipeTarget(e.target)) {
-                touchStartTime = 0;
-                return;
-            }
+                    if (__isDisplayMode || !pages.length || !touchStartTime) return;
+                    if (isInteractiveSwipeTarget(e.target)) {
+                        touchStartTime = 0;
+                        return;
+                    }
 
-            const t = e.changedTouches[0];
-            const deltaX = t.clientX - touchStartX;
-            const deltaY = t.clientY - touchStartY;
-            const duration = Date.now() - touchStartTime;
-            touchStartTime = 0;
+                    const t = e.changedTouches[0];
+                    const deltaX = t.clientX - touchStartX;
+                    const deltaY = t.clientY - touchStartY;
+                    const duration = Date.now() - touchStartTime;
+                    touchStartTime = 0;
 
-            if (duration > SWIPE_MAX_DURATION) return;
-            if (Math.abs(deltaY) > SWIPE_MAX_VERTICAL) return;
-            if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
+                    if (duration > SWIPE_MAX_DURATION) return;
+                    if (Math.abs(deltaY) > SWIPE_MAX_VERTICAL) return;
+                    if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
 
-            if (deltaX < 0) {
-                // 向左滑：下一页；已经是最后一页的话直接关闭，不提醒
-                if (currentIndex < pages.length - 1) {
-                    nextPage();
-                } else {
-                    closeBook();
-                }
-            } else {
-                // 向右滑：上一页
-                if (currentIndex > 0) {
-                    prevPage();
-                }
-            }
+                    if (deltaX < 0) {
+                        // 向左滑：下一页；已经是最后一页的话直接关闭，不提醒
+                        if (currentIndex < pages.length - 1) {
+                            nextPage();
+                        } else {
+                            closeBook();
+                        }
+                    } else {
+                        // 向右滑：上一页
+                        if (currentIndex > 0) {
+                            prevPage();
+                        }
+                    }
 }, { passive: true });
 // ==========================================================
 
@@ -737,29 +1467,29 @@ viewport.addEventListener('touchend', (e) => {
 // 这两个函数只在 ?mode=display 的实例里有意义。
 
 window.__loadBookFromNative = function (pagesJson) {
-    try {
-        pages = JSON.parse(pagesJson);
-        if (!pages || pages.length === 0) return;
+            try {
+                pages = JSON.parse(pagesJson);
+                if (!pages || pages.length === 0) return;
 
-        uploadContainer.style.display = 'none';
-        viewport.style.display = 'block';
-        resizeStage();
-    } catch (err) {
-        console.error('__loadBookFromNative failed:', err);
-    }
+                uploadContainer.style.display = 'none';
+                viewport.style.display = 'block';
+                resizeStage();
+            } catch (err) {
+                console.error('__loadBookFromNative failed:', err);
+            }
 };
 
 window.__showPageFromNative = function (index) {
-    if (!pages || pages.length === 0) return;
-    loadPage(index);
+            if (!pages || pages.length === 0) return;
+            loadPage(index);
 };
 
 window.__closeBookFromNative = function () {
-    stopAudio();
-    pages = [];
-    currentIndex = 0;
-    viewport.style.display = 'none';
-    // 展示模式下 upload-container 本来就被 CSS 强制隐藏，这里保持黑屏即可
+            stopAudio();
+            pages = [];
+            currentIndex = 0;
+            viewport.style.display = 'none';
+            // 展示模式下 upload-container 本来就被 CSS 强制隐藏，这里保持黑屏即可
 };
 // ====================================================================
     </script>
