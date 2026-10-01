@@ -133,7 +133,7 @@
 
         #prev-btn {
             left: 15px;
-            top: 235px; /* (540 - 70) / 2 */
+            top: 235px;
         }
 
         #next-btn {
@@ -184,9 +184,9 @@
             align-items: center;
         }
 
-            #settings-btn:active {
-                transform: scale(0.95);
-            }
+        #settings-btn:active {
+            transform: scale(0.95);
+        }
 
         /* Settings Modal */
         #settings-modal {
@@ -206,9 +206,9 @@
             border: 1px solid rgba(255,255,255,0.15);
         }
 
-            #settings-modal.show {
-                display: block;
-            }
+        #settings-modal.show {
+            display: block;
+        }
 
         .setting-item {
             display: flex;
@@ -220,12 +220,12 @@
             gap: 12px;
         }
 
-            .setting-item input[type="checkbox"] {
-                width: 18px;
-                height: 18px;
-                accent-color: #0a84ff;
-                cursor: pointer;
-            }
+        .setting-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #0a84ff;
+            cursor: pointer;
+        }
 
         /* Sentence Audio Buttons */
         .audio-num-btn {
@@ -244,161 +244,169 @@
             align-items: center;
             z-index: 300;
             cursor: pointer;
-            box-shadow: 1px 2px 3px rgba(0,0,0,.5);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.15s ease;
         }
 
-            .audio-num-btn:active {
-                transform: scale(.96);
-            }
+        .audio-num-btn:active {
+            transform: scale(.95);
+        }
 
-            .audio-num-btn.playing {
-                filter: brightness(.85);
-                border-color: #fef08a;
-            }
+        .audio-num-btn.playing {
+            filter: brightness(.85);
+            border-color: #fef08a;
+        }
 
         #audio-player {
             display: none;
         }
 
-        /*
-         * 旧版"每句一个编号按钮"的容器——按要求先隐藏、不删除，方便以后恢复。
-         * renderSentenceButtons() 仍然会正常执行、生成这些按钮，只是整体不显示。
-         */
         #audio-buttons-container {
             display: none;
         }
 
-        /* ==================== 新版播放控件：右上角 2 列布局 ====================
-           左列：倍速按钮，单独一个，纵向对齐到右列"播放"按钮那一行
-           右列：上一句(▲) / 播放(▶，最大) / 下一句(▼) 纵向堆叠
-           整体比第一版明显放大，方便手指点按。 */
+        /* ==================== 马卡龙配色音频控制组 ==================== */
         #audio-controls {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            display: none; /* 有配音的页才显示，由 JS 控制 */
+            top: 20px;
+            right: 15px; /* 与下一页按钮右对齐 */
+            display: none; /* JS 显隐控制 */
             z-index: 260;
-
-            display: grid;
-            grid-template-columns: 70px 86px;
-            grid-template-rows: auto auto auto;
-            column-gap: 8px;
-            row-gap: 6px; /* 行间距收紧一点，给按钮本身留出放大的空间，同时不碰到下面的翻页按钮 */
+            width: 60px; /* 右列宽度，与下一页按钮一致 */
+            height: 186px;
         }
 
-        .audio-ctrl-btn {
-            width: 100%;
-            height: 56px;
-            padding: 0;
-            margin: 0;
-            background: rgba(120,120,120,.7);
-            color: #fff;
-            border: 0;
-            border-radius: 10px;
-            font-size: 22px;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-            .audio-ctrl-btn:disabled {
-                opacity: .35;
-                cursor: default;
-            }
-
-        .audio-ctrl-btn--prev {
-            grid-column: 2;
-            grid-row: 1;
-        }
-
-        .audio-ctrl-btn--next {
-            grid-column: 2;
-            grid-row: 3;
-        }
-
-        .audio-play-wrap {
-            grid-column: 2;
-            grid-row: 2;
+        /* 右侧主控制器纵向排列，最右侧对齐 */
+        .right-ctrl-column {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 60px;
             display: flex;
             flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        /* 通用马卡龙按钮基础样式 */
+        .macaron-btn {
+            width: 60px; /* 与下一页按钮宽度一致 */
+            padding: 0;
+            margin: 0;
+            border: 2px solid #ffffff;
+            outline: none;
+            cursor: pointer;
+            display: inline-flex;
             align-items: center;
-            gap: 2px;
-        }
-
-        .audio-ctrl-btn--play {
-            width: 86px;
-            height: 64px;
-            font-size: 30px;
-            background: rgba(10,132,255,.9);
-        }
-
-            .audio-ctrl-btn--play.playing {
-                background: rgba(255,149,0,.95);
-            }
-
-        .speed-wrap {
-            grid-column: 1;
-            grid-row: 2;
-            align-self: center;
-            position: relative; /* 弹出的速度选择条以这里为基准定位 */
-        }
-
-        .audio-ctrl-btn--speed {
-            font-size: 18px;
-            font-weight: 800;
-            background: rgba(80,80,80,.6);
-        }
-
-        #audio-counter {
-            color: #fff;
-            font-size: 17px;
+            justify-content: center;
             font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0,0,0,.6);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            transition: transform 0.15s ease, background-color 0.2s ease, opacity 0.2s ease;
+            user-select: none;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
-        /* 点击倍速按钮弹出的选择条——直接点想要的档位，不用一格格转 */
+        .macaron-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        /* 禁用状态 (Disabled) - 莫兰迪灰粉 */
+        .macaron-btn:disabled {
+            background-color: #E8E2E2 !important;
+            color: #B5A8A8 !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            border-color: #FFFFFF !important;
+        }
+
+        /* 1. 切换箭头按钮：#FFB7B2 (蜜桃奶粉) */
+        .btn-arrow {
+            height: 52px;
+            border-radius: 16px;
+            font-size: 15px;
+            background-color: #FFB7B2;
+            color: #5D4037;
+        }
+
+        /* 2. 主音频播放按钮：#FF9AA2 (草莓马卡龙粉) */
+        .btn-main {
+            height: 52px;
+            border-radius: 16px;
+            font-size: 13px;
+            gap: 4px;
+            background-color: #FF9AA2;
+            color: #FFFFFF;
+        }
+
+        .btn-main.playing {
+            background-color: #ff6b7a;
+        }
+
+        /* 3. 倍速按钮：放在控制组左侧，与右列并排 */
+        .speed-wrap {
+            position: absolute;
+            right: 68px; /* 60px(右列宽) + 8px(间距) */
+            top: 60px;   /* 与主播放按钮垂直对齐：52px(▲) + 8px(gap) = 60px */
+            width: 60px;
+            height: 52px;
+        }
+
+        .btn-speed {
+            width: 60px;
+            height: 48px;
+            margin-top: 2px;
+            border-radius: 14px;
+            font-size: 13px;
+            background-color: #FFDAC1;
+            color: #6D4C41;
+        }
+
+        /* 倍速下拉弹框 */
         #speed-modal {
             display: none;
             position: absolute;
-            right: calc(100% + 8px);
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(30,30,30,.92);
+            left: 0;
+            top: 52px;
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,.15);
-            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
             padding: 6px;
-            display: none;
-            flex-direction: row;
-            gap: 6px;
+            flex-direction: column;
+            gap: 5px;
             z-index: 280;
-            white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0,0,0,.15);
         }
 
-            #speed-modal.show {
-                display: flex;
-            }
+        #speed-modal.show {
+            display: flex;
+        }
 
         .speed-option {
-            width: 52px;
-            height: 44px;
+            width: 60px;
+            height: 32px;
             padding: 0;
             margin: 0;
-            background: rgba(255,255,255,.12);
-            color: #fff;
-            border: 0;
+            background: #fff3ec;
+            color: #6D4C41;
+            border: 1px solid #FFDAC1;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
+            transition: all 0.1s ease;
         }
 
-            .speed-option.active {
-                background: rgba(10,132,255,.9);
-            }
+        .speed-option.active {
+            background: #FF9AA2;
+            color: #FFFFFF;
+            border-color: #FF9AA2;
+        }
         /* ======================================================================== */
 
-        /* ==================== 上传页快捷入口：最近阅读 / 统计 ==================== */
+        /* 上传页样式 */
         .quick-actions {
             margin-top: 22px;
             display: flex;
@@ -426,9 +434,7 @@
             cursor: pointer;
             max-width: 280px;
         }
-        /* ======================================================================== */
 
-        /* ==================== 最近阅读 / 统计 弹出页 ==================== */
         .overlay-page {
             position: fixed;
             inset: 0;
@@ -438,9 +444,9 @@
             flex-direction: column;
         }
 
-            .overlay-page.show {
-                display: flex;
-            }
+        .overlay-page.show {
+            display: flex;
+        }
 
         .overlay-header {
             display: flex;
@@ -473,13 +479,7 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             display: grid;
-            /* 手机竖屏固定一行 3 个；屏幕更宽(iPad 竖屏/横屏)再按宽度多给几列 */
             grid-template-columns: repeat(3, 1fr);
-            /*
-             * 关键：Grid 默认会把"容器比内容高出来的那部分空间"均匀撑到每一行之间，
-             * 书不多的时候(比如只有 2 行)就会出现行与行之间一大片空白——
-             * 把 align-content 设成 start，让内容贴顶紧凑排列，多余空间统一留在最下面。
-             */
             align-content: start;
             gap: 14px;
             padding: 16px;
@@ -504,30 +504,24 @@
             cursor: pointer;
         }
 
-        /*
-         * 封面统一裁成 4:3——故意不用 CSS 的 aspect-ratio 属性，
-         * 那是 iOS 15 才支持的新特性，老系统上不生效就会整个不裁切、按原图比例撑开
-         * (之前封面被拉得很高、挤出一大片空白就是这个原因)。
-         * 这里换成兼容性最好的"padding-top 百分比"经典写法，内部图片绝对定位铺满裁切。
-         */
         .book-card-cover {
             position: relative;
             width: 100%;
             height: 0;
-            padding-top: 75%; /* 4:3 = 3/4 = 75% */
+            padding-top: 75%;
             border-radius: 10px 10px 4px 4px;
             overflow: hidden;
             background: #55524a;
         }
 
-            .book-card-cover img {
-                position: absolute;
-                inset: 0;
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-            }
+        .book-card-cover img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
 
         .book-card-spine {
             height: 8px;
@@ -548,17 +542,17 @@
             opacity: .4;
         }
 
-            .book-card.unavailable .book-card-cover::after {
-                content: "?";
-                position: absolute;
-                inset: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 28px;
-                color: #fff;
-                background: rgba(0,0,0,.35);
-            }
+        .book-card.unavailable .book-card-cover::after {
+            content: "?";
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+            background: rgba(0,0,0,.35);
+        }
 
         .book-card--add .book-card-cover {
             border: 2px dashed rgba(255,255,255,.4);
@@ -593,14 +587,14 @@
             margin-bottom: 10px;
         }
 
-            .stats-row img {
-                width: 56px;
-                height: 42px;
-                object-fit: cover;
-                border-radius: 6px;
-                flex-shrink: 0;
-                background: #55524a;
-            }
+        .stats-row img {
+            width: 56px;
+            height: 42px;
+            object-fit: cover;
+            border-radius: 6px;
+            flex-shrink: 0;
+            background: #55524a;
+        }
 
         .stats-row-info {
             flex: 1;
@@ -636,14 +630,7 @@
             padding: 40px 20px;
             font-size: 14px;
         }
-        /* ============================================================== */
 
-        /*
-         * 外接屏"展示模式" (?mode=display)：
-         * 只保留内容画面本身，把上传界面、翻页按钮、设置、返回、句子音频按钮、
-         * 新版播放控件、最近阅读/统计入口全部隐藏，因为电视屏幕不可触摸，
-         * 这些控件在这份拷贝上没有意义。
-         */
         html.display-mode #upload-container,
         html.display-mode #back-btn,
         html.display-mode #settings-btn,
@@ -673,17 +660,10 @@
             <button class="quick-action-btn" onclick="openStats()">📊 Reading Stats</button>
         </div>
 
-        <!--
-            旧版"网页 <input type=file>"选择方式——保留下来方便调试，故意做得不起眼，
-            跟上面的主入口(走原生文件选择器)区分开，避免日常使用时选错。
-            注意：这条路径选出来的文件拿不到"安全作用域书签"，没法出现在
-            My Library 里一键重新打开，只能当次用一下。
-        -->
         <button class="debug-legacy-btn" onclick="document.getElementById('file-input').click()">
-            🛠 网页方式选择文件（调试用，不支持重新打开）
+            🛠 网页方式选择文件
         </button>
-        <input id="file-input" type="file" accept=".html,.htm"
-               style="display:none" onchange="loadBookFile(this.files[0])">
+        <input id="file-input" type="file" accept=".html,.htm" style="display:none" onchange="loadBookFile(this.files[0])">
     </div>
 
     <!-- 最近阅读 / 我的书架 -->
@@ -727,25 +707,24 @@
 
             <div id="audio-buttons-container"></div>
 
-            <!-- 新版播放控件：上一句 / 播放当前 / 下一句，加一个倍速按钮和"第几句/共几句"计数 -->
+            <!-- 马卡龙配色音频控制组（宽度与下一页按钮一致，右对齐） -->
             <div id="audio-controls">
-                <button id="audio-prev-btn" class="audio-ctrl-btn audio-ctrl-btn--prev" onclick="handleAudioPrev()" aria-label="Previous audio">▲</button>
-
-                <div class="audio-play-wrap">
-                    <button id="audio-play-btn" class="audio-ctrl-btn audio-ctrl-btn--play" onclick="handleAudioReplay()" aria-label="Play current audio">▶</button>
-                    <div id="audio-counter">0 / 0</div>
-                </div>
-
-                <button id="audio-next-btn" class="audio-ctrl-btn audio-ctrl-btn--next" onclick="handleAudioNext()" aria-label="Next audio">▼</button>
-
                 <div class="speed-wrap">
-                    <button id="audio-speed-btn" class="audio-ctrl-btn audio-ctrl-btn--speed" onclick="toggleSpeedModal(event)">1x</button>
+                    <button id="audio-speed-btn" class="macaron-btn btn-speed" onclick="toggleSpeedModal(event)" title="切换倍速">1x</button>
                     <div id="speed-modal" onclick="event.stopPropagation()">
                         <button class="speed-option" onclick="selectSpeed(1)">1.0x</button>
                         <button class="speed-option" onclick="selectSpeed(1.1)">1.1x</button>
                         <button class="speed-option" onclick="selectSpeed(1.2)">1.2x</button>
                         <button class="speed-option" onclick="selectSpeed(1.3)">1.3x</button>
+                        <button class="speed-option" onclick="selectSpeed(1.4)">1.4x</button>
+                        <button class="speed-option" onclick="selectSpeed(1.5)">1.5x</button>
                     </div>
+                </div>
+
+                <div class="right-ctrl-column">
+                    <button id="audio-prev-btn" class="macaron-btn btn-arrow" onclick="handleAudioPrev()" aria-label="Previous audio" title="上一首">▲</button>
+                    <button id="audio-play-btn" class="macaron-btn btn-main" onclick="handleAudioReplay()" aria-label="Play current audio" title="播放/暂停">0/0 ▶</button>
+                    <button id="audio-next-btn" class="macaron-btn btn-arrow" onclick="handleAudioNext()" aria-label="Next audio" title="下一首">▼</button>
                 </div>
             </div>
 
@@ -757,24 +736,18 @@
 const STAGE_WIDTH = 960;
 const STAGE_HEIGHT = 540;
 
-// ==================== 外接屏展示模式 ====================
-// 通过 URL 参数 ?mode=display 区分：这份网页实例是加载在电视(外接屏)上的"只读镜像"，
-// 还是加载在 iPad/iPhone 本机屏幕上的"可交互"主实例。
 const __isDisplayMode = new URLSearchParams(window.location.search).get('mode') === 'display';
 if (__isDisplayMode) {
     document.documentElement.classList.add('display-mode');
 }
-// ==========================================================
 
 let pages = [];
 let currentIndex = 0;
 let currentPlayingBtn = null;
 
-// 当前打开的这本书的标识信息（用于"最近阅读列表"和"阅读统计"）
 let currentBookId = null;
-let currentBookMeta = null; // { id, title, bookmark }
+let currentBookMeta = null;
 
-// Default to auto-play first audio unless explicitly turned off
 let autoPlayFirstAudio = localStorage.getItem('autoPlayFirstAudio') !== 'false';
 
 const uploadContainer = document.getElementById('upload-container');
@@ -788,59 +761,51 @@ const btnContainer = document.getElementById('audio-buttons-container');
 const settingsModal = document.getElementById('settings-modal');
 const autoPlayToggle = document.getElementById('auto-play-toggle');
 
-// 新版播放控件（右上角纵向三按钮 + 倍速 + 计数）
 const audioControls = document.getElementById('audio-controls');
 const audioPrevBtn = document.getElementById('audio-prev-btn');
 const audioPlayBtn = document.getElementById('audio-play-btn');
 const audioNextBtn = document.getElementById('audio-next-btn');
-const audioCounterEl = document.getElementById('audio-counter');
 const audioSpeedBtn = document.getElementById('audio-speed-btn');
 
-// Initialize checkbox state
 autoPlayToggle.checked = autoPlayFirstAudio;
 
 function resizeStage() {
-            const vw = window.innerWidth;
-            const vh = window.innerHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-            const scale = Math.min(
-                vw / STAGE_WIDTH,
-                vh / STAGE_HEIGHT
-            );
+    const scale = Math.min(
+        vw / STAGE_WIDTH,
+        vh / STAGE_HEIGHT
+    );
 
-            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 window.addEventListener('resize', resizeStage);
 window.addEventListener('orientationchange', () => {
-            setTimeout(resizeStage, 100);
+    setTimeout(resizeStage, 100);
 });
 
-// Close settings modal / speed popup when clicking outside
 stage.addEventListener('click', (e) => {
-            if (settingsModal.classList.contains('show')) {
-                settingsModal.classList.remove('show');
-            }
-            const speedModalEl = document.getElementById('speed-modal');
-            if (speedModalEl && speedModalEl.classList.contains('show')) {
-                speedModalEl.classList.remove('show');
-            }
+    if (settingsModal.classList.contains('show')) {
+        settingsModal.classList.remove('show');
+    }
+    const speedModalEl = document.getElementById('speed-modal');
+    if (speedModalEl && speedModalEl.classList.contains('show')) {
+        speedModalEl.classList.remove('show');
+    }
 });
 
 function toggleSettingsModal(e) {
-            e.stopPropagation();
-            settingsModal.classList.toggle('show');
+    e.stopPropagation();
+    settingsModal.classList.toggle('show');
 }
 
 function handleAutoPlayChange(checked) {
-            autoPlayFirstAudio = checked;
-            localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
+    autoPlayFirstAudio = checked;
+    localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
 }
 
-// ==================== 打开一本书的公共逻辑 ====================
-// 不管书是"网页 <input type=file> 选的"还是"原生文件选择器/重新打开书签选的"，
-// 最终都走这一个函数，避免同一套解析逻辑写两遍。
-// meta: { id, title, bookmark }  —— bookmark 没有(null)就说明这本书以后不能自动重新打开。
 function parseAndOpenBook(htmlContent, meta) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, 'text/html');
@@ -858,48 +823,35 @@ function parseAndOpenBook(htmlContent, meta) {
             return false;
         }
 
-        // ==================== 特殊处理首图重复问题 ====================
-        // 如果第一页图片为空，尝试从 DOM 中的 #cover-image 或第一个 <img> 提取封面 src
         if (!pages[0].image) {
             const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
             if (coverImgEl) {
                 pages[0].image = coverImgEl.getAttribute('src') || '';
             }
         }
-        // ==============================================================
 
         currentBookId = meta.id;
         currentBookMeta = meta;
 
-        // 每次"打开一本书"（不管是新选的还是从最近阅读重新打开的同一本），倍速都回到默认 1x；
-        // 书打开之后，不管翻页还是切换句子，倍速都不会再被自动改动。
         currentPlaybackRate = 1;
 
         uploadContainer.style.display = 'none';
         viewport.style.display = 'block';
 
-        // 注意：不要在同一个 JS 同步任务里连续多次给 location.href 赋值——
-        // 浏览器/WKWebView 只会真正处理"最后一次"赋值，前面几次会被静默打断。
         window.location.href = "app://orientation/landscape";
 
         resizeStage();
 
-        // Unlock audio on iOS
         audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
         audioEl.play().catch(() => { });
 
-        // 首次加载页面时不单独触发"翻页同步"通知，避免它再和下面的 loadbook 通知互相覆盖，
-        // 外接屏那边会通过 loadbook 通知一次性拿到 pages + 当前页码。
         loadPage(0, false);
 
         if (!__isDisplayMode) {
-            // 通知原生：书已经加载好了，请把 pages 数据同步给外接屏(如果已连接)。
-            // 用 setTimeout 错开到下一个宏任务，确保上面的横屏命令已经被原生处理掉，不会被这条覆盖。
             setTimeout(() => {
                 window.location.href = "app://display/loadbook";
             }, 60);
 
-            // 记录到"最近阅读"列表——等封面图片真正加载完再截图，避免拿到一张空白图
             scheduleCoverThumbnailThenRecordOpened(meta);
         }
 
@@ -910,8 +862,6 @@ function parseAndOpenBook(htmlContent, meta) {
     }
 }
 
-// 旧版：网页 <input type=file> 选文件（先保留，不删除）。
-// 注意这条路径拿不到可以长期重新打开的安全作用域书签，bookmark 传 null。
 function loadBookFile(file) {
     if (!file) return;
 
@@ -928,11 +878,9 @@ function loadBookFile(file) {
 
     reader.readAsText(file);
 }
-// ================================================================
 
-// ==================== 最近阅读 / 阅读统计：本地存储读写 ====================
 const RECENT_BOOKS_KEY = 'recentBooks';
-const MAX_RECENT_BOOKS = 30; // 实际存储的上限(留一些缓冲)，展示时按屏幕能放下多少来截取
+const MAX_RECENT_BOOKS = 30;
 
 function loadRecentBooks() {
     try {
@@ -965,10 +913,8 @@ function upsertRecentBook(entry) {
         }, entry));
     }
 
-    // 按"最近打开时间"排到最前
     list.sort((a, b) => (b.lastOpenedAt || 0) - (a.lastOpenedAt || 0));
 
-    // 超过上限就直接砍掉最旧的，不做更复杂的处理——这只是个辅助功能，不用太精细
     if (list.length > MAX_RECENT_BOOKS) {
         list = list.slice(0, MAX_RECENT_BOOKS);
     }
@@ -978,7 +924,6 @@ function upsertRecentBook(entry) {
 }
 
 function recordBookOpened(meta) {
-    // 只要打开过就要出现在"最近阅读"里，不要求读完
     upsertRecentBook(Object.assign({}, meta, { lastOpenedAt: Date.now() }));
 }
 
@@ -996,7 +941,7 @@ function recordBookCompleted() {
 
 function generateCoverThumbnail() {
     try {
-        const targetW = 240, targetH = 180; // 4:3，跟书架卡片的封面比例一致
+        const targetW = 240, targetH = 180;
         const canvas = document.createElement('canvas');
         canvas.width = targetW;
         canvas.height = targetH;
@@ -1007,7 +952,7 @@ function generateCoverThumbnail() {
 
         const iw = imgEl.naturalWidth, ih = imgEl.naturalHeight;
         if (iw && ih) {
-            const scale = Math.max(targetW / iw, targetH / ih); // 裁切铺满，跟截图里的封面观感一致
+            const scale = Math.max(targetW / iw, targetH / ih);
             const w = iw * scale, h = ih * scale;
             ctx.drawImage(imgEl, (targetW - w) / 2, (targetH - h) / 2, w, h);
         }
@@ -1041,9 +986,7 @@ function escapeHtml(str) {
     div.textContent = str == null ? '' : String(str);
     return div.innerHTML;
 }
-// ================================================================================
 
-// ==================== 打开文件 / 重新打开(书签) / 存在性检查：原生桥接 ====================
 function pickNewFile() {
     if (__isDisplayMode) return;
     window.location.href = "app://book/pick";
@@ -1064,7 +1007,6 @@ function reopenBook(id) {
     window.location.href = "app://book/reopen?id=" + encodeURIComponent(id) + "&bm=" + encodeURIComponent(book.bookmark);
 }
 
-// 原生：用户在原生文件选择器里选完文件(新选/重新打开都走这里)
 window.__onFilePicked = function (bookmarkBase64, fileName, htmlContent) {
     parseAndOpenBook(htmlContent, {
         id: fileName,
@@ -1073,7 +1015,6 @@ window.__onFilePicked = function (bookmarkBase64, fileName, htmlContent) {
     });
 };
 
-// 原生：重新打开某本书失败(文件被删除/移动，书签已经失效)
 window.__onReopenFailed = function (id) {
     const list = loadRecentBooks();
     const idx = list.findIndex(b => b.id === id);
@@ -1087,7 +1028,6 @@ window.__onReopenFailed = function (id) {
     }
 };
 
-// 原生：批量存在性检查的结果，格式 [{id, exists}, ...]
 window.__onCheckExistenceResult = function (resultsJson) {
     try {
         const results = JSON.parse(resultsJson);
@@ -1113,14 +1053,11 @@ window.__onCheckExistenceResult = function (resultsJson) {
         console.log('__onCheckExistenceResult failed:', err);
     }
 };
-// ======================================================================================
 
-// ==================== 最近阅读(我的书架) 弹出页 ====================
 function openLibrary() {
     renderLibraryGrid();
     document.getElementById('library-overlay').classList.add('show');
 
-    // 列表先用缓存状态秒开，存在性检查异步跑，跑完了再刷新一次
     if (!__isDisplayMode) {
         window.location.href = "app://book/checkexistence";
     }
@@ -1154,9 +1091,7 @@ function renderLibraryGrid() {
         grid.appendChild(card);
     });
 }
-// ======================================================================
 
-// ==================== 阅读统计 弹出页 ====================
 function openStats() {
     renderStatsList();
     document.getElementById('stats-overlay').classList.add('show');
@@ -1211,416 +1146,394 @@ function formatRelativeTime(ts) {
     const d = new Date(ts);
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
-// ==============================================================
 
 function handleCloseClick() {
-            const isLastPage = currentIndex === pages.length - 1;
+    const isLastPage = currentIndex === pages.length - 1;
 
-            if (isLastPage) {
-                closeBook();
-                return;
-            }
+    if (isLastPage) {
+        closeBook();
+        return;
+    }
 
-            if (window.confirm('Are you sure you want to exit the current book?')) {
-                closeBook();
-            }
+    if (window.confirm('Are you sure you want to exit the current book?')) {
+        closeBook();
+    }
 }
 
 function closeBook() {
-            // 只有在最后一页关闭，才算"读完一次"，计入统计
-            if (pages.length > 0 && currentIndex === pages.length - 1) {
-                recordBookCompleted();
-            }
+    if (pages.length > 0 && currentIndex === pages.length - 1) {
+        recordBookCompleted();
+    }
 
-            stopAudio();
+    stopAudio();
 
-            pages = [];
-            currentIndex = 0;
-            currentBookId = null;
-            currentBookMeta = null;
+    pages = [];
+    currentIndex = 0;
+    currentBookId = null;
+    currentBookMeta = null;
 
-            if (settingsModal.classList.contains('show')) {
-                settingsModal.classList.remove('show');
-            }
+    if (settingsModal.classList.contains('show')) {
+        settingsModal.classList.remove('show');
+    }
 
-            viewport.style.display = 'none';
-            uploadContainer.style.display = 'flex';
+    viewport.style.display = 'none';
+    uploadContainer.style.display = 'flex';
 
-            document.getElementById('file-input').value = '';
+    document.getElementById('file-input').value = '';
 
-            window.location.href = "app://orientation/portrait";
+    window.location.href = "app://orientation/portrait";
 
-            // 通知原生：书关闭了，外接屏也应该清空。同样错开一个宏任务，避免覆盖上面的竖屏命令。
-            if (!__isDisplayMode) {
-                setTimeout(() => {
-                    window.location.href = "app://display/close";
-                }, 60);
-            }
+    if (!__isDisplayMode) {
+        setTimeout(() => {
+            window.location.href = "app://display/close";
+        }, 60);
+    }
 }
 
 function updateNavState() {
-            prevBtn.disabled = currentIndex === 0;
-            nextBtn.disabled = currentIndex === pages.length - 1;
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === pages.length - 1;
 }
 
 function layoutImage() {
-            if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
-                return;
-            }
+    if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
+        return;
+    }
 
-            const originalWidth = imgEl.naturalWidth;
-            const originalHeight = imgEl.naturalHeight;
+    const originalWidth = imgEl.naturalWidth;
+    const originalHeight = imgEl.naturalHeight;
 
-            const scale = Math.min(
-                STAGE_WIDTH / originalWidth,
-                STAGE_HEIGHT / originalHeight
-            );
+    const scale = Math.min(
+        STAGE_WIDTH / originalWidth,
+        STAGE_HEIGHT / originalHeight
+    );
 
-            const width = originalWidth * scale;
-            const height = originalHeight * scale;
+    const width = originalWidth * scale;
+    const height = originalHeight * scale;
 
-            imgEl.style.width = width + 'px';
-            imgEl.style.height = height + 'px';
-            imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
-            imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
+    imgEl.style.width = width + 'px';
+    imgEl.style.height = height + 'px';
+    imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
+    imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
 }
 
 function loadPage(index, notifyDisplay = true) {
-            if (index < 0 || index >= pages.length) return;
+    if (index < 0 || index >= pages.length) return;
 
-            currentIndex = index;
-            stopAudio();
+    currentIndex = index;
+    stopAudio();
 
-            const page = pages[currentIndex];
+    const page = pages[currentIndex];
 
-            imgEl.onload = layoutImage;
-            imgEl.src = page.image || '';
+    imgEl.onload = layoutImage;
+    imgEl.src = page.image || '';
 
-            updateNavState();
-            renderSentenceButtons(page); // 旧版编号按钮：照常生成数据，只是整体被 CSS 隐藏了
+    updateNavState();
+    renderSentenceButtons(page);
 
-            if (imgEl.complete) {
-                layoutImage();
-            }
+    if (imgEl.complete) {
+        layoutImage();
+    }
 
-            // 新一页先重置播放控件状态（还没选中任何一句）
-            currentAudioIndex = -1;
-            updateAudioControlsUI();
+    currentAudioIndex = -1;
+    updateAudioControlsUI();
 
-            // 展示模式(电视)上不自动播放音频，避免和主设备的声音重叠
-            if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
-                playAudioAt(0);
-            }
+    if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
+        playAudioAt(0);
+    }
 
-            // 通知原生：翻页了，请把新的页码同步给外接屏(如果已连接)
-            if (!__isDisplayMode && notifyDisplay) {
-                setTimeout(() => {
-                    window.location.href = "app://display/page/" + currentIndex;
-                }, 30);
-            }
+    if (!__isDisplayMode && notifyDisplay) {
+        setTimeout(() => {
+            window.location.href = "app://display/page/" + currentIndex;
+        }, 30);
+    }
 }
 
 function renderSentenceButtons(page) {
-            btnContainer.innerHTML = '';
+    btnContainer.innerHTML = '';
 
-            if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
-                return;
-            }
+    if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
+        return;
+    }
 
-            const btnWidth = 60;
-            const btnHeight = 48;
-            const spacing = 8;
+    const btnWidth = 60;
+    const btnHeight = 48;
+    const spacing = 8;
 
-            const rightMargin = 15;
-            const topMargin = 8;
+    const topMargin = 8;
 
-            const navButtonHeight = 70;
-            const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
-            const nextBtnBottom = nextBtnTop + navButtonHeight;
-            const skipGap = 8;
+    const navButtonHeight = 70;
+    const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
+    const nextBtnBottom = nextBtnTop + navButtonHeight;
+    const skipGap = 8;
 
-            const baseLeft = STAGE_WIDTH - rightMargin - btnWidth;
+    /* 避开右侧控制组 (宽 60px + 边距 15px + 间距) */
+    const baseLeft = STAGE_WIDTH - 90 - btnWidth;
 
-            const macaronColors = [
-                'rgb(255,154,162)',
-                'rgb(255,183,178)',
-                'rgb(255,218,193)',
-                'rgb(226,240,203)',
-                'rgb(181,234,215)',
-                'rgb(199,206,234)'
-            ];
+    const macaronColors = [
+        '#FF9AA2',
+        '#FFB7B2',
+        '#FFDAC1',
+        '#E2F0CB',
+        '#B5EAD7',
+        '#C7CEEA'
+    ];
 
-            page.sentenceAudios.forEach((audioUri, idx) => {
-                const col = Math.floor(idx / 8);
-                const row = idx % 8;
+    page.sentenceAudios.forEach((audioUri, idx) => {
+        const col = Math.floor(idx / 8);
+        const row = idx % 8;
 
-                const left = baseLeft - col * (btnWidth + spacing);
+        const left = baseLeft - col * (btnWidth + spacing);
 
-                let top;
-                if (row < 4) {
-                    top = topMargin + row * (btnHeight + spacing);
-                } else {
-                    top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
-                }
+        let top;
+        if (row < 4) {
+            top = topMargin + row * (btnHeight + spacing);
+        } else {
+            top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
+        }
 
-                if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
-                    return;
-                }
+        if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
+            return;
+        }
 
-                const btn = document.createElement('button');
-                btn.className = 'audio-num-btn';
-                btn.style.left = left + 'px';
-                btn.style.top = top + 'px';
-                btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
-                btn.textContent = String(idx + 1);
+        const btn = document.createElement('button');
+        btn.className = 'audio-num-btn';
+        btn.style.left = left + 'px';
+        btn.style.top = top + 'px';
+        btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
+        btn.textContent = String(idx + 1);
 
-                btn.onclick = function(e) {
-                    e.stopPropagation();
-                    playSingleAudio(audioUri, btn);
-                };
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            playSingleAudio(audioUri, btn);
+        };
 
-                btnContainer.appendChild(btn);
-            });
+        btnContainer.appendChild(btn);
+    });
 }
 
 function playSingleAudio(uri, btnEl) {
-            stopAudio();
+    stopAudio();
 
-            if (!uri) return;
+    if (!uri) return;
 
-            if (btnEl) {
-                currentPlayingBtn = btnEl;
-                currentPlayingBtn.classList.add('playing');
-            }
+    if (btnEl) {
+        currentPlayingBtn = btnEl;
+        currentPlayingBtn.classList.add('playing');
+    }
 
-            audioEl.src = uri;
-            audioEl.onended = function() {
-                stopAudio();
-            };
+    audioEl.src = uri;
+    audioEl.onended = function() {
+        stopAudio();
+    };
 
-            audioEl.play().catch(err => {
-                console.log('Playback restricted:', err);
-            });
+    audioEl.play().catch(err => {
+        console.log('Playback restricted:', err);
+    });
 }
 
 function stopAudio() {
-            audioEl.pause();
-            audioEl.removeAttribute('src');
-            audioEl.load();
-            audioEl.onended = null;
+    audioEl.pause();
+    audioEl.removeAttribute('src');
+    audioEl.load();
+    audioEl.onended = null;
 
-            if (currentPlayingBtn) {
-                currentPlayingBtn.classList.remove('playing');
-                currentPlayingBtn = null;
-            }
+    if (currentPlayingBtn) {
+        currentPlayingBtn.classList.remove('playing');
+        currentPlayingBtn = null;
+    }
 
-            if (audioPlayBtn) {
-                audioPlayBtn.classList.remove('playing');
-            }
+    if (audioPlayBtn) {
+        audioPlayBtn.classList.remove('playing');
+    }
 }
 
-// ==================== 新版播放控件：上一句 / 播放当前 / 下一句 + 倍速 ====================
-const SPEED_STEPS = [1, 1.1, 1.2, 1.3]; // 仅作为"目前支持哪几档"的参考，弹出选择条里是分别写死的按钮
+const SPEED_STEPS = [1, 1.1, 1.2, 1.3, 1.4, 1.5];
 let currentAudioIndex = -1;
 let currentPlaybackRate = 1;
 
-// 注意：倍速现在只在"打开一本书"的那一刻重置为 1x(在 parseAndOpenBook 里做)，
-// 同一本书内不管翻页还是切换到别的句子，倍速都不会被自动改动。
-
 function currentSentenceAudios() {
-            const page = pages[currentIndex];
-            return (page && page.sentenceAudios) ? page.sentenceAudios : [];
+    const page = pages[currentIndex];
+    return (page && page.sentenceAudios) ? page.sentenceAudios : [];
 }
 
 function formatSpeedLabel(rate) {
-            return rate.toFixed(1).replace(/\.0$/, '') + 'x';
+    return rate.toFixed(1).replace(/\.0$/, '') + 'x';
 }
 
 function updateAudioControlsUI() {
-            const list = currentSentenceAudios();
-            const total = list.length;
+    const list = currentSentenceAudios();
+    const total = list.length;
 
-            audioControls.style.display = total > 0 ? 'flex' : 'none';
-            if (total === 0) return;
+    /* 有音频时显示控制组 */
+    audioControls.style.display = total > 0 ? 'block' : 'none';
+    if (total === 0) return;
 
-            audioCounterEl.textContent = (currentAudioIndex + 1) + ' / ' + total;
-            audioPrevBtn.disabled = currentAudioIndex <= 0;
-            audioNextBtn.disabled = currentAudioIndex >= total - 1;
-            audioSpeedBtn.textContent = formatSpeedLabel(currentPlaybackRate);
+    const displayNum = currentAudioIndex >= 0 ? (currentAudioIndex + 1) : 1;
+    audioPlayBtn.textContent = displayNum + '/' + total + ' ▶';
 
-            // 同步高亮速度选择条里当前选中的那一档
-            document.querySelectorAll('.speed-option').forEach(btn => {
-                const rate = parseFloat(btn.textContent);
-                btn.classList.toggle('active', Math.abs(rate - currentPlaybackRate) < 0.001);
-            });
+    audioPrevBtn.disabled = currentAudioIndex <= 0;
+    audioNextBtn.disabled = currentAudioIndex >= total - 1;
+    audioSpeedBtn.textContent = formatSpeedLabel(currentPlaybackRate);
+
+    document.querySelectorAll('.speed-option').forEach(btn => {
+        const rate = parseFloat(btn.textContent);
+        btn.classList.toggle('active', Math.abs(rate - currentPlaybackRate) < 0.001);
+    });
 }
 
 function playAudioAt(index) {
-            const list = currentSentenceAudios();
-            if (index < 0 || index >= list.length) return;
+    const list = currentSentenceAudios();
+    if (index < 0 || index >= list.length) return;
 
-            currentAudioIndex = index;
-            updateAudioControlsUI();
-            playSentenceAudio(list[index]);
+    currentAudioIndex = index;
+    updateAudioControlsUI();
+    playSentenceAudio(list[index]);
 }
 
 function playSentenceAudio(uri) {
-            stopAudio();
+    stopAudio();
 
-            if (!uri) return;
+    if (!uri) return;
 
-            audioEl.src = uri;
-            audioEl.playbackRate = currentPlaybackRate;
+    audioEl.src = uri;
+    audioEl.playbackRate = currentPlaybackRate;
 
-            // 有些机型切换 src 后倍速会被重置，metadata 加载完再保险地设一次
-            audioEl.onloadedmetadata = function () {
-                audioEl.playbackRate = currentPlaybackRate;
-            };
+    audioEl.onloadedmetadata = function () {
+        audioEl.playbackRate = currentPlaybackRate;
+    };
 
-            audioEl.onended = function () {
-                audioPlayBtn.classList.remove('playing');
-            };
+    audioEl.onended = function () {
+        audioPlayBtn.classList.remove('playing');
+    };
 
-            audioPlayBtn.classList.add('playing');
+    audioPlayBtn.classList.add('playing');
 
-            audioEl.play().catch(err => {
-                console.log('Playback restricted:', err);
-            });
+    audioEl.play().catch(err => {
+        console.log('Playback restricted:', err);
+    });
 }
 
 function handleAudioPrev() {
-            if (currentAudioIndex > 0) {
-                playAudioAt(currentAudioIndex - 1);
-            }
+    if (currentAudioIndex > 0) {
+        playAudioAt(currentAudioIndex - 1);
+    }
 }
 
 function handleAudioNext() {
-            if (currentAudioIndex < currentSentenceAudios().length - 1) {
-                playAudioAt(currentAudioIndex + 1);
-            }
+    if (currentAudioIndex < currentSentenceAudios().length - 1) {
+        playAudioAt(currentAudioIndex + 1);
+    }
 }
 
 function handleAudioReplay() {
-            if (currentAudioIndex >= 0) {
-                playAudioAt(currentAudioIndex);
-            }
+    if (currentAudioIndex >= 0) {
+        playAudioAt(currentAudioIndex);
+    } else if (currentSentenceAudios().length > 0) {
+        playAudioAt(0);
+    }
 }
 
-// ==================== 倍速：弹出选择条，直接点想要的档位 ====================
 function toggleSpeedModal(e) {
-            e.stopPropagation();
-            document.getElementById('speed-modal').classList.toggle('show');
+    e.stopPropagation();
+    document.getElementById('speed-modal').classList.toggle('show');
 }
 
 function closeSpeedModal() {
-            document.getElementById('speed-modal').classList.remove('show');
+    document.getElementById('speed-modal').classList.remove('show');
 }
 
 function selectSpeed(rate) {
-            currentPlaybackRate = rate;
-            closeSpeedModal();
-            updateAudioControlsUI();
+    currentPlaybackRate = rate;
+    closeSpeedModal();
+    updateAudioControlsUI();
 
-            // 选完倍速自动播放当前这一句
-            if (currentAudioIndex >= 0) {
-                playAudioAt(currentAudioIndex);
-            }
+    if (currentAudioIndex >= 0) {
+        playAudioAt(currentAudioIndex);
+    }
 }
-// ==============================================================================
-// ====================================================================================
 
 function nextPage() {
-            if (currentIndex < pages.length - 1) {
-                loadPage(currentIndex + 1);
-            }
+    if (currentIndex < pages.length - 1) {
+        loadPage(currentIndex + 1);
+    }
 }
 
 function prevPage() {
-            if (currentIndex > 0) {
-                loadPage(currentIndex - 1);
-            }
+    if (currentIndex > 0) {
+        loadPage(currentIndex - 1);
+    }
 }
 
 document.addEventListener('keydown', function(e) {
-            if (viewport.style.display === 'block') {
-                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-                    nextPage();
-                }
+    if (viewport.style.display === 'block') {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+            nextPage();
+        }
 
-                if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-                    prevPage();
-                }
+        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+            prevPage();
+        }
 
-                if (e.key === 'Escape') {
-                    handleCloseClick();
-                }
-            }
+        if (e.key === 'Escape') {
+            handleCloseClick();
+        }
+    }
 });
 
-// ==================== 左右滑动翻页 ====================
-// 屏幕上左右滑动即可翻页；在最后一页再向左滑（相当于"翻到下一页"）时，
-// 直接关闭电子书，不弹确认框（和点击右上角关闭按钮的行为不同）。
 let touchStartX = 0;
 let touchStartY = 0;
 let touchStartTime = 0;
 
-const SWIPE_MIN_DISTANCE = 50;   // 触发翻页所需的最小水平滑动距离(px)
-const SWIPE_MAX_DURATION = 600;  // 超过这个时长(ms)就不当作"滑动手势"了
-const SWIPE_MAX_VERTICAL = 60;   // 纵向偏移超过这个值，判定为上下滚动而不是翻页
+const SWIPE_MIN_DISTANCE = 50;
+const SWIPE_MAX_DURATION = 600;
+const SWIPE_MAX_VERTICAL = 60;
 
 function isInteractiveSwipeTarget(target) {
-            return !!(target && target.closest && target.closest(
-                '.nav-btn, #back-btn, #settings-btn, #settings-modal, .audio-num-btn, #audio-controls'
-            ));
+    return !!(target && target.closest && target.closest(
+        '.nav-btn, #back-btn, #settings-btn, #settings-modal, .audio-num-btn, #audio-controls'
+    ));
 }
 
 viewport.addEventListener('touchstart', (e) => {
-            if (__isDisplayMode || !pages.length || e.touches.length !== 1) return;
-            if (isInteractiveSwipeTarget(e.target)) return;
+    if (__isDisplayMode || !pages.length || e.touches.length !== 1) return;
+    if (isInteractiveSwipeTarget(e.target)) return;
 
-            const t = e.touches[0];
-            touchStartX = t.clientX;
-            touchStartY = t.clientY;
-            touchStartTime = Date.now();
+    const t = e.touches[0];
+    touchStartX = t.clientX;
+    touchStartY = t.clientY;
+    touchStartTime = Date.now();
 }, { passive: true });
 
 viewport.addEventListener('touchend', (e) => {
-            if (__isDisplayMode || !pages.length || !touchStartTime) return;
-            if (isInteractiveSwipeTarget(e.target)) {
-                touchStartTime = 0;
-                return;
-            }
+    if (__isDisplayMode || !pages.length || !touchStartTime) return;
+    if (isInteractiveSwipeTarget(e.target)) {
+        touchStartTime = 0;
+        return;
+    }
 
-            const t = e.changedTouches[0];
-            const deltaX = t.clientX - touchStartX;
-            const deltaY = t.clientY - touchStartY;
-            const duration = Date.now() - touchStartTime;
-            touchStartTime = 0;
+    const t = e.changedTouches[0];
+    const deltaX = t.clientX - touchStartX;
+    const deltaY = t.clientY - touchStartY;
+    const duration = Date.now() - touchStartTime;
+    touchStartTime = 0;
 
-            if (duration > SWIPE_MAX_DURATION) return;
-            if (Math.abs(deltaY) > SWIPE_MAX_VERTICAL) return;
-            if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
+    if (duration > SWIPE_MAX_DURATION) return;
+    if (Math.abs(deltaY) > SWIPE_MAX_VERTICAL) return;
+    if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
 
-            if (deltaX < 0) {
-                // 向左滑：下一页；已经是最后一页的话直接关闭，不提醒
-                if (currentIndex < pages.length - 1) {
-                    nextPage();
-                } else {
-                    closeBook();
-                }
-            } else {
-                // 向右滑：上一页
-                if (currentIndex > 0) {
-                    prevPage();
-                }
-            }
+    if (deltaX < 0) {
+        if (currentIndex < pages.length - 1) {
+            nextPage();
+        } else {
+            closeBook();
+        }
+    } else {
+        if (currentIndex > 0) {
+            prevPage();
+        }
+    }
 }, { passive: true });
-// ==========================================================
-
-// ==================== 供原生调用的展示模式接口 ====================
-// 原生层(ExternalDisplayManager)在外接屏的 WKWebView 加载完这份网页后，
-// 会调用下面两个函数，把主屏当前的书本数据 / 当前页码同步过来。
-// 这两个函数只在 ?mode=display 的实例里有意义。
 
 window.__loadBookFromNative = function (pagesJson) {
     try {
@@ -1645,9 +1558,7 @@ window.__closeBookFromNative = function () {
     pages = [];
     currentIndex = 0;
     viewport.style.display = 'none';
-    // 展示模式下 upload-container 本来就被 CSS 强制隐藏，这里保持黑屏即可
 };
-// ====================================================================
     </script>
 
 </body>
