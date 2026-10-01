@@ -1447,10 +1447,6 @@ function selectSpeed(rate) {
     currentPlaybackRate = rate;
     closeSpeedModal();
     updateAudioControlsUI();
-
-    if (currentAudioIndex >= 0) {
-        playAudioAt(currentAudioIndex);
-    }
 }
 
 function nextPage() {
