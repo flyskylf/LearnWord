@@ -268,12 +268,12 @@
         /* ==================== 马卡龙配色音频控制组 ==================== */
         #audio-controls {
             position: absolute;
-            top: 20px;
+            top: 15px; /* 从 20px 上移到 15px */
             right: 15px; /* 与下一页按钮右对齐 */
             display: none; /* JS 显隐控制 */
             z-index: 260;
-            width: 60px; /* 右列宽度，与下一页按钮一致 */
-            height: 230px; /* 增加高度以容纳更大的按钮 */
+            width: 60px;
+            height: 210px; /* 15 + 62 + 8 + 62 + 8 + 62 = 217px，留一点余量 */
         }
 
         /* 右侧主控制器纵向排列，最右侧对齐 */
@@ -285,12 +285,12 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 10px; /* 增加间距 */
+            gap: 8px; /* 从 10px 收紧到 8px */
         }
 
         /* 通用马卡龙按钮基础样式 */
         .macaron-btn {
-            width: 60px; /* 与下一页按钮宽度一致 */
+            width: 60px;
             padding: 0;
             margin: 0;
             border: 2px solid #ffffff;
@@ -320,7 +320,7 @@
             border-color: #FFFFFF !important;
         }
 
-        /* 1. 切换箭头按钮：#FFB7B2 (蜜桃奶粉) - 高度从 52px 增加到 62px */
+        /* 1. 切换箭头按钮：#FFB7B2 (蜜桃奶粉) */
         .btn-arrow {
             height: 62px;
             border-radius: 16px;
@@ -329,7 +329,7 @@
             color: #5D4037;
         }
 
-        /* 2. 主音频播放按钮：#FF9AA2 (草莓马卡龙粉) - 高度从 52px 增加到 62px */
+        /* 2. 主音频播放按钮：#FF9AA2 (草莓马卡龙粉) */
         .btn-main {
             height: 62px;
             border-radius: 16px;
@@ -346,8 +346,8 @@
         /* 3. 倍速按钮：放在控制组左侧，与右列并排 */
         .speed-wrap {
             position: absolute;
-            right: 70px; /* 60px(右列宽) + 10px(间距) */
-            top: 72px;   /* 与主播放按钮垂直对齐：62px(▲) + 10px(gap) = 72px */
+            right: 68px; /* 60px(右列宽) + 8px(间距) */
+            top: 70px;   /* 与主播放按钮垂直对齐：62px(▲) + 8px(gap) = 70px */
             width: 60px;
             height: 62px;
         }
