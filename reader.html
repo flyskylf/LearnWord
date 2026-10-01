@@ -273,7 +273,7 @@
             display: none; /* JS 显隐控制 */
             z-index: 260;
             width: 60px; /* 右列宽度，与下一页按钮一致 */
-            height: 186px;
+            height: 230px; /* 增加高度以容纳更大的按钮 */
         }
 
         /* 右侧主控制器纵向排列，最右侧对齐 */
@@ -285,7 +285,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 8px;
+            gap: 10px; /* 增加间距 */
         }
 
         /* 通用马卡龙按钮基础样式 */
@@ -320,20 +320,20 @@
             border-color: #FFFFFF !important;
         }
 
-        /* 1. 切换箭头按钮：#FFB7B2 (蜜桃奶粉) */
+        /* 1. 切换箭头按钮：#FFB7B2 (蜜桃奶粉) - 高度从 52px 增加到 62px */
         .btn-arrow {
-            height: 52px;
+            height: 62px;
             border-radius: 16px;
-            font-size: 15px;
+            font-size: 18px;
             background-color: #FFB7B2;
             color: #5D4037;
         }
 
-        /* 2. 主音频播放按钮：#FF9AA2 (草莓马卡龙粉) */
+        /* 2. 主音频播放按钮：#FF9AA2 (草莓马卡龙粉) - 高度从 52px 增加到 62px */
         .btn-main {
-            height: 52px;
+            height: 62px;
             border-radius: 16px;
-            font-size: 13px;
+            font-size: 14px;
             gap: 4px;
             background-color: #FF9AA2;
             color: #FFFFFF;
@@ -346,18 +346,18 @@
         /* 3. 倍速按钮：放在控制组左侧，与右列并排 */
         .speed-wrap {
             position: absolute;
-            right: 68px; /* 60px(右列宽) + 8px(间距) */
-            top: 60px;   /* 与主播放按钮垂直对齐：52px(▲) + 8px(gap) = 60px */
+            right: 70px; /* 60px(右列宽) + 10px(间距) */
+            top: 72px;   /* 与主播放按钮垂直对齐：62px(▲) + 10px(gap) = 72px */
             width: 60px;
-            height: 52px;
+            height: 62px;
         }
 
         .btn-speed {
             width: 60px;
-            height: 48px;
+            height: 58px;
             margin-top: 2px;
             border-radius: 14px;
-            font-size: 13px;
+            font-size: 15px;
             background-color: #FFDAC1;
             color: #6D4C41;
         }
@@ -367,7 +367,7 @@
             display: none;
             position: absolute;
             left: 0;
-            top: 52px;
+            top: 62px;
             background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
@@ -386,14 +386,14 @@
 
         .speed-option {
             width: 60px;
-            height: 32px;
+            height: 38px;
             padding: 0;
             margin: 0;
             background: #fff3ec;
             color: #6D4C41;
             border: 1px solid #FFDAC1;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.1s ease;
