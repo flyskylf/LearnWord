@@ -184,9 +184,9 @@
             align-items: center;
         }
 
-        #settings-btn:active {
-            transform: scale(0.95);
-        }
+            #settings-btn:active {
+                transform: scale(0.95);
+            }
 
         /* Settings Modal */
         #settings-modal {
@@ -206,9 +206,9 @@
             border: 1px solid rgba(255,255,255,0.15);
         }
 
-        #settings-modal.show {
-            display: block;
-        }
+            #settings-modal.show {
+                display: block;
+            }
 
         .setting-item {
             display: flex;
@@ -220,12 +220,12 @@
             gap: 12px;
         }
 
-        .setting-item input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #0a84ff;
-            cursor: pointer;
-        }
+            .setting-item input[type="checkbox"] {
+                width: 18px;
+                height: 18px;
+                accent-color: #0a84ff;
+                cursor: pointer;
+            }
 
         /* Sentence Audio Buttons */
         .audio-num-btn {
@@ -248,14 +248,14 @@
             transition: all 0.15s ease;
         }
 
-        .audio-num-btn:active {
-            transform: scale(.95);
-        }
+            .audio-num-btn:active {
+                transform: scale(.95);
+            }
 
-        .audio-num-btn.playing {
-            filter: brightness(.85);
-            border-color: #fef08a;
-        }
+            .audio-num-btn.playing {
+                filter: brightness(.85);
+                border-color: #fef08a;
+            }
 
         #audio-player {
             display: none;
@@ -268,15 +268,14 @@
         /* ==================== 马卡龙配色音频控制组 ==================== */
         #audio-controls {
             position: absolute;
-            top: 15px; /* 从 20px 上移到 15px */
-            right: 15px; /* 与下一页按钮右对齐 */
-            display: none; /* JS 显隐控制 */
+            top: 15px;
+            right: 15px;
+            display: none;
             z-index: 260;
             width: 60px;
-            height: 210px; /* 15 + 62 + 8 + 62 + 8 + 62 = 217px，留一点余量 */
+            height: 210px;
         }
 
-        /* 右侧主控制器纵向排列，最右侧对齐 */
         .right-ctrl-column {
             position: absolute;
             right: 0;
@@ -285,10 +284,9 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 8px; /* 从 10px 收紧到 8px */
+            gap: 8px;
         }
 
-        /* 通用马卡龙按钮基础样式 */
         .macaron-btn {
             width: 60px;
             padding: 0;
@@ -307,20 +305,18 @@
             appearance: none;
         }
 
-        .macaron-btn:active:not(:disabled) {
-            transform: scale(0.95);
-        }
+            .macaron-btn:active:not(:disabled) {
+                transform: scale(0.95);
+            }
 
-        /* 禁用状态 (Disabled) - 莫兰迪灰粉 */
-        .macaron-btn:disabled {
-            background-color: #E8E2E2 !important;
-            color: #B5A8A8 !important;
-            box-shadow: none !important;
-            cursor: not-allowed;
-            border-color: #FFFFFF !important;
-        }
+            .macaron-btn:disabled {
+                background-color: #E8E2E2 !important;
+                color: #B5A8A8 !important;
+                box-shadow: none !important;
+                cursor: not-allowed;
+                border-color: #FFFFFF !important;
+            }
 
-        /* 1. 切换箭头按钮：#FFB7B2 (蜜桃奶粉) */
         .btn-arrow {
             height: 62px;
             border-radius: 16px;
@@ -329,7 +325,6 @@
             color: #5D4037;
         }
 
-        /* 2. 主音频播放按钮：#FF9AA2 (草莓马卡龙粉) */
         .btn-main {
             height: 62px;
             border-radius: 16px;
@@ -339,15 +334,14 @@
             color: #FFFFFF;
         }
 
-        .btn-main.playing {
-            background-color: #ff6b7a;
-        }
+            .btn-main.playing {
+                background-color: #ff6b7a;
+            }
 
-        /* 3. 倍速按钮：放在控制组左侧，与右列并排 */
         .speed-wrap {
             position: absolute;
-            right: 68px; /* 60px(右列宽) + 8px(间距) */
-            top: 70px;   /* 与主播放按钮垂直对齐：62px(▲) + 8px(gap) = 70px */
+            right: 68px;
+            top: 70px;
             width: 60px;
             height: 62px;
         }
@@ -362,7 +356,6 @@
             color: #6D4C41;
         }
 
-        /* 倍速下拉弹框 */
         #speed-modal {
             display: none;
             position: absolute;
@@ -380,9 +373,9 @@
             box-shadow: 0 4px 16px rgba(0,0,0,.15);
         }
 
-        #speed-modal.show {
-            display: flex;
-        }
+            #speed-modal.show {
+                display: flex;
+            }
 
         .speed-option {
             width: 60px;
@@ -399,12 +392,64 @@
             transition: all 0.1s ease;
         }
 
-        .speed-option.active {
-            background: #FF9AA2;
-            color: #FFFFFF;
-            border-color: #FF9AA2;
-        }
+            .speed-option.active {
+                background: #FF9AA2;
+                color: #FFFFFF;
+                border-color: #FF9AA2;
+            }
         /* ======================================================================== */
+
+        /* ==================== 外接屏等待画面 ==================== */
+        #display-idle {
+            position: fixed;
+            inset: 0;
+            display: none; /* 默认隐藏；仅 display 模式且无书时显示 */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #1c1c1e;
+            color: #fff;
+            text-align: center;
+            padding: 40px;
+            z-index: 900;
+        }
+
+        /* 仅在 display 模式下由 JS 控制显隐 */
+        html.display-mode #display-idle.show {
+            display: flex;
+        }
+
+        .display-idle-icon {
+            font-size: 88px;
+            margin-bottom: 20px;
+            animation: displayIdlePulse 2.4s ease-in-out infinite;
+        }
+
+        @keyframes displayIdlePulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.55;
+                transform: scale(0.94);
+            }
+        }
+
+        .display-idle-title {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
+        }
+
+        .display-idle-subtitle {
+            font-size: 18px;
+            color: #8e8e93;
+            line-height: 1.5;
+        }
+        /* ======================================================== */
 
         /* 上传页样式 */
         .quick-actions {
@@ -444,9 +489,9 @@
             flex-direction: column;
         }
 
-        .overlay-page.show {
-            display: flex;
-        }
+            .overlay-page.show {
+                display: flex;
+            }
 
         .overlay-header {
             display: flex;
@@ -504,24 +549,26 @@
             cursor: pointer;
         }
 
+        /* ===== 封面容器：固定 4:3 比例，内部完整显示图片 ===== */
         .book-card-cover {
             position: relative;
             width: 100%;
             height: 0;
-            padding-top: 75%;
+            padding-top: 75%; /* 4:3 比例，与缩略图 canvas 一致 */
             border-radius: 10px 10px 4px 4px;
             overflow: hidden;
             background: #55524a;
         }
 
-        .book-card-cover img {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
+            .book-card-cover img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain; /* 完整显示图片，不裁剪、不拉伸 */
+                display: block;
+            }
+        /* ================================================ */
 
         .book-card-spine {
             height: 8px;
@@ -542,17 +589,17 @@
             opacity: .4;
         }
 
-        .book-card.unavailable .book-card-cover::after {
-            content: "?";
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: #fff;
-            background: rgba(0,0,0,.35);
-        }
+            .book-card.unavailable .book-card-cover::after {
+                content: "?";
+                position: absolute;
+                inset: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                color: #fff;
+                background: rgba(0,0,0,.35);
+            }
 
         .book-card--add .book-card-cover {
             border: 2px dashed rgba(255,255,255,.4);
@@ -587,14 +634,14 @@
             margin-bottom: 10px;
         }
 
-        .stats-row img {
-            width: 56px;
-            height: 42px;
-            object-fit: cover;
-            border-radius: 6px;
-            flex-shrink: 0;
-            background: #55524a;
-        }
+            .stats-row img {
+                width: 56px;
+                height: 42px;
+                object-fit: contain;
+                border-radius: 6px;
+                flex-shrink: 0;
+                background: #55524a;
+            }
 
         .stats-row-info {
             flex: 1;
@@ -666,6 +713,13 @@
         <input id="file-input" type="file" accept=".html,.htm" style="display:none" onchange="loadBookFile(this.files[0])">
     </div>
 
+    <!-- 外接屏等待画面（仅 ?mode=display 且未打开书时显示） -->
+    <div id="display-idle">
+        <div class="display-idle-icon">📖</div>
+        <div class="display-idle-title">Book Reader</div>
+        <div class="display-idle-subtitle">Please pick a book on your iPhone</div>
+    </div>
+
     <!-- 最近阅读 / 我的书架 -->
     <div id="library-overlay" class="overlay-page">
         <div class="overlay-header">
@@ -718,6 +772,9 @@
                         <button class="speed-option" onclick="selectSpeed(1.3)">1.3x</button>
                         <button class="speed-option" onclick="selectSpeed(1.4)">1.4x</button>
                         <button class="speed-option" onclick="selectSpeed(1.5)">1.5x</button>
+                        <button class="speed-option" onclick="selectSpeed(1.6)">1.6x</button>
+                        <button class="speed-option" onclick="selectSpeed(1.8)">1.8x</button>
+                        <button class="speed-option" onclick="selectSpeed(2.0)">2.0x</button>
                     </div>
                 </div>
 
@@ -738,7 +795,7 @@ const STAGE_HEIGHT = 540;
 
 const __isDisplayMode = new URLSearchParams(window.location.search).get('mode') === 'display';
 if (__isDisplayMode) {
-    document.documentElement.classList.add('display-mode');
+            document.documentElement.classList.add('display-mode');
 }
 
 let pages = [];
@@ -770,582 +827,586 @@ const audioSpeedBtn = document.getElementById('audio-speed-btn');
 autoPlayToggle.checked = autoPlayFirstAudio;
 
 function resizeStage() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
 
-    const scale = Math.min(
-        vw / STAGE_WIDTH,
-        vh / STAGE_HEIGHT
-    );
+            const scale = Math.min(
+                vw / STAGE_WIDTH,
+                vh / STAGE_HEIGHT
+            );
 
-    stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            stage.style.transform = `translate(-50%, -50%) scale(${scale})`;
 }
 
 window.addEventListener('resize', resizeStage);
 window.addEventListener('orientationchange', () => {
-    setTimeout(resizeStage, 100);
+            setTimeout(resizeStage, 100);
 });
 
 stage.addEventListener('click', (e) => {
-    if (settingsModal.classList.contains('show')) {
-        settingsModal.classList.remove('show');
-    }
-    const speedModalEl = document.getElementById('speed-modal');
-    if (speedModalEl && speedModalEl.classList.contains('show')) {
-        speedModalEl.classList.remove('show');
-    }
+            if (settingsModal.classList.contains('show')) {
+                settingsModal.classList.remove('show');
+            }
+            const speedModalEl = document.getElementById('speed-modal');
+            if (speedModalEl && speedModalEl.classList.contains('show')) {
+                speedModalEl.classList.remove('show');
+            }
 });
 
 function toggleSettingsModal(e) {
-    e.stopPropagation();
-    settingsModal.classList.toggle('show');
+            e.stopPropagation();
+            settingsModal.classList.toggle('show');
 }
 
 function handleAutoPlayChange(checked) {
-    autoPlayFirstAudio = checked;
-    localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
+            autoPlayFirstAudio = checked;
+            localStorage.setItem('autoPlayFirstAudio', checked ? 'true' : 'false');
 }
 
 function parseAndOpenBook(htmlContent, meta) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, 'text/html');
-    const dataScript = doc.getElementById('book-data');
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlContent, 'text/html');
+            const dataScript = doc.getElementById('book-data');
 
-    if (!dataScript) {
-        alert('Invalid file format! "book-data" element not found.');
-        return false;
-    }
-
-    try {
-        pages = JSON.parse(dataScript.textContent);
-
-        if (!pages || pages.length === 0) {
-            return false;
-        }
-
-        if (!pages[0].image) {
-            const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
-            if (coverImgEl) {
-                pages[0].image = coverImgEl.getAttribute('src') || '';
+            if (!dataScript) {
+                alert('Invalid file format! "book-data" element not found.');
+                return false;
             }
-        }
 
-        currentBookId = meta.id;
-        currentBookMeta = meta;
+            try {
+                pages = JSON.parse(dataScript.textContent);
 
-        currentPlaybackRate = 1;
+                if (!pages || pages.length === 0) {
+                    return false;
+                }
 
-        uploadContainer.style.display = 'none';
-        viewport.style.display = 'block';
+                if (!pages[0].image) {
+                    const coverImgEl = doc.getElementById('cover-image') || doc.querySelector('img');
+                    if (coverImgEl) {
+                        pages[0].image = coverImgEl.getAttribute('src') || '';
+                    }
+                }
 
-        window.location.href = "app://orientation/landscape";
+                currentBookId = meta.id;
+                currentBookMeta = meta;
 
-        resizeStage();
+                currentPlaybackRate = 1;
 
-        audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-        audioEl.play().catch(() => { });
+                uploadContainer.style.display = 'none';
+                viewport.style.display = 'block';
 
-        loadPage(0, false);
+                window.location.href = "app://orientation/landscape";
 
-        if (!__isDisplayMode) {
-            setTimeout(() => {
-                window.location.href = "app://display/loadbook";
-            }, 60);
+                resizeStage();
 
-            scheduleCoverThumbnailThenRecordOpened(meta);
-        }
+                audioEl.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+                audioEl.play().catch(() => { });
 
-        return true;
-    } catch (err) {
-        alert('Failed to parse data: ' + err.message);
-        return false;
-    }
+                loadPage(0, false);
+
+                if (!__isDisplayMode) {
+                    setTimeout(() => {
+                        window.location.href = "app://display/loadbook";
+                    }, 60);
+
+                    scheduleCoverThumbnailThenRecordOpened(meta);
+                }
+
+                return true;
+            } catch (err) {
+                alert('Failed to parse data: ' + err.message);
+                return false;
+            }
 }
 
 function loadBookFile(file) {
-    if (!file) return;
+            if (!file) return;
 
-    const reader = new FileReader();
+            const reader = new FileReader();
 
-    reader.onload = function (e) {
-        const htmlContent = e.target.result;
-        parseAndOpenBook(htmlContent, {
-            id: file.name,
-            title: file.name.replace(/\.[^.]+$/, ''),
-            bookmark: null
-        });
-    };
+            reader.onload = function (e) {
+                const htmlContent = e.target.result;
+                parseAndOpenBook(htmlContent, {
+                    id: file.name,
+                    title: file.name.replace(/\.[^.]+$/, ''),
+                    bookmark: null
+                });
+            };
 
-    reader.readAsText(file);
+            reader.readAsText(file);
 }
 
 const RECENT_BOOKS_KEY = 'recentBooks';
 const MAX_RECENT_BOOKS = 30;
 
 function loadRecentBooks() {
-    try {
-        const raw = localStorage.getItem(RECENT_BOOKS_KEY);
-        return raw ? JSON.parse(raw) : [];
-    } catch (err) {
-        return [];
-    }
+            try {
+                const raw = localStorage.getItem(RECENT_BOOKS_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (err) {
+                return [];
+            }
 }
 
 function saveRecentBooks(list) {
-    try {
-        localStorage.setItem(RECENT_BOOKS_KEY, JSON.stringify(list));
-    } catch (err) {
-        console.log('saveRecentBooks failed:', err);
-    }
+            try {
+                localStorage.setItem(RECENT_BOOKS_KEY, JSON.stringify(list));
+            } catch (err) {
+                console.log('saveRecentBooks failed:', err);
+            }
 }
 
 function upsertRecentBook(entry) {
-    let list = loadRecentBooks();
-    const idx = list.findIndex(b => b.id === entry.id);
+            let list = loadRecentBooks();
+            const idx = list.findIndex(b => b.id === entry.id);
 
-    if (idx >= 0) {
-        list[idx] = Object.assign({}, list[idx], entry);
-    } else {
-        list.unshift(Object.assign({
-            readCount: 0,
-            lastCompletedAt: null,
-            unavailable: false
-        }, entry));
-    }
+            if (idx >= 0) {
+                list[idx] = Object.assign({}, list[idx], entry);
+            } else {
+                list.unshift(Object.assign({
+                    readCount: 0,
+                    lastCompletedAt: null,
+                    unavailable: false
+                }, entry));
+            }
 
-    list.sort((a, b) => (b.lastOpenedAt || 0) - (a.lastOpenedAt || 0));
+            list.sort((a, b) => (b.lastOpenedAt || 0) - (a.lastOpenedAt || 0));
 
-    if (list.length > MAX_RECENT_BOOKS) {
-        list = list.slice(0, MAX_RECENT_BOOKS);
-    }
+            if (list.length > MAX_RECENT_BOOKS) {
+                list = list.slice(0, MAX_RECENT_BOOKS);
+            }
 
-    saveRecentBooks(list);
-    return list;
+            saveRecentBooks(list);
+            return list;
 }
 
 function recordBookOpened(meta) {
-    upsertRecentBook(Object.assign({}, meta, { lastOpenedAt: Date.now() }));
+            upsertRecentBook(Object.assign({}, meta, { lastOpenedAt: Date.now() }));
 }
 
 function recordBookCompleted() {
-    if (!currentBookId) return;
+            if (!currentBookId) return;
 
-    const list = loadRecentBooks();
-    const idx = list.findIndex(b => b.id === currentBookId);
-    if (idx >= 0) {
-        list[idx].readCount = (list[idx].readCount || 0) + 1;
-        list[idx].lastCompletedAt = Date.now();
-        saveRecentBooks(list);
-    }
+            const list = loadRecentBooks();
+            const idx = list.findIndex(b => b.id === currentBookId);
+            if (idx >= 0) {
+                list[idx].readCount = (list[idx].readCount || 0) + 1;
+                list[idx].lastCompletedAt = Date.now();
+                saveRecentBooks(list);
+            }
 }
 
+/* ===== 使用 Math.min 让原图完整缩放进 canvas，不裁剪 ===== */
 function generateCoverThumbnail() {
-    try {
-        const targetW = 240, targetH = 180;
-        const canvas = document.createElement('canvas');
-        canvas.width = targetW;
-        canvas.height = targetH;
-        const ctx = canvas.getContext('2d');
+            try {
+                const targetW = 240, targetH = 180;
+                const canvas = document.createElement('canvas');
+                canvas.width = targetW;
+                canvas.height = targetH;
+                const ctx = canvas.getContext('2d');
 
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(0, 0, targetW, targetH);
+                // 白色背景（letterbox 留白）
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, targetW, targetH);
 
-        const iw = imgEl.naturalWidth, ih = imgEl.naturalHeight;
-        if (iw && ih) {
-            const scale = Math.max(targetW / iw, targetH / ih);
-            const w = iw * scale, h = ih * scale;
-            ctx.drawImage(imgEl, (targetW - w) / 2, (targetH - h) / 2, w, h);
-        }
+                const iw = imgEl.naturalWidth, ih = imgEl.naturalHeight;
+                if (iw && ih) {
+                    // Math.min 确保图片完整放入，不裁剪
+                    const scale = Math.min(targetW / iw, targetH / ih);
+                    const w = iw * scale, h = ih * scale;
+                    ctx.drawImage(imgEl, (targetW - w) / 2, (targetH - h) / 2, w, h);
+                }
 
-        return canvas.toDataURL('image/jpeg', 0.6);
-    } catch (err) {
-        console.log('generateCoverThumbnail failed:', err);
-        return '';
-    }
+                return canvas.toDataURL('image/jpeg', 0.6);
+            } catch (err) {
+                console.log('generateCoverThumbnail failed:', err);
+                return '';
+            }
 }
+/* ============================================================ */
 
 function scheduleCoverThumbnailThenRecordOpened(meta) {
-    const doRecord = () => {
-        recordBookOpened({
-            id: meta.id,
-            title: meta.title,
-            bookmark: meta.bookmark || null,
-            cover: generateCoverThumbnail()
-        });
-    };
+            const doRecord = () => {
+                recordBookOpened({
+                    id: meta.id,
+                    title: meta.title,
+                    bookmark: meta.bookmark || null,
+                    cover: generateCoverThumbnail()
+                });
+            };
 
-    if (imgEl.complete && imgEl.naturalWidth > 0) {
-        doRecord();
-    } else {
-        imgEl.addEventListener('load', doRecord, { once: true });
-    }
+            if (imgEl.complete && imgEl.naturalWidth > 0) {
+                doRecord();
+            } else {
+                imgEl.addEventListener('load', doRecord, { once: true });
+            }
 }
 
 function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str == null ? '' : String(str);
-    return div.innerHTML;
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : String(str);
+            return div.innerHTML;
 }
 
 function pickNewFile() {
-    if (__isDisplayMode) return;
-    window.location.href = "app://book/pick";
+            if (__isDisplayMode) return;
+            window.location.href = "app://book/pick";
 }
 
 function reopenBook(id) {
-    if (__isDisplayMode) return;
+            if (__isDisplayMode) return;
 
-    const list = loadRecentBooks();
-    const book = list.find(b => b.id === id);
-    if (!book) return;
+            const list = loadRecentBooks();
+            const book = list.find(b => b.id === id);
+            if (!book) return;
 
-    if (!book.bookmark) {
-        alert('这本书是用旧方式打开的，暂时没法自动重新打开，请重新选择一次文件。');
-        return;
-    }
+            if (!book.bookmark) {
+                alert('这本书是用旧方式打开的，暂时没法自动重新打开，请重新选择一次文件。');
+                return;
+            }
 
-    window.location.href = "app://book/reopen?id=" + encodeURIComponent(id) + "&bm=" + encodeURIComponent(book.bookmark);
+            window.location.href = "app://book/reopen?id=" + encodeURIComponent(id) + "&bm=" + encodeURIComponent(book.bookmark);
 }
 
 window.__onFilePicked = function (bookmarkBase64, fileName, htmlContent) {
-    parseAndOpenBook(htmlContent, {
-        id: fileName,
-        title: fileName.replace(/\.[^.]+$/, ''),
-        bookmark: bookmarkBase64 || null
-    });
+            parseAndOpenBook(htmlContent, {
+                id: fileName,
+                title: fileName.replace(/\.[^.]+$/, ''),
+                bookmark: bookmarkBase64 || null
+            });
 };
 
 window.__onReopenFailed = function (id) {
-    const list = loadRecentBooks();
-    const idx = list.findIndex(b => b.id === id);
-    if (idx >= 0) {
-        list[idx].unavailable = true;
-        saveRecentBooks(list);
-    }
-    alert('这本书好像找不到了，可能被移动或删除了，请重新选择一次文件。');
-    if (document.getElementById('library-overlay').classList.contains('show')) {
-        renderLibraryGrid();
-    }
+            const list = loadRecentBooks();
+            const idx = list.findIndex(b => b.id === id);
+            if (idx >= 0) {
+                list[idx].unavailable = true;
+                saveRecentBooks(list);
+            }
+            alert('这本书好像找不到了，可能被移动或删除了，请重新选择一次文件。');
+            if (document.getElementById('library-overlay').classList.contains('show')) {
+                renderLibraryGrid();
+            }
 };
 
 window.__onCheckExistenceResult = function (resultsJson) {
-    try {
-        const results = JSON.parse(resultsJson);
-        const list = loadRecentBooks();
-        let changed = false;
+            try {
+                const results = JSON.parse(resultsJson);
+                const list = loadRecentBooks();
+                let changed = false;
 
-        results.forEach(r => {
-            const idx = list.findIndex(b => b.id === r.id);
-            if (idx >= 0 && list[idx].unavailable !== !r.exists) {
-                list[idx].unavailable = !r.exists;
-                changed = true;
+                results.forEach(r => {
+                    const idx = list.findIndex(b => b.id === r.id);
+                    if (idx >= 0 && list[idx].unavailable !== !r.exists) {
+                        list[idx].unavailable = !r.exists;
+                        changed = true;
+                    }
+                });
+
+                if (changed) {
+                    saveRecentBooks(list);
+                }
+
+                if (document.getElementById('library-overlay').classList.contains('show')) {
+                    renderLibraryGrid();
+                }
+            } catch (err) {
+                console.log('__onCheckExistenceResult failed:', err);
             }
-        });
-
-        if (changed) {
-            saveRecentBooks(list);
-        }
-
-        if (document.getElementById('library-overlay').classList.contains('show')) {
-            renderLibraryGrid();
-        }
-    } catch (err) {
-        console.log('__onCheckExistenceResult failed:', err);
-    }
 };
 
 function openLibrary() {
-    renderLibraryGrid();
-    document.getElementById('library-overlay').classList.add('show');
+            renderLibraryGrid();
+            document.getElementById('library-overlay').classList.add('show');
 
-    if (!__isDisplayMode) {
-        window.location.href = "app://book/checkexistence";
-    }
+            if (!__isDisplayMode) {
+                window.location.href = "app://book/checkexistence";
+            }
 }
 
 function closeLibrary() {
-    document.getElementById('library-overlay').classList.remove('show');
+            document.getElementById('library-overlay').classList.remove('show');
 }
 
 function renderLibraryGrid() {
-    const grid = document.getElementById('library-grid');
-    grid.innerHTML = '';
+            const grid = document.getElementById('library-grid');
+            grid.innerHTML = '';
 
-    const addTile = document.createElement('div');
-    addTile.className = 'book-card book-card--add';
-    addTile.innerHTML = '<div class="book-card-cover"><span class="book-card-add-icon">＋</span></div><div class="book-card-title">Open New Book</div>';
-    addTile.onclick = () => { closeLibrary(); pickNewFile(); };
-    grid.appendChild(addTile);
+            const addTile = document.createElement('div');
+            addTile.className = 'book-card book-card--add';
+            addTile.innerHTML = '<div class="book-card-cover"><span class="book-card-add-icon">＋</span></div><div class="book-card-title">Open New Book</div>';
+            addTile.onclick = () => { closeLibrary(); pickNewFile(); };
+            grid.appendChild(addTile);
 
-    loadRecentBooks().forEach(book => {
-        const card = document.createElement('div');
-        card.className = 'book-card' + (book.unavailable ? ' unavailable' : '');
-        card.innerHTML =
-            '<div class="book-card-cover"><img src="' + (book.cover || '') + '" alt=""></div>' +
-            '<div class="book-card-spine"></div>' +
-            '<div class="book-card-title">' + escapeHtml(book.title) + '</div>';
-        card.onclick = () => {
-            closeLibrary();
-            reopenBook(book.id);
-        };
-        grid.appendChild(card);
-    });
+            loadRecentBooks().forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'book-card' + (book.unavailable ? ' unavailable' : '');
+                card.innerHTML =
+                    '<div class="book-card-cover"><img src="' + (book.cover || '') + '" alt=""></div>' +
+                    '<div class="book-card-spine"></div>' +
+                    '<div class="book-card-title">' + escapeHtml(book.title) + '</div>';
+                card.onclick = () => {
+                    closeLibrary();
+                    reopenBook(book.id);
+                };
+                grid.appendChild(card);
+            });
 }
 
 function openStats() {
-    renderStatsList();
-    document.getElementById('stats-overlay').classList.add('show');
+            renderStatsList();
+            document.getElementById('stats-overlay').classList.add('show');
 }
 
 function closeStats() {
-    document.getElementById('stats-overlay').classList.remove('show');
+            document.getElementById('stats-overlay').classList.remove('show');
 }
 
 function renderStatsList() {
-    const container = document.getElementById('stats-list');
-    container.innerHTML = '';
+            const container = document.getElementById('stats-list');
+            container.innerHTML = '';
 
-    const list = loadRecentBooks()
-        .slice()
-        .sort((a, b) => (b.lastCompletedAt || b.lastOpenedAt || 0) - (a.lastCompletedAt || a.lastOpenedAt || 0));
+            const list = loadRecentBooks()
+                .slice()
+                .sort((a, b) => (b.lastCompletedAt || b.lastOpenedAt || 0) - (a.lastCompletedAt || a.lastOpenedAt || 0));
 
-    if (list.length === 0) {
-        container.innerHTML = '<div class="stats-empty">还没有阅读记录</div>';
-        return;
-    }
+            if (list.length === 0) {
+                container.innerHTML = '<div class="stats-empty">还没有阅读记录</div>';
+                return;
+            }
 
-    list.forEach(book => {
-        const row = document.createElement('div');
-        row.className = 'stats-row';
+            list.forEach(book => {
+                const row = document.createElement('div');
+                row.className = 'stats-row';
 
-        const metaText = book.lastCompletedAt
-            ? ('最近读完：' + formatRelativeTime(book.lastCompletedAt))
-            : '还没有读完过';
+                const metaText = book.lastCompletedAt
+                    ? ('最近读完：' + formatRelativeTime(book.lastCompletedAt))
+                    : '还没有读完过';
 
-        row.innerHTML =
-            '<img src="' + (book.cover || '') + '" alt="">' +
-            '<div class="stats-row-info">' +
-                '<div class="stats-row-title">' + escapeHtml(book.title) + '</div>' +
-                '<div class="stats-row-meta">' + metaText + '</div>' +
-            '</div>' +
-            '<div class="stats-row-count">' + (book.readCount || 0) + '</div>';
+                row.innerHTML =
+                    '<img src="' + (book.cover || '') + '" alt="">' +
+                    '<div class="stats-row-info">' +
+                        '<div class="stats-row-title">' + escapeHtml(book.title) + '</div>' +
+                        '<div class="stats-row-meta">' + metaText + '</div>' +
+                    '</div>' +
+                    '<div class="stats-row-count">' + (book.readCount || 0) + '</div>';
 
-        container.appendChild(row);
-    });
+                container.appendChild(row);
+            });
 }
 
 function formatRelativeTime(ts) {
-    const diffMs = Date.now() - ts;
-    const diffMin = Math.round(diffMs / 60000);
-    if (diffMin < 1) return '刚刚';
-    if (diffMin < 60) return diffMin + ' 分钟前';
-    const diffHour = Math.round(diffMin / 60);
-    if (diffHour < 24) return diffHour + ' 小时前';
-    const diffDay = Math.round(diffHour / 24);
-    if (diffDay < 30) return diffDay + ' 天前';
-    const d = new Date(ts);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+            const diffMs = Date.now() - ts;
+            const diffMin = Math.round(diffMs / 60000);
+            if (diffMin < 1) return '刚刚';
+            if (diffMin < 60) return diffMin + ' 分钟前';
+            const diffHour = Math.round(diffMin / 60);
+            if (diffHour < 24) return diffHour + ' 小时前';
+            const diffDay = Math.round(diffHour / 24);
+            if (diffDay < 30) return diffDay + ' 天前';
+            const d = new Date(ts);
+            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
 function handleCloseClick() {
-    const isLastPage = currentIndex === pages.length - 1;
+            const isLastPage = currentIndex === pages.length - 1;
 
-    if (isLastPage) {
-        closeBook();
-        return;
-    }
+            if (isLastPage) {
+                closeBook();
+                return;
+            }
 
-    if (window.confirm('Are you sure you want to exit the current book?')) {
-        closeBook();
-    }
+            if (window.confirm('Are you sure you want to exit the current book?')) {
+                closeBook();
+            }
 }
 
 function closeBook() {
-    if (pages.length > 0 && currentIndex === pages.length - 1) {
-        recordBookCompleted();
-    }
+            if (pages.length > 0 && currentIndex === pages.length - 1) {
+                recordBookCompleted();
+            }
 
-    stopAudio();
+            stopAudio();
 
-    pages = [];
-    currentIndex = 0;
-    currentBookId = null;
-    currentBookMeta = null;
+            pages = [];
+            currentIndex = 0;
+            currentBookId = null;
+            currentBookMeta = null;
 
-    if (settingsModal.classList.contains('show')) {
-        settingsModal.classList.remove('show');
-    }
+            if (settingsModal.classList.contains('show')) {
+                settingsModal.classList.remove('show');
+            }
 
-    viewport.style.display = 'none';
-    uploadContainer.style.display = 'flex';
+            viewport.style.display = 'none';
+            uploadContainer.style.display = 'flex';
 
-    document.getElementById('file-input').value = '';
+            document.getElementById('file-input').value = '';
 
-    window.location.href = "app://orientation/portrait";
+            window.location.href = "app://orientation/portrait";
 
-    if (!__isDisplayMode) {
-        setTimeout(() => {
-            window.location.href = "app://display/close";
-        }, 60);
-    }
+            if (!__isDisplayMode) {
+                setTimeout(() => {
+                    window.location.href = "app://display/close";
+                }, 60);
+            }
 }
 
 function updateNavState() {
-    prevBtn.disabled = currentIndex === 0;
-    nextBtn.disabled = currentIndex === pages.length - 1;
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === pages.length - 1;
 }
 
 function layoutImage() {
-    if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
-        return;
-    }
+            if (!imgEl.naturalWidth || !imgEl.naturalHeight) {
+                return;
+            }
 
-    const originalWidth = imgEl.naturalWidth;
-    const originalHeight = imgEl.naturalHeight;
+            const originalWidth = imgEl.naturalWidth;
+            const originalHeight = imgEl.naturalHeight;
 
-    const scale = Math.min(
-        STAGE_WIDTH / originalWidth,
-        STAGE_HEIGHT / originalHeight
-    );
+            const scale = Math.min(
+                STAGE_WIDTH / originalWidth,
+                STAGE_HEIGHT / originalHeight
+            );
 
-    const width = originalWidth * scale;
-    const height = originalHeight * scale;
+            const width = originalWidth * scale;
+            const height = originalHeight * scale;
 
-    imgEl.style.width = width + 'px';
-    imgEl.style.height = height + 'px';
-    imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
-    imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
+            imgEl.style.width = width + 'px';
+            imgEl.style.height = height + 'px';
+            imgEl.style.left = ((STAGE_WIDTH - width) / 2) + 'px';
+            imgEl.style.top = ((STAGE_HEIGHT - height) / 2) + 'px';
 }
 
 function loadPage(index, notifyDisplay = true) {
-    if (index < 0 || index >= pages.length) return;
+            if (index < 0 || index >= pages.length) return;
 
-    currentIndex = index;
-    stopAudio();
+            currentIndex = index;
+            stopAudio();
 
-    const page = pages[currentIndex];
+            const page = pages[currentIndex];
 
-    imgEl.onload = layoutImage;
-    imgEl.src = page.image || '';
+            imgEl.onload = layoutImage;
+            imgEl.src = page.image || '';
 
-    updateNavState();
-    renderSentenceButtons(page);
+            updateNavState();
+            renderSentenceButtons(page);
 
-    if (imgEl.complete) {
-        layoutImage();
-    }
+            if (imgEl.complete) {
+                layoutImage();
+            }
 
-    currentAudioIndex = -1;
-    updateAudioControlsUI();
+            currentAudioIndex = -1;
+            updateAudioControlsUI();
 
-    if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
-        playAudioAt(0);
-    }
+            if (!__isDisplayMode && autoPlayFirstAudio && page.sentenceAudios && page.sentenceAudios.length > 0) {
+                playAudioAt(0);
+            }
 
-    if (!__isDisplayMode && notifyDisplay) {
-        setTimeout(() => {
-            window.location.href = "app://display/page/" + currentIndex;
-        }, 30);
-    }
+            if (!__isDisplayMode && notifyDisplay) {
+                setTimeout(() => {
+                    window.location.href = "app://display/page/" + currentIndex;
+                }, 30);
+            }
 }
 
 function renderSentenceButtons(page) {
-    btnContainer.innerHTML = '';
+            btnContainer.innerHTML = '';
 
-    if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
-        return;
-    }
+            if (!page.sentenceAudios || page.sentenceAudios.length === 0) {
+                return;
+            }
 
-    const btnWidth = 60;
-    const btnHeight = 48;
-    const spacing = 8;
+            const btnWidth = 60;
+            const btnHeight = 48;
+            const spacing = 8;
 
-    const topMargin = 8;
+            const topMargin = 8;
 
-    const navButtonHeight = 70;
-    const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
-    const nextBtnBottom = nextBtnTop + navButtonHeight;
-    const skipGap = 8;
+            const navButtonHeight = 70;
+            const nextBtnTop = (STAGE_HEIGHT - navButtonHeight) / 2;
+            const nextBtnBottom = nextBtnTop + navButtonHeight;
+            const skipGap = 8;
 
-    /* 避开右侧控制组 (宽 60px + 边距 15px + 间距) */
-    const baseLeft = STAGE_WIDTH - 90 - btnWidth;
+            /* 避开右侧控制组 (宽 60px + 边距 15px + 间距) */
+            const baseLeft = STAGE_WIDTH - 90 - btnWidth;
 
-    const macaronColors = [
-        '#FF9AA2',
-        '#FFB7B2',
-        '#FFDAC1',
-        '#E2F0CB',
-        '#B5EAD7',
-        '#C7CEEA'
-    ];
+            const macaronColors = [
+                '#FF9AA2',
+                '#FFB7B2',
+                '#FFDAC1',
+                '#E2F0CB',
+                '#B5EAD7',
+                '#C7CEEA'
+            ];
 
-    page.sentenceAudios.forEach((audioUri, idx) => {
-        const col = Math.floor(idx / 8);
-        const row = idx % 8;
+            page.sentenceAudios.forEach((audioUri, idx) => {
+                const col = Math.floor(idx / 8);
+                const row = idx % 8;
 
-        const left = baseLeft - col * (btnWidth + spacing);
+                const left = baseLeft - col * (btnWidth + spacing);
 
-        let top;
-        if (row < 4) {
-            top = topMargin + row * (btnHeight + spacing);
-        } else {
-            top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
-        }
+                let top;
+                if (row < 4) {
+                    top = topMargin + row * (btnHeight + spacing);
+                } else {
+                    top = nextBtnBottom + skipGap + (row - 4) * (btnHeight + spacing);
+                }
 
-        if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
-            return;
-        }
+                if (left < 10 || top + btnHeight > STAGE_HEIGHT - 10) {
+                    return;
+                }
 
-        const btn = document.createElement('button');
-        btn.className = 'audio-num-btn';
-        btn.style.left = left + 'px';
-        btn.style.top = top + 'px';
-        btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
-        btn.textContent = String(idx + 1);
+                const btn = document.createElement('button');
+                btn.className = 'audio-num-btn';
+                btn.style.left = left + 'px';
+                btn.style.top = top + 'px';
+                btn.style.backgroundColor = macaronColors[idx % macaronColors.length];
+                btn.textContent = String(idx + 1);
 
-        btn.onclick = function(e) {
-            e.stopPropagation();
-            playSingleAudio(audioUri, btn);
-        };
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    playSingleAudio(audioUri, btn);
+                };
 
-        btnContainer.appendChild(btn);
-    });
+                btnContainer.appendChild(btn);
+            });
 }
 
 function playSingleAudio(uri, btnEl) {
-    stopAudio();
+            stopAudio();
 
-    if (!uri) return;
+            if (!uri) return;
 
-    if (btnEl) {
-        currentPlayingBtn = btnEl;
-        currentPlayingBtn.classList.add('playing');
-    }
+            if (btnEl) {
+                currentPlayingBtn = btnEl;
+                currentPlayingBtn.classList.add('playing');
+            }
 
-    audioEl.src = uri;
-    audioEl.onended = function() {
-        stopAudio();
-    };
+            audioEl.src = uri;
+            audioEl.onended = function() {
+                stopAudio();
+            };
 
-    audioEl.play().catch(err => {
-        console.log('Playback restricted:', err);
-    });
+            audioEl.play().catch(err => {
+                console.log('Playback restricted:', err);
+            });
 }
 
 function stopAudio() {
-    audioEl.pause();
-    audioEl.removeAttribute('src');
-    audioEl.load();
-    audioEl.onended = null;
+            audioEl.pause();
+            audioEl.removeAttribute('src');
+            audioEl.load();
+            audioEl.onended = null;
 
-    if (currentPlayingBtn) {
-        currentPlayingBtn.classList.remove('playing');
-        currentPlayingBtn = null;
-    }
+            if (currentPlayingBtn) {
+                currentPlayingBtn.classList.remove('playing');
+                currentPlayingBtn = null;
+            }
 
-    if (audioPlayBtn) {
-        audioPlayBtn.classList.remove('playing');
-    }
+            if (audioPlayBtn) {
+                audioPlayBtn.classList.remove('playing');
+            }
 }
 
 const SPEED_STEPS = [1, 1.1, 1.2, 1.3, 1.4, 1.5];
@@ -1353,128 +1414,128 @@ let currentAudioIndex = -1;
 let currentPlaybackRate = 1;
 
 function currentSentenceAudios() {
-    const page = pages[currentIndex];
-    return (page && page.sentenceAudios) ? page.sentenceAudios : [];
+            const page = pages[currentIndex];
+            return (page && page.sentenceAudios) ? page.sentenceAudios : [];
 }
 
 function formatSpeedLabel(rate) {
-    return rate.toFixed(1).replace(/\.0$/, '') + 'x';
+            return rate.toFixed(1).replace(/\.0$/, '') + 'x';
 }
 
 function updateAudioControlsUI() {
-    const list = currentSentenceAudios();
-    const total = list.length;
+            const list = currentSentenceAudios();
+            const total = list.length;
 
-    /* 有音频时显示控制组 */
-    audioControls.style.display = total > 0 ? 'block' : 'none';
-    if (total === 0) return;
+            /* 有音频时显示控制组 */
+            audioControls.style.display = total > 0 ? 'block' : 'none';
+            if (total === 0) return;
 
-    const displayNum = currentAudioIndex >= 0 ? (currentAudioIndex + 1) : 1;
-    audioPlayBtn.textContent = displayNum + '/' + total + ' ▶';
+            const displayNum = currentAudioIndex >= 0 ? (currentAudioIndex + 1) : 1;
+            audioPlayBtn.textContent = displayNum + '/' + total + ' ▶';
 
-    audioPrevBtn.disabled = currentAudioIndex <= 0;
-    audioNextBtn.disabled = currentAudioIndex >= total - 1;
-    audioSpeedBtn.textContent = formatSpeedLabel(currentPlaybackRate);
+            audioPrevBtn.disabled = currentAudioIndex <= 0;
+            audioNextBtn.disabled = currentAudioIndex >= total - 1;
+            audioSpeedBtn.textContent = formatSpeedLabel(currentPlaybackRate);
 
-    document.querySelectorAll('.speed-option').forEach(btn => {
-        const rate = parseFloat(btn.textContent);
-        btn.classList.toggle('active', Math.abs(rate - currentPlaybackRate) < 0.001);
-    });
+            document.querySelectorAll('.speed-option').forEach(btn => {
+                const rate = parseFloat(btn.textContent);
+                btn.classList.toggle('active', Math.abs(rate - currentPlaybackRate) < 0.001);
+            });
 }
 
 function playAudioAt(index) {
-    const list = currentSentenceAudios();
-    if (index < 0 || index >= list.length) return;
+            const list = currentSentenceAudios();
+            if (index < 0 || index >= list.length) return;
 
-    currentAudioIndex = index;
-    updateAudioControlsUI();
-    playSentenceAudio(list[index]);
+            currentAudioIndex = index;
+            updateAudioControlsUI();
+            playSentenceAudio(list[index]);
 }
 
 function playSentenceAudio(uri) {
-    stopAudio();
+            stopAudio();
 
-    if (!uri) return;
+            if (!uri) return;
 
-    audioEl.src = uri;
-    audioEl.playbackRate = currentPlaybackRate;
+            audioEl.src = uri;
+            audioEl.playbackRate = currentPlaybackRate;
 
-    audioEl.onloadedmetadata = function () {
-        audioEl.playbackRate = currentPlaybackRate;
-    };
+            audioEl.onloadedmetadata = function () {
+                audioEl.playbackRate = currentPlaybackRate;
+            };
 
-    audioEl.onended = function () {
-        audioPlayBtn.classList.remove('playing');
-    };
+            audioEl.onended = function () {
+                audioPlayBtn.classList.remove('playing');
+            };
 
-    audioPlayBtn.classList.add('playing');
+            audioPlayBtn.classList.add('playing');
 
-    audioEl.play().catch(err => {
-        console.log('Playback restricted:', err);
-    });
+            audioEl.play().catch(err => {
+                console.log('Playback restricted:', err);
+            });
 }
 
 function handleAudioPrev() {
-    if (currentAudioIndex > 0) {
-        playAudioAt(currentAudioIndex - 1);
-    }
+            if (currentAudioIndex > 0) {
+                playAudioAt(currentAudioIndex - 1);
+            }
 }
 
 function handleAudioNext() {
-    if (currentAudioIndex < currentSentenceAudios().length - 1) {
-        playAudioAt(currentAudioIndex + 1);
-    }
+            if (currentAudioIndex < currentSentenceAudios().length - 1) {
+                playAudioAt(currentAudioIndex + 1);
+            }
 }
 
 function handleAudioReplay() {
-    if (currentAudioIndex >= 0) {
-        playAudioAt(currentAudioIndex);
-    } else if (currentSentenceAudios().length > 0) {
-        playAudioAt(0);
-    }
+            if (currentAudioIndex >= 0) {
+                playAudioAt(currentAudioIndex);
+            } else if (currentSentenceAudios().length > 0) {
+                playAudioAt(0);
+            }
 }
 
 function toggleSpeedModal(e) {
-    e.stopPropagation();
-    document.getElementById('speed-modal').classList.toggle('show');
+            e.stopPropagation();
+            document.getElementById('speed-modal').classList.toggle('show');
 }
 
 function closeSpeedModal() {
-    document.getElementById('speed-modal').classList.remove('show');
+            document.getElementById('speed-modal').classList.remove('show');
 }
 
 function selectSpeed(rate) {
-    currentPlaybackRate = rate;
-    closeSpeedModal();
-    updateAudioControlsUI();
+            currentPlaybackRate = rate;
+            closeSpeedModal();
+            updateAudioControlsUI();
 }
 
 function nextPage() {
-    if (currentIndex < pages.length - 1) {
-        loadPage(currentIndex + 1);
-    }
+            if (currentIndex < pages.length - 1) {
+                loadPage(currentIndex + 1);
+            }
 }
 
 function prevPage() {
-    if (currentIndex > 0) {
-        loadPage(currentIndex - 1);
-    }
+            if (currentIndex > 0) {
+                loadPage(currentIndex - 1);
+            }
 }
 
 document.addEventListener('keydown', function(e) {
-    if (viewport.style.display === 'block') {
-        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
-            nextPage();
-        }
+            if (viewport.style.display === 'block') {
+                if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                    nextPage();
+                }
 
-        if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
-            prevPage();
-        }
+                if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                    prevPage();
+                }
 
-        if (e.key === 'Escape') {
-            handleCloseClick();
-        }
-    }
+                if (e.key === 'Escape') {
+                    handleCloseClick();
+                }
+            }
 });
 
 let touchStartX = 0;
@@ -1486,75 +1547,114 @@ const SWIPE_MAX_DURATION = 600;
 const SWIPE_MAX_VERTICAL = 60;
 
 function isInteractiveSwipeTarget(target) {
-    return !!(target && target.closest && target.closest(
-        '.nav-btn, #back-btn, #settings-btn, #settings-modal, .audio-num-btn, #audio-controls'
-    ));
+            return !!(target && target.closest && target.closest(
+                '.nav-btn, #back-btn, #settings-btn, #settings-modal, .audio-num-btn, #audio-controls'
+            ));
 }
 
 viewport.addEventListener('touchstart', (e) => {
-    if (__isDisplayMode || !pages.length || e.touches.length !== 1) return;
-    if (isInteractiveSwipeTarget(e.target)) return;
+            if (__isDisplayMode || !pages.length || e.touches.length !== 1) return;
+            if (isInteractiveSwipeTarget(e.target)) return;
 
-    const t = e.touches[0];
-    touchStartX = t.clientX;
-    touchStartY = t.clientY;
-    touchStartTime = Date.now();
+            const t = e.touches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchStartTime = Date.now();
 }, { passive: true });
 
 viewport.addEventListener('touchend', (e) => {
-    if (__isDisplayMode || !pages.length || !touchStartTime) return;
-    if (isInteractiveSwipeTarget(e.target)) {
-        touchStartTime = 0;
-        return;
-    }
+            if (__isDisplayMode || !pages.length || !touchStartTime) return;
+            if (isInteractiveSwipeTarget(e.target)) {
+                touchStartTime = 0;
+                return;
+            }
 
-    const t = e.changedTouches[0];
-    const deltaX = t.clientX - touchStartX;
-    const deltaY = t.clientY - touchStartY;
-    const duration = Date.now() - touchStartTime;
-    touchStartTime = 0;
+            const t = e.changedTouches[0];
+            const deltaX = t.clientX - touchStartX;
+            const deltaY = t.clientY - touchStartY;
+            const duration = Date.now() - touchStartTime;
+            touchStartTime = 0;
 
-    if (duration > SWIPE_MAX_DURATION) return;
-    if (Math.abs(deltaY) > SWIPE_MAX_VERTICAL) return;
-    if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
+            if (duration > SWIPE_MAX_DURATION) return;
+            if (Math.abs(deltaY) > SWIPE_MAX_VERTICAL) return;
+            if (Math.abs(deltaX) < SWIPE_MIN_DISTANCE) return;
 
-    if (deltaX < 0) {
-        if (currentIndex < pages.length - 1) {
-            nextPage();
-        } else {
-            closeBook();
-        }
-    } else {
-        if (currentIndex > 0) {
-            prevPage();
-        }
-    }
+            if (deltaX < 0) {
+                if (currentIndex < pages.length - 1) {
+                    nextPage();
+                } else {
+                    closeBook();
+                }
+            } else {
+                if (currentIndex > 0) {
+                    prevPage();
+                }
+            }
 }, { passive: true });
 
 window.__loadBookFromNative = function (pagesJson) {
-    try {
-        pages = JSON.parse(pagesJson);
-        if (!pages || pages.length === 0) return;
+            try {
+                pages = JSON.parse(pagesJson);
+                if (!pages || pages.length === 0) return;
 
-        uploadContainer.style.display = 'none';
-        viewport.style.display = 'block';
-        resizeStage();
-    } catch (err) {
-        console.error('__loadBookFromNative failed:', err);
-    }
+                uploadContainer.style.display = 'none';
+                viewport.style.display = 'block';
+                resizeStage();
+
+                hideDisplayIdle();   // 有书了，隐藏等待画面
+            } catch (err) {
+                console.error('__loadBookFromNative failed:', err);
+            }
 };
 
 window.__showPageFromNative = function (index) {
-    if (!pages || pages.length === 0) return;
-    loadPage(index);
+            if (!pages || pages.length === 0) return;
+            loadPage(index);
 };
 
 window.__closeBookFromNative = function () {
-    stopAudio();
-    pages = [];
-    currentIndex = 0;
-    viewport.style.display = 'none';
+            stopAudio();
+            pages = [];
+            currentIndex = 0;
+            viewport.style.display = 'none';
+
+            showDisplayIdle();   // 书关掉了，回到等待画面
 };
+
+/* ============ 外接屏等待画面（静态提示） ============ */
+
+function showDisplayIdle() {
+            if (!__isDisplayMode) return;
+            const idle = document.getElementById('display-idle');
+            if (idle) idle.classList.add('show');
+}
+
+function hideDisplayIdle() {
+            const idle = document.getElementById('display-idle');
+            if (idle) idle.classList.remove('show');
+}
+
+/* 启动：如果是 display 模式且还没书，显示等待画面 */
+(function initDisplayIdle() {
+            if (__isDisplayMode) {
+                showDisplayIdle();
+            }
+})();
+
+/* ============ 兜底：锁屏解锁 / 切回前台时重新发方向指令 ============ */
+/* 与 MainPage.xaml.cs 里的 DidBecomeActive 订阅形成双保险：
+           主屏（非 display 模式）在页面重新可见且正在阅读时，主动发一次横屏指令，
+           防止 iOS 在后台按 Info.plist 默认方向把界面恢复成竖屏后不再切回横屏。 */
+document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible'
+                && !__isDisplayMode
+                && pages.length > 0) {
+                // 稍微延迟，等 WebView 完成布局，避免和系统恢复方向的操作打架
+                setTimeout(() => {
+                    window.location.href = "app://orientation/landscape";
+                }, 200);
+            }
+});
     </script>
 
 </body>
